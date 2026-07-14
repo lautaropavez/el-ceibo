@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es-AR" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">    
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="author" content="Lautaro Pavez"> 
+        <title>Libreria El Ceibo - Registro</title>
+        <!-- Icono página-->
+        <link rel="icon" type="image/x-icon" href="/img/ceibo.svg">
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/css/login-style.css" type="text/css" rel="stylesheet" />
+    </head>
+    <body id="page-top"> 
+        <!-- Navigation--> 
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#page-top">
+                    <img src="/img/ceibo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+                        EL CEIBO
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a href="/registro" class="nav-link" >Registrate</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/login" class="nav-link" >Log In</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav> 
+        <!-- Header-->
+        <header class="masthead text-center text-white">
+            <div class="masthead-content">
+                <div class="container px-5">
+                    <h1 class="masthead-heading mb-0">Una Libreria</h1>
+                    <h2 class="masthead-subheading mb-0">que cambia tu vida</h2>
+                    <!-- <a class="btn btn-primary btn-xl rounded-pill mt-5" href="#scroll">Learn More</a> -->
+                    <a href="/registro " class="btn btn-primary btn-xl rounded-pill mt-5" >¡Registrate!</a>
+                </div>
+            </div>
+            <div class="bg-circle-1 bg-circle"></div>
+            <div class="bg-circle-2 bg-circle"></div>
+            <div class="bg-circle-3 bg-circle"></div>
+            <div class="bg-circle-4 bg-circle"></div>
+        </header>
+        <!-- Content section 1-->
+        <section>
+            <div class="container px-5">
+                <div class="row gx-5 align-items-center">
+                    <div class="col-lg-6 order-lg-2">
+                        <div class="p-5"><img class="img-fluid rounded-circle" src="img/librosmano.jpg" alt="..." /></div>
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <div class="p-5">
+                            <div th:if="${exito}!=null" class="card text-white bg-success mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Exito</h5>
+                                    <p class="card-text" th:text="${exito}"></p> 
+                                </div>
+                            </div>
+                            <div th:if="${error != null}" class="card text-white bg-danger mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Error</h5>
+                                    <p class="card-text"th:text="${error}"></p> 
+                                </div>
+                            </div>
+                            <form action="/registrar" method="POST" id="form">  <!-- Cuando yo haga click en registrarme, va a ejecutar una action que es una URL, entonces action le ponemos el nombre de la action que se va a ejecutar en el servidor-->
+                                <div class="form">
+                                    <h2 class="">Registro</h2>
+                                    
+                                    <!--<p th:if="${error != null}" th:text="${error}" style="color:red"></p> Forma que lo hace profe MVC vid 2 .Este if va a imprimir o mostrar el contenido de este párrafo si se cumple la condición que ponemos dentro, si en el modelo viene la variable error voy a mostrar este párrafo -->
+                                    
+                                    <div class="grupo">
+                                        <input type="text" name="nombre" id="name" th:value="${nombre}" required><span class="barra"></span>
+                                        <label>Nombre</label>
+                                    </div>
+                                    <div class="grupo"> 
+                                        <input type="text" name="apellido" id="apellido" th:value="${apellido}" required><span class="barra"></span>                                      
+                                        <label>Apellido</label>
+                                    </div>
+                                    <div class="grupo">
+                                        <input type="email" name="mail" id="mail" th:value="${mail}" required><span class="barra"></span>
+                                        <label>Email</label>
+                                    </div>
+                                    <div class="grupo">
+                                        <input type="password" name="clave1" id="clave1" th:value="${clave1}" required><span class="barra"></span>
+                                        <label>Contraseña</label>
+                                    </div>
+                                    <div class="grupo">
+                                        <input type="password" name="clave2" id="clave2" th:value="${clave2}" required><span class="barra"></span>
+                                            <label>Repetir Contraseña</label>
+                                    </div>
+                                    <button type="submit">Guardar</button>   
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Hecho en clase thymeleaf min 56-->
+        <section class="py-5 text center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-2 col-md-8 mx-auto">
+                    <a th:href="@{/}" class="btn btn-primary btn-xl rounded-pill mt-5">Volver</a>
+                </div>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer th:replace="/fragments/footer :: footer"></footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
+

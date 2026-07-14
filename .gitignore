@@ -1,0 +1,26 @@
+# Compilados / build
+target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+
+# IDE / editores
+.idea/
+*.iml
+.vscode/
+nbactions.xml
+nb-configuration.xml
+.classpath
+.project
+.settings/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Configuración local sensible
+application-local.properties
+.env

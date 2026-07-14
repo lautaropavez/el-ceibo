@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es-AR" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="/fragments/head :: head (pageTitle='Libreria El Ceibo - Lista de Libros')"></head>
+    <body id="body">
+        <header>
+            <nav th:replace="/fragments/nav :: nav"></nav>
+        </header>
+        <div th:replace="/fragments/sidebar :: div"></div>
+        <div th:replace="/fragments/message :: div"></div>
+       <!-- Lista -->
+        <div class="container-fluid m-3">
+            <div class="card mt-2">
+                <div class="card-header d-flex bg-dark text-white-50">
+                  <h1>Lista de Editoriales Registradas</h1>
+                </div>
+                <div class="card-body">
+                    <form class="row g-3" th:action="@{/editorial/lista}" method="get">
+                        <div class="col">
+                            <input type="text" style="width: 100%;" name="buscar" placeholder="Buscar...">
+                        </div>
+                        <div class="col-3">
+                          <!-- se pueden ocultar botones segun el rol con sec:authorize="hasRole('ADMIN')" -->
+                          <button type="submit" class="btn btn-dark mb-3 p-2"><i class="fas fa-search"></i> Buscar</button>
+                          <a th:href="@{/editorial/registroEditorial}" class="btn btn-primary mb-3 p-2">NUEVA EDITORIAL</a>
+                          <a th:href="@{/editorial/lista/?format=pdf}" class="btn btn-info mb-3 p-2"><i class="far fa-file-alt"></i> PDF</a>
+                        </div>
+                    </form>
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Nombre</th>
+                                <!-- con sec:authorize="hasRole('ADMIN')" podria ocultar columnas segun el rol -->
+                                <th>Estado</th>
+                                <th>Administracion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Si quiero que solo se muestren segun el tributo alta debo agregar la linea  th:if="${p.alta} == TRUE" -->
+                            <tr  th:each="editorial : ${editoriales}">
+                                <td th:text="${editorial.id}"></td>
+                                <td th:text="${editorial.nombre}"></td>
+                                <!-- Forma con PathVariable-->
+                                <td>
+                                  <span th:if="${editorial.alta}" style="color: chartreuse;"><p>Activo</p></span>
+                                  <span th:unless="${editorial.alta}" style="color:rgb(231, 67, 17)"><p>Baja</p></span>
+                                </td>
+                                <td>
+                                  <a th:if="${editorial.alta} == true" class="mx-2" th:href="@{/editorial/baja/__${editorial.id}__}" title="Dar de baja"><i class="fas fa-arrow-circle-down" style="color:rgb(231, 67, 17)"></i></a> 
+                                  <a th:if="${editorial.alta} == false" class="mx-2" th:href="@{/editorial/alta/__${editorial.id}__}" title="Dar de alta"><i class="fas fa-arrow-circle-up" style="color:rgb(57, 204, 37)"></i></a> 
+                                  <a th:href="@{/editorial/eliminar/__${editorial.id}__}"  class="mx-2" title="Eliminar"><i class="fas fa-trash-alt" style="color: cornflowerblue;"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <p th:if="${editoriales.isEmpty}">No hay editoriales para mostrar</p>
+                    </table>
+                </div>
+            </div>
+        </div> 
+        <!-- Footer-->
+        <footer th:replace="/fragments/footer :: footer"></footer>
+        <!-- Bootstrap js -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- Sidebar js -->
+        <script src="/js/sidebar.js"></script>
+    </body>
+</html>
+    

@@ -1,0 +1,6 @@
+# Plantilla de configuración local. Copiar como "application-local.properties"
+# (en la raíz del proyecto) y completar con los datos reales de tu MySQL local.
+# Ese archivo NO se sube a Git (ver .gitignore).
+spring.datasource.url=jdbc:mysql://localhost:3306/nombre_base_de_datos?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=GMT&characterEncoding=UTF-8
+spring.datasource.username=usuario_de_ejemplo
+spring.datasource.password=clave_de_ejemplo
