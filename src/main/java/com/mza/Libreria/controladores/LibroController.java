@@ -78,12 +78,10 @@ public class LibroController {
          return "list-libro";
     }
         
-    //IN PROCESS
-    @GetMapping("/biblioteca") 
-    public String biblioteca(ModelMap modelo){
-       // List<Libro> librosLista = servLibro.listarTodos();
-      //  modelo.addAttribute("libros",librosLista); 
-       return "/fragments/nada"; 
+    // IN PROCESS
+    @GetMapping("/biblioteca")
+    public String biblioteca(ModelMap modelo) {
+        return "biblioteca";
     }
     
     @GetMapping("/modificar/{id}") 
