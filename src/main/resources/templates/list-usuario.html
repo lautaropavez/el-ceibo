@@ -32,7 +32,6 @@
                                 <th>Nombre</th>
                                 <th>Apellido</th>
                                 <th>Mail</th>
-                                <th>Clave</th>
                                 <!-- con sec:authorize="hasRole('ADMIN')" podria ocultar columnas segun el rol -->
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -46,7 +45,6 @@
                                 <td th:text="${usuario.nombre}"></td>
                                 <td th:text="${usuario.apellido}"></td>
                                 <td th:text="${usuario.mail}"></td>
-                                <td th:text="${usuario.clave}"></td>
                                 <!--  == true ? 'Activo' : 'Baja' (NO ME SIRVIÓ DE ESTA MANERA)  Con esa instruccion consulto si el campo alta es true cambia 
                                   por Activo sino cambia por Baja -->
                                 <!-- <td sec:authorize="hasRole('ADMIN')" th:text="${p.alta} == true ? 'Activo' : 'Baja' "></td> -->
