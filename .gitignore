@@ -24,6 +24,9 @@ Thumbs.db
 # Configuración local sensible
 application-local.properties
 .env
+*.env
+*secret*
+*credentials*
 
 # Backups de trabajo locales (no forman parte del código)
 spring-security-wip.diff
