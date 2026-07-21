@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -28,7 +29,10 @@ public class ServiceUsuario {
     
     @Autowired
     private ServiceNotificacion sNotific;
-    
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional
     public void registrar(String nombre,String apellido,String mail,String clave, String clave2) throws MiExcepcion{
    
@@ -39,8 +43,8 @@ public class ServiceUsuario {
         usuario.setApellido(apellido);
         usuario.setMail(mail);
         usuario.setRol(Rol.USUARIO);
-        usuario.setClave(clave);
-        
+        usuario.setClave(passwordEncoder.encode(clave));
+
         usuario.setAlta(new Date());
         usuario.setBaja(null);
         
@@ -48,25 +52,43 @@ public class ServiceUsuario {
     }
     
     @Transactional
-    public void modificar(String id,String nombre,String apellido,String mail,String clave,String clave2) throws MiExcepcion{
-        
-        validacion(nombre,apellido,mail,clave,clave2);
-        
-        Optional<Usuario> respuesta = usuarioRepo.findById(id); //Este método nos devuelve una clase Optional como respuesta 
-        if(respuesta.isPresent()){ //Y nos dice si el resultado está presente, osea si encontró un resultado con este id
+    public void modificar(String id, String nombre, String apellido, String mail, String clave, String clave2) throws MiExcepcion {
+
+        validacionDatosBasicos(nombre, apellido, mail);
+
+        boolean claveVacia = (clave == null || clave.trim().isEmpty());
+        boolean clave2Vacia = (clave2 == null || clave2.trim().isEmpty());
+
+        if (!claveVacia && clave2Vacia) {
+            throw new MiExcepcion("Debe repetir la nueva clave");
+        }
+        if (claveVacia && !clave2Vacia) {
+            throw new MiExcepcion("Debe ingresar la nueva clave");
+        }
+
+        Optional<Usuario> respuesta = usuarioRepo.findById(id);
+        if (respuesta.isPresent()) {
             Usuario usuario = respuesta.get();
             usuario.setNombre(nombre);
             usuario.setApellido(apellido);
             usuario.setMail(mail);
-            usuario.setClave(clave);
 
-            
+            if (!claveVacia) {
+                if (clave.length() < 8) {
+                    throw new MiExcepcion("La clave no puede tener menos de 8 caracteres");
+                }
+                if (!clave.equals(clave2)) {
+                    throw new MiExcepcion("Las claves deben ser iguales");
+                }
+                usuario.setClave(passwordEncoder.encode(clave));
+            }
+
             usuarioRepo.save(usuario);
-        }else{
-         throw new MiExcepcion("No se encontró el usuario ingresado");   
-        }  
+        } else {
+            throw new MiExcepcion("No se encontró el usuario ingresado");
+        }
     }
-    
+
     @Transactional(readOnly = true)
     public Usuario buscarPorId(String id){
         Usuario u = usuarioRepo.buscarPorId(id);
@@ -157,6 +179,21 @@ public class ServiceUsuario {
         
         if(!clave1.equals(clave2)) {
             throw new MiExcepcion("Las claves deben ser iguales");
+        }
+    }
+
+    private void validacionDatosBasicos(String nombre, String apellido, String mail) throws MiExcepcion {
+        if (nombre == null || nombre.isEmpty()) {
+            throw new MiExcepcion("Debe indicar el nombre");
+        }
+        if (apellido == null || apellido.isEmpty()) {
+            throw new MiExcepcion("Debe indicar el apellido");
+        }
+        if (mail == null || mail.isEmpty()) {
+            throw new MiExcepcion("Debe indicar el correo electrónico");
+        }
+        if (mail.contains("@") == false) {
+            throw new MiExcepcion("El correo electrónico es incorrecto");
         }
     }
 }
