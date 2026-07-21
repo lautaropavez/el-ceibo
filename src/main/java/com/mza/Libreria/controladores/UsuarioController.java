@@ -41,11 +41,12 @@ public class UsuarioController {
     public String modificar(ModelMap modelo,@PathVariable String id,@RequestParam String nombre,@RequestParam String apellido,@RequestParam String mail,@RequestParam String clave,@RequestParam String clave2)throws Exception{
         try{
             servUsuario.modificar(id,nombre,apellido,mail,clave,clave2);
-            modelo.put("exito","Modificación exitosa"); 
-            return lista(modelo);   
+            modelo.put("exito","Modificación exitosa");
+            return lista(modelo);
         }catch(Exception e){
-            modelo.put("error","Falto algún dato"); 
-            return "modif-Usuario"; 
+            modelo.put("error", e.getMessage());
+            modelo.put("usuario", servUsuario.buscarPorId(id));
+            return "modif-Usuario";
         }
     }
     
