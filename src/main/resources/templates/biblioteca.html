@@ -54,32 +54,33 @@
         </header>
         <!-- Section-->
         <section class="py-5">
-            <div class="container px-4 px-lg-5 mt-5" th:action="@{/libros/lista}">
-                <!-- th:each="libro : ${libros}" -->
-                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" th:each="libro : ${libros}">
-                    <div class="col mb-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <form class="row g-3 mb-4" method="get" th:action="@{/libro/biblioteca}">
+                    <div class="col-auto">
+                        <input type="text" class="form-control" name="buscar" th:value="${buscar}" placeholder="Buscar por título, autor o editorial...">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-dark">Buscar</button>
+                    </div>
+                </form>
+                <p th:if="${#lists.isEmpty(libros)}" class="text-center">No hay libros para mostrar.</p>
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    <div class="col mb-5" th:each="libro : ${libros}">
                         <div class="card h-100">
-                        <input type="hidden" th:value= "${id}" name= "id">
-                            <!-- Product image-->
-                     <!--        <img th:if="${libro.portada} != null" class="card-img-top" th:src="${'/portada/libro/' + libro.portada}" alt="..." />
-                    <!--    <img th:if="${libro.portada == null}" class="card-img-top" th:src="${/img/violeta.jpg}" alt="..." />  -->
-                            <img class="card-img-top" th:src="@{/img/violeta.jpg}" alt="..." />
-
-                            <!-- Product details-->
+                            <img th:if="${libro.portada != null}" class="card-img-top" th:src="@{/portada/libro/{id}(id=${libro.id})}" alt="Portada"/>
+                            <img th:if="${libro.portada == null}" class="card-img-top" th:src="@{/img/violeta.jpg}" alt="Sin portada"/>
                             <div class="card-body p-4">
                                 <div class="text-center">
-                                    <!-- Product name-->
                                     <h5 class="fw-bolder" th:text="${libro.titulo}"></h5>
-                                    <!-- Product price-->
-                                    $40.00 - $80.00
+                                    <p class="mb-1" th:text="${libro.autor == null ? 'Autor sin registro' : libro.autor.nombre}"></p>
+                                    <p class="mb-1" th:text="${libro.editorial == null ? 'Editorial sin registro' : libro.editorial.nombre}"></p>
+                                    <p class="mb-1" th:text="${libro.anio}"></p>
+                                    <span th:if="${libro.ejemplaresRestantes > 0}" class="badge bg-success" th:text="|Disponible (${libro.ejemplaresRestantes})|"></span>
+                                    <span th:if="${libro.ejemplaresRestantes <= 0}" class="badge bg-danger">Sin disponibilidad</span>
                                 </div>
                             </div>
-                            <!-- Product actions-->
-                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">View more</a></div>
-                            </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
         </section>

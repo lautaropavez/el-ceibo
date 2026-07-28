@@ -48,26 +48,38 @@ public class LibroController {
         return "nuevoLibro";
     }	
       
-    @PostMapping("/registrar") 
-    public String crear(ModelMap modelo,@RequestParam MultipartFile archivo,@RequestParam String titulo,@RequestParam Integer anio, @RequestParam String idAutor,@RequestParam String idEditorial){ 
-        try{
-           servLibro.crearLibro(archivo,titulo,anio,idAutor,idEditorial);
-           modelo.put("exito","¡Registro exitoso!");    
-           List<Autor> autores = servAutor.buscaActivos();
-           modelo.addAttribute("autores", autores);
-        
-           List<Editorial> editoriales = servEditorial.buscaActivas();
-           modelo.addAttribute("editoriales", editoriales);
-           return "nuevoLibro"; 
-          
-        }catch(MiExcepcion ex){
+    @PostMapping("/registrar")
+    public String crear(
+            ModelMap modelo,
+            @RequestParam MultipartFile archivo,
+            @RequestParam String titulo,
+            @RequestParam Integer anio,
+            @RequestParam String idAutor,
+            @RequestParam String idEditorial,
+            @RequestParam(name = "nroEjemplares", required = false) Integer nroEjemplares) {
+        try {
+            servLibro.crearLibro(archivo, titulo, anio, idAutor, idEditorial, nroEjemplares);
+            modelo.put("exito", "¡Registro exitoso!");
+
+            List<Autor> autores = servAutor.buscaActivos();
+            modelo.addAttribute("autores", autores);
+
+            List<Editorial> editoriales = servEditorial.buscaActivas();
+            modelo.addAttribute("editoriales", editoriales);
+
+            return "nuevoLibro";
+        } catch (MiExcepcion ex) {
             modelo.put("error", ex.getMessage());
-            modelo.put("titulo",titulo);
-            modelo.put("anio",anio);
-            modelo.put("autor",idAutor);
-            modelo.put("editorial",idEditorial);
-            return "nuevoLibro"; 
-        }  
+            modelo.put("titulo", titulo);
+            modelo.put("anio", anio);
+            modelo.put("autor", idAutor);
+            modelo.put("editorial", idEditorial);
+            modelo.put("nroEjemplares", nroEjemplares);
+            modelo.addAttribute("autores", servAutor.buscaActivos());
+            modelo.addAttribute("editoriales", servEditorial.buscaActivas());
+
+            return "nuevoLibro";
+        }
     }
 
     
@@ -80,7 +92,19 @@ public class LibroController {
         
     // IN PROCESS
     @GetMapping("/biblioteca")
-    public String biblioteca(ModelMap modelo) {
+    public String biblioteca(
+            ModelMap modelo,
+            @RequestParam(name = "buscar", required = false) String buscar) {
+
+        String criterio = buscar == null ? "" : buscar.trim();
+
+        List<Libro> librosLista = criterio.isEmpty()
+                ? servLibro.listaActivos()
+                : servLibro.listaBuscadaActivos(criterio);
+
+        modelo.addAttribute("libros", librosLista);
+        modelo.addAttribute("buscar", criterio);
+
         return "biblioteca";
     }
     
