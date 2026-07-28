@@ -41,32 +41,42 @@ public class ServiceLibro {
     private ServicePortada sPortada;
 
     @Transactional
-    public void crearLibro(MultipartFile archivo, String titulo, Integer anio, String idAutor, String idEditorial) throws MiExcepcion {
+    public void crearLibro(
+            MultipartFile archivo,
+            String titulo,
+            Integer anio,
+            String idAutor,
+            String idEditorial,
+            Integer nroEjemplares) throws MiExcepcion {
 
         validacion(titulo, anio, idAutor, idEditorial);
-        
-        Libro lib = new Libro();
-        int ejemplares = (int) (Math.random() * 999 + 1);
-        int prestados = ejemplares - (int) (Math.random() * 88 + 1);
 
+        if (nroEjemplares == null || nroEjemplares <= 0) {
+            throw new MiExcepcion("Debe indicar una cantidad de ejemplares mayor a 0");
+        }
+        if (nroEjemplares > 999) {
+            throw new MiExcepcion("La cantidad de ejemplares no puede superar 999");
+        }
+
+        Libro lib = new Libro();
         lib.setTitulo(titulo.trim());//Remuevo espacios al principio y al final del título
         lib.setAnio(anio);
         lib.setAlta(Boolean.TRUE);
-        lib.setNroejemplares(ejemplares);
-        lib.setEjemplaresPrestados(prestados);
-        lib.setEjemplaresRestantes(ejemplares - prestados);
+        lib.setNroejemplares(nroEjemplares);
+        lib.setEjemplaresPrestados(0);
+        lib.setEjemplaresRestantes(nroEjemplares);
         lib.setIsbn((long) (int) (Math.random() * 999999 + 1));
-        
+
         Autor autor = sAutor.buscarporId(idAutor);
         lib.setAutor(autor);
-        
+
         Editorial editorial = sEditorial.buscarporId(idEditorial);
         lib.setEditorial(editorial);
-        
+
         Portada portada = sPortada.guardar(archivo); //En el caso de que yo no mande un archivo adjunto, no hay problema pq está contemplado y el método guardar me va a devolver null entonces el usuario va a quedar sin foto.
         lib.setPortada(portada);
-        
-        libroRepo.save(lib);        
+
+        libroRepo.save(lib);
     }
 
     @Transactional 
@@ -280,7 +290,7 @@ public class ServiceLibro {
         if (idAutor == null || idAutor.trim().isEmpty()) {
             throw new MiExcepcion("Debe indicar el Autor");
         }
-        if (idEditorial == null || idAutor.trim().isEmpty()) {
+        if (idEditorial == null || idEditorial.trim().isEmpty()) {
             throw new MiExcepcion("Debe indicar la Editorial");
         }
         Libro l = libroRepo.buscarPorTitulo(titulo);
