@@ -30,3 +30,7 @@ application-local.properties
 
 # Backups de trabajo locales (no forman parte del código)
 spring-security-wip.diff
+
+# Portadas originales bajadas a mano para demo local (no se suben al repo,
+# solo la version optimizada en static/img/portadas-demo/ queda trackeada)
+portadas-originales-demo/
