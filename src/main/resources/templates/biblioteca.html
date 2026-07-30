@@ -47,8 +47,8 @@
         <header class="bg-dark py-5">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Shop in style</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">With this shop hompeage template</p>
+                    <h1 class="display-4 fw-bolder">Biblioteca El Ceibo</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">Explorá nuestro catálogo de libros</p>
                 </div>
             </div>
         </header>
@@ -68,7 +68,7 @@
                     <div class="col mb-5" th:each="libro : ${libros}">
                         <div class="card h-100">
                             <img th:if="${libro.portada != null}" class="card-img-top" th:src="@{/portada/libro/{id}(id=${libro.id})}" alt="Portada"/>
-                            <img th:if="${libro.portada == null}" class="card-img-top" th:src="@{/img/violeta.jpg}" alt="Sin portada"/>
+                            <img th:if="${libro.portada == null}" class="card-img-top" th:src="@{/img/libro.jpg}" alt="Sin portada"/>
                             <div class="card-body p-4">
                                 <div class="text-center">
                                     <h5 class="fw-bolder" th:text="${libro.titulo}"></h5>
@@ -86,7 +86,7 @@
         </section>
         <!-- Footer-->
         <footer class="py-5 bg-dark">
-            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2022</p></div>
+            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; El Ceibo 2026</p></div>
         </footer>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
