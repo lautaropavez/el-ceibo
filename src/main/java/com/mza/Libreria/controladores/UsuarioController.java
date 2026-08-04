@@ -31,21 +31,28 @@ public class UsuarioController {
         return "list-usuario";  
     }
     
-    @GetMapping("/modificar/{id}") 
-    public String modificar(@PathVariable String id,ModelMap modelo){  
-        modelo.put("usuario",servUsuario.buscarPorId(id));
-        return "modif-Usuario"; 
+    @GetMapping("/modificar/{id}")
+    public String modificar(@PathVariable String id,ModelMap modelo){
+        Usuario usuario = servUsuario.buscarPorId(id);
+        modelo.put("id", id);
+        modelo.put("nombre", usuario.getNombre());
+        modelo.put("apellido", usuario.getApellido());
+        modelo.put("mail", usuario.getMail());
+        return "modif-Usuario";
     }
-    
-    @PostMapping("/modificar/{id}") 
+
+    @PostMapping("/modificar/{id}")
     public String modificar(ModelMap modelo,@PathVariable String id,@RequestParam String nombre,@RequestParam String apellido,@RequestParam String mail,@RequestParam String clave,@RequestParam String clave2)throws Exception{
         try{
             servUsuario.modificar(id,nombre,apellido,mail,clave,clave2);
             modelo.put("exito","Modificación exitosa");
             return lista(modelo);
-        }catch(Exception e){
+        }catch(MiExcepcion e){
             modelo.put("error", e.getMessage());
-            modelo.put("usuario", servUsuario.buscarPorId(id));
+            modelo.put("id", id);
+            modelo.put("nombre", nombre);
+            modelo.put("apellido", apellido);
+            modelo.put("mail", mail);
             return "modif-Usuario";
         }
     }
