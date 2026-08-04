@@ -48,9 +48,6 @@ public class SecurityConfig {
                     "/js/**",
                     "/img/**",
                     "/portada/libro/**",
-                    "/libro/lista",
-                    "/autor/lista",
-                    "/editorial/lista",
                     "/libro/biblioteca",
                     "/error"
                 ).permitAll()
@@ -58,9 +55,14 @@ public class SecurityConfig {
                 // --- Solo ADMIN: gestión de usuarios completa ---
                 .antMatchers("/usuario/**").hasRole("ADMIN")
 
+                // --- Solo ADMIN: paneles de gestión completos (listas) ---
+                .antMatchers(
+                    "/libro/lista",
+                    "/autor/lista",
+                    "/editorial/lista"
+                ).hasRole("ADMIN")
+
                 // --- Solo ADMIN: mutaciones de catálogo (alta/baja/modif/eliminar/registro) ---
-                // La lectura (/libro/lista, /autor/lista, /editorial/lista) ya quedó pública arriba;
-                // acá solo lo que crea o cambia datos.
                 .antMatchers(
                     "/libro/registro", "/libro/registrar",
                     "/libro/modificar/**", "/libro/baja/**", "/libro/alta/**", "/libro/eliminar/**"
@@ -86,7 +88,7 @@ public class SecurityConfig {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .failureUrl("/login?error")
-                .defaultSuccessUrl("/", false)
+                .defaultSuccessUrl("/libro/biblioteca", false)
                 .permitAll()
             )
             .logout(logout -> logout
