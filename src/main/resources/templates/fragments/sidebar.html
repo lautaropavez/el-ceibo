@@ -1,5 +1,5 @@
 <!--body id="body" oara que funcione el sidebar-->   
-    <div class="menu__side" id="menu_side">
+    <div class="menu__side" id="menu_side" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
         <div class="icon__menu">
             <i class="fas fa-bars" id="btn_open"></i>
@@ -13,6 +13,7 @@
                     <h4>Inicio</h4>
                 </div>
             </a>
+            <th:block sec:authorize="hasRole('ADMIN')">
             <a href="/libro/lista">
                 <div class="option">
                     <i class="fa-solid fa-book-open" title="Libros"></i>
@@ -38,6 +39,7 @@
                     <h4>Usuarios</h4>
                 </div>
             </a>
+            </th:block>
             <a href="#">
                 <div class="option">
             <i class="fa-solid fa-arrow-right-arrow-left" title="Préstamos"></i>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -15,9 +15,12 @@
     </head>
     <body>
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
             <div class="container px-4 px-lg-5">
-                <a class="navbar-brand" href="#!">Start Bootstrap</a>
+                <a class="navbar-brand" href="/">
+                    <img src="/img/ceibo.svg" alt="Logo El Ceibo" width="30" height="24" class="d-inline-block align-text-top">
+                    EL CEIBO
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
@@ -40,6 +43,20 @@
                             <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
                         </button>
                     </form>
+                    <ul class="navbar-nav ms-3">
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a href="/registro" class="nav-link">Registrate</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a href="/login" class="nav-link">Log In</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                            <span class="nav-link" sec:authentication="name"></span>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                            <a href="/logout" class="nav-link">Cerrar sesión</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
