@@ -9,9 +9,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,28 +35,38 @@ public class ServiceUsuario {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void registrar(String nombre,String apellido,String mail,String clave, String clave2) throws MiExcepcion{
-   
-        validacion(nombre,apellido,mail,clave,clave2);
-        
+
+        String mailTrim = mail == null ? null : mail.trim();
+
+        validacion(nombre,apellido,mailTrim,clave,clave2);
+        validarMailDisponible(mailTrim, null);
+
         Usuario usuario = new Usuario();
         usuario.setNombre(nombre);
         usuario.setApellido(apellido);
-        usuario.setMail(mail);
+        usuario.setMail(mailTrim);
         usuario.setRol(Rol.USUARIO);
         usuario.setClave(passwordEncoder.encode(clave));
 
         usuario.setAlta(new Date());
         usuario.setBaja(null);
-        
-        usuarioRepo.save(usuario);
+
+        try {
+            usuarioRepo.saveAndFlush(usuario);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("No se pudo guardar el usuario porque el correo electrónico ingresado ya está en uso o entra en conflicto con un registro existente. Verificá los datos e intentá nuevamente.");
+        }
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void modificar(String id, String nombre, String apellido, String mail, String clave, String clave2) throws MiExcepcion {
 
-        validacionDatosBasicos(nombre, apellido, mail);
+        String mailTrim = mail == null ? null : mail.trim();
+
+        validacionDatosBasicos(nombre, apellido, mailTrim);
+        validarMailDisponible(mailTrim, id);
 
         boolean claveVacia = (clave == null || clave.trim().isEmpty());
         boolean clave2Vacia = (clave2 == null || clave2.trim().isEmpty());
@@ -71,7 +83,7 @@ public class ServiceUsuario {
             Usuario usuario = respuesta.get();
             usuario.setNombre(nombre);
             usuario.setApellido(apellido);
-            usuario.setMail(mail);
+            usuario.setMail(mailTrim);
 
             if (!claveVacia) {
                 if (clave.length() < 8) {
@@ -83,7 +95,11 @@ public class ServiceUsuario {
                 usuario.setClave(passwordEncoder.encode(clave));
             }
 
-            usuarioRepo.save(usuario);
+            try {
+                usuarioRepo.saveAndFlush(usuario);
+            } catch (DataIntegrityViolationException ex) {
+                throw new MiExcepcion("No se pudo guardar el usuario porque el correo electrónico ingresado ya está en uso o entra en conflicto con un registro existente. Verificá los datos e intentá nuevamente.");
+            }
         } else {
             throw new MiExcepcion("No se encontró el usuario ingresado");
         }
@@ -179,6 +195,13 @@ public class ServiceUsuario {
         
         if(!clave1.equals(clave2)) {
             throw new MiExcepcion("Las claves deben ser iguales");
+        }
+    }
+
+    private void validarMailDisponible(String mail, String idActual) throws MiExcepcion {
+        Usuario existente = usuarioRepo.buscarPorMail(mail);
+        if (existente != null && !Objects.equals(existente.getId(), idActual)) {
+            throw new MiExcepcion("Ese correo electrónico ya está en uso.");
         }
     }
 

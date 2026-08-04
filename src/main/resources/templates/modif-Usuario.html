@@ -9,17 +9,17 @@
         <main>
             <h1 class="text-center">Modificación Usuario</h1><br>   
             <div th:replace="/fragments/message :: div"></div>
-            <form th:action="@{/usuario/modificar/__${usuario.id}__}" method="POST" id="form">
+            <form th:action="@{/usuario/modificar/{id}(id=${id})}" method="POST" id="form">
                 <input type="hidden" th:value= "${id}" name= "id">
                     <div class="form-group col-md-6">
-                        <label>Nombre</label> <input th:value="${usuario.nombre}" type="text" name="nombre" class="form-control"  placeholder="nombre">
+                        <label>Nombre</label> <input th:value="${nombre}" type="text" name="nombre" class="form-control"  placeholder="nombre">
                     </div>
 
                     <div class="form-group col-md-6">
-                        <label>Apellido</label> <input th:value="${usuario.apellido}" type="text" name="apellido" class="form-control"  placeholder="apellido">
+                        <label>Apellido</label> <input th:value="${apellido}" type="text" name="apellido" class="form-control"  placeholder="apellido">
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Email</label> <input th:value="${usuario.mail}" type="email" name="mail" class="form-control"  placeholder="mail">
+                        <label>Email</label> <input th:value="${mail}" type="email" name="mail" class="form-control"  placeholder="mail" required>
                     </div>
                     <div class="form-group col-md-6">
                         <label>Nueva clave (dejar en blanco para no cambiarla)</label>
