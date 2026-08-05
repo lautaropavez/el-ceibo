@@ -50,9 +50,7 @@ public class MainController {
             modelo.put("nombre",nombre);
             modelo.put("apellido",apellido);
             modelo.put("mail",mail);
-            modelo.put("clave1",clave1);
-            modelo.put("clave2",clave2);
-            return "registro.html"; 
+            return "registro.html";
             
         }
         modelo.put("exito","¡¡Registro exitoso!!");
