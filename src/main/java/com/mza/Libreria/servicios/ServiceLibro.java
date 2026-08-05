@@ -11,6 +11,7 @@ import com.mza.Libreria.repositorios.LibroRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,7 +80,7 @@ public class ServiceLibro {
         libroRepo.save(lib);
     }
 
-    @Transactional 
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void modificarLibro(MultipartFile archivo, String id, String titulo, Integer anio, String newNombreAutor, String newNombreEditorial) throws MiExcepcion {
 
         validacion(titulo, anio, newNombreAutor, newNombreEditorial);
@@ -124,8 +125,9 @@ public class ServiceLibro {
                     sEditorial.crearEditorial(newNombreEditorial);
                     Editorial neweditorial = sEditorial.buscarporNombre(newNombreEditorial.toUpperCase());
                     libro.setEditorial(neweditorial);
+                } else {
+                    libro.setEditorial(editorial);
                 }
-                libro.setEditorial(editorial);
             }
             
             libroRepo.save(libro);
@@ -222,10 +224,10 @@ public class ServiceLibro {
         return autorRepo.save(autor);
     }
     
-    @Transactional //Damos de alta la editorial y todos los libros
-    public Editorial altaxEditorial(String idAutor) throws MiExcepcion {
-        Editorial editorial = sEditorial.buscarporId(idAutor);
-        List<Libro> librosxEdit = listaporAutor(editorial.getNombre());
+    @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta la editorial y todos los libros
+    public Editorial altaxEditorial(String idEditorial) throws MiExcepcion {
+        Editorial editorial = sEditorial.buscarporId(idEditorial);
+        List<Libro> librosxEdit = listaporEditorial(editorial.getNombre());
         for (Libro libro : librosxEdit) {
             alta(libro.getId());
         }
@@ -256,28 +258,40 @@ public class ServiceLibro {
         }
     }
     
-    @Transactional 
-    public void eliminarAutor(String id) throws Exception {
+    @Transactional(rollbackFor = MiExcepcion.class)
+    public void eliminarAutor(String id) throws MiExcepcion {
         Autor a = autorRepo.buscarPorId(id);
-        if (a != null) {
-            autorRepo.deleteById(id);
-        } else {
-            throw new Exception("No se encontró a este Autor en la base de datos");
+        if (a == null) {
+            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
-    } 
-    @Transactional 
-    public void eliminarEditorial(String id) throws Exception {
+        List<Libro> librosxAutor = listaporAutor(a.getNombre());
+        if (!librosxAutor.isEmpty()) {
+            throw new MiExcepcion("No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros");
+        }
+        try {
+            autorRepo.delete(a);
+            autorRepo.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros");
+        }
+    }
+    @Transactional(rollbackFor = MiExcepcion.class)
+    public void eliminarEditorial(String id) throws MiExcepcion {
         Editorial e = editorialRepo.buscarPorId(id);
+        if (e == null) {
+            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
+        }
         List<Libro> librosxEdit = listaporEditorial(e.getNombre());
-        if (librosxEdit != null) {
-            throw new Exception("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
+        if (!librosxEdit.isEmpty()) {
+            throw new MiExcepcion("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
         }
-        if (e != null) {
-            editorialRepo.deleteById(id);
-        } else {
-            throw new Exception("No se encontró a esta Editorial en la base de datos");
+        try {
+            editorialRepo.delete(e);
+            editorialRepo.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
         }
-    }    
+    }
     
     public void validacion(String titulo, Integer anio, String idAutor, String idEditorial) throws MiExcepcion {
         

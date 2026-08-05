@@ -1,6 +1,5 @@
 package com.mza.Libreria.entidades;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -35,11 +34,10 @@ public class Libro {
     private Integer ejemplaresRestantes;
     private Boolean alta;
     
-//    @OneToOne(cascade = CascadeType.REMOVE)// Haciendo referencia a que si modifico un "usuario" se elimine en cascada 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Autor autor; //2° Clase min 5
-    
-    @ManyToOne(cascade = CascadeType.ALL)// Esto indicado para que si modifico al PADRE,modifico el vinculado
+
+    @ManyToOne
     private Editorial editorial;
     
     @OneToOne
