@@ -91,12 +91,13 @@
                                         <input type="email" name="mail" id="mail" th:value="${mail}" required><span class="barra"></span>
                                         <label>Email</label>
                                     </div>
+                                    <p th:if="${error != null}" class="text-white" style="font-size: 0.9em;">Por seguridad, ingresá nuevamente las contraseñas.</p>
                                     <div class="grupo">
-                                        <input type="password" name="clave1" id="clave1" th:value="${clave1}" required><span class="barra"></span>
+                                        <input type="password" name="clave1" id="clave1" required><span class="barra"></span>
                                         <label>Contraseña</label>
                                     </div>
                                     <div class="grupo">
-                                        <input type="password" name="clave2" id="clave2" th:value="${clave2}" required><span class="barra"></span>
+                                        <input type="password" name="clave2" id="clave2" required><span class="barra"></span>
                                             <label>Repetir Contraseña</label>
                                     </div>
                                     <button type="submit">Guardar</button>   
