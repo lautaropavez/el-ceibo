@@ -214,9 +214,21 @@ public class ServiceLibro {
         return libroRepo.listarPorAutor(nombre);
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public Libro alta(String id) throws MiExcepcion {
         Libro entidad = findbyId(id);
+        if (entidad.getAutor() == null) {
+            throw new MiExcepcion("No se puede reactivar: el libro no tiene autor asignado.");
+        }
+        if (entidad.getEditorial() == null) {
+            throw new MiExcepcion("No se puede reactivar: el libro no tiene editorial asignada.");
+        }
+        if (!Boolean.TRUE.equals(entidad.getAutor().isAlta())) {
+            throw new MiExcepcion("No se puede reactivar: el autor de este libro está dado de baja.");
+        }
+        if (!Boolean.TRUE.equals(entidad.getEditorial().isAlta())) {
+            throw new MiExcepcion("No se puede reactivar: la editorial de este libro está dada de baja.");
+        }
         entidad.setAlta(true);
         return libroRepo.save(entidad);
     }
@@ -228,20 +240,22 @@ public class ServiceLibro {
         return libroRepo.save(entidad);
     }
     
-    @Transactional //Damos de alta al autor y todos sus libros
+    @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente al autor; sus libros deben reactivarse por separado
     public Autor altaxAutor(String idAutor) throws MiExcepcion {
         Autor autor = sAutor.buscarporId(idAutor);
-        List<Libro> librosxAutor = listaporAutor(autor.getNombre());
-        for (Libro libro : librosxAutor) {
-            alta(libro.getId());
+        if (autor == null) {
+            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
         autor.setAlta(true);
         return autorRepo.save(autor);
     }
-    
-    @Transactional //Damos de baja al autor y todos sus libros
+
+    @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja al autor y todos sus libros
     public Autor bajaxAutor(String idAutor) throws MiExcepcion {
         Autor autor = sAutor.buscarporId(idAutor);
+        if (autor == null) {
+            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
+        }
         List<Libro> librosxAutor = listaporAutor(autor.getNombre());
         for (Libro libro : librosxAutor) {
             baja(libro.getId());
@@ -249,21 +263,23 @@ public class ServiceLibro {
         autor.setAlta(false);
         return autorRepo.save(autor);
     }
-    
-    @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta la editorial y todos los libros
+
+    @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente la editorial; sus libros deben reactivarse por separado
     public Editorial altaxEditorial(String idEditorial) throws MiExcepcion {
         Editorial editorial = sEditorial.buscarporId(idEditorial);
-        List<Libro> librosxEdit = listaporEditorial(editorial.getNombre());
-        for (Libro libro : librosxEdit) {
-            alta(libro.getId());
+        if (editorial == null) {
+            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
         }
         editorial.setAlta(true);
         return editorialRepo.save(editorial);
     }
-    
-    @Transactional //Damos de baja la editorial y todos los libros
+
+    @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja la editorial y todos los libros
     public Editorial bajaxEditorial(String idAutor) throws MiExcepcion {
         Editorial editorial = sEditorial.buscarporId(idAutor);
+        if (editorial == null) {
+            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
+        }
         List<Libro> librosxEdit = listaporEditorial(editorial.getNombre());
         for (Libro libro : librosxEdit) {
             baja(libro.getId());

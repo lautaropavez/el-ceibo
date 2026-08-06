@@ -112,17 +112,22 @@ public class ServiceUsuario {
     }
     
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void deshabilitar(String id)throws MiExcepcion{
-        
+
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
-        if(respuesta.isPresent()){ 
-            Usuario usuario = respuesta.get();
-            usuario.setBaja(new Date());
-            usuarioRepo.save(usuario);
-        }else{
-         throw new MiExcepcion("No se encontró el usuario ingresado");   
-        }  
+        if(!respuesta.isPresent()){
+            throw new MiExcepcion("No se encontró el usuario ingresado");
+        }
+        Usuario usuario = respuesta.get();
+        if (usuario.getBaja() != null) {
+            return; // ya estaba de baja: no pisamos la fecha original
+        }
+        if (Rol.ADMIN.equals(usuario.getRol()) && usuarioRepo.countByRolAndBajaIsNull(Rol.ADMIN) <= 1) {
+            throw new MiExcepcion("No se puede dar de baja al último administrador activo del sistema.");
+        }
+        usuario.setBaja(new Date());
+        usuarioRepo.save(usuario);
     }
     
     @Transactional
