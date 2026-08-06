@@ -117,7 +117,7 @@ public class DemoDataSeeder implements CommandLineRunner {
 
     private void crearLibroSiNoExiste(String titulo, int anio, Autor autor, Editorial editorial,
             int nroEjemplares, String archivoPortada) throws IOException {
-        if (libroRepo.buscarPorTitulo(titulo) != null) {
+        if (!libroRepo.buscarPorTituloNormalizadoYAutor(titulo, autor.getId()).isEmpty()) {
             return;
         }
         Libro libro = construirLibroBase(titulo, anio, autor, editorial, nroEjemplares, archivoPortada);
@@ -128,7 +128,7 @@ public class DemoDataSeeder implements CommandLineRunner {
 
     private void crearLibroConStockCero(String titulo, int anio, Autor autor, Editorial editorial,
             int nroEjemplares, String archivoPortada) throws IOException {
-        if (libroRepo.buscarPorTitulo(titulo) != null) {
+        if (!libroRepo.buscarPorTituloNormalizadoYAutor(titulo, autor.getId()).isEmpty()) {
             return;
         }
         Libro libro = construirLibroBase(titulo, anio, autor, editorial, nroEjemplares, archivoPortada);

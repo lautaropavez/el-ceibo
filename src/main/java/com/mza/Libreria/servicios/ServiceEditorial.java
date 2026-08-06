@@ -24,10 +24,10 @@ public class ServiceEditorial {
     public void crearEditorial(String nombre) throws MiExcepcion {
         validacion(nombre);
         Editorial editorial = new Editorial();
-        editorial.setNombre(nombre.toUpperCase());
+        editorial.setNombre(nombre.trim().toUpperCase());
         editorial.setAlta(Boolean.TRUE);
 
-        editorialRepo.save(editorial); 
+        editorialRepo.save(editorial);
     }
     
     @Transactional(readOnly = true)
@@ -57,7 +57,7 @@ public class ServiceEditorial {
             throw new MiExcepcion("Debe indicar el nombre de la Editorial");
         }
         
-        Editorial editorial = editorialRepo.buscarPorNombre(nombreEdit.toUpperCase());
+        Editorial editorial = editorialRepo.buscarPorNombre(nombreEdit.trim().toUpperCase());
         if(editorial != null){
             throw new MiExcepcion("La editorial ya existe");
         }

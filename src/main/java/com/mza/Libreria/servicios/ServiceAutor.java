@@ -24,10 +24,10 @@ public class ServiceAutor {
     public void crearAutor(String nombre) throws MiExcepcion {
         validacion(nombre);
         Autor autor = new Autor();
-        autor.setNombre(nombre.toUpperCase());
+        autor.setNombre(nombre.trim().toUpperCase());
         autor.setAlta(Boolean.TRUE);
 
-        autorRepo.save(autor); 
+        autorRepo.save(autor);
     }
        
     @Transactional(readOnly = true)
@@ -57,7 +57,7 @@ public class ServiceAutor {
             throw new MiExcepcion("Debe indicar el nombre del Autor");
         }
         
-        Autor autor = autorRepo.buscarPorNombre(nombreAut.toUpperCase());
+        Autor autor = autorRepo.buscarPorNombre(nombreAut.trim().toUpperCase());
         if(autor != null){
             throw new MiExcepcion("El autor ya existe");
         }

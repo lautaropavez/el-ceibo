@@ -9,6 +9,7 @@ import com.mza.Libreria.repositorios.AutorRepository;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,7 +42,7 @@ public class ServiceLibro {
     @Autowired
     private ServicePortada sPortada;
 
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void crearLibro(
             MultipartFile archivo,
             String titulo,
@@ -50,8 +51,17 @@ public class ServiceLibro {
             String idEditorial,
             Integer nroEjemplares) throws MiExcepcion {
 
-        validacion(titulo, anio, idAutor, idEditorial);
+        String tituloNorm = normalizar(titulo);
+        validarFormatoBasico(tituloNorm, anio);
 
+        String idAutorNorm = normalizar(idAutor);
+        if (idAutorNorm == null) {
+            throw new MiExcepcion("Debe indicar el Autor");
+        }
+        String idEditorialNorm = normalizar(idEditorial);
+        if (idEditorialNorm == null) {
+            throw new MiExcepcion("Debe indicar la Editorial");
+        }
         if (nroEjemplares == null || nroEjemplares <= 0) {
             throw new MiExcepcion("Debe indicar una cantidad de ejemplares mayor a 0");
         }
@@ -59,19 +69,20 @@ public class ServiceLibro {
             throw new MiExcepcion("La cantidad de ejemplares no puede superar 999");
         }
 
+        Autor autor = resolverAutorActivoPorId(idAutorNorm);
+        Editorial editorial = resolverEditorialActivaPorId(idEditorialNorm);
+
+        validarDuplicado(tituloNorm, autor.getId(), null);
+
         Libro lib = new Libro();
-        lib.setTitulo(titulo.trim());//Remuevo espacios al principio y al final del título
+        lib.setTitulo(tituloNorm);
         lib.setAnio(anio);
         lib.setAlta(Boolean.TRUE);
         lib.setNroejemplares(nroEjemplares);
         lib.setEjemplaresPrestados(0);
         lib.setEjemplaresRestantes(nroEjemplares);
         lib.setIsbn((long) (int) (Math.random() * 999999 + 1));
-
-        Autor autor = sAutor.buscarporId(idAutor);
         lib.setAutor(autor);
-
-        Editorial editorial = sEditorial.buscarporId(idEditorial);
         lib.setEditorial(editorial);
 
         Portada portada = sPortada.guardar(archivo); //En el caso de que yo no mande un archivo adjunto, no hay problema pq está contemplado y el método guardar me va a devolver null entonces el usuario va a quedar sin foto.
@@ -83,57 +94,72 @@ public class ServiceLibro {
     @Transactional(rollbackFor = MiExcepcion.class)
     public void modificarLibro(MultipartFile archivo, String id, String titulo, Integer anio, String newNombreAutor, String newNombreEditorial) throws MiExcepcion {
 
-        validacion(titulo, anio, newNombreAutor, newNombreEditorial);
+        String tituloNorm = normalizar(titulo);
+        validarFormatoBasico(tituloNorm, anio);
+
+        String nombreAutorNorm = normalizar(newNombreAutor);
+        if (nombreAutorNorm == null) {
+            throw new MiExcepcion("Debe indicar el Autor");
+        }
+        String nombreEditorialNorm = normalizar(newNombreEditorial);
+        if (nombreEditorialNorm == null) {
+            throw new MiExcepcion("Debe indicar la Editorial");
+        }
 
         Libro libro = libroRepo.buscarPorId(id);
-        if (libro != null) {
-            if(archivo != null){
-                String idPortada = null;
-                if (libro.getPortada().getId() != null){
-                    idPortada = libro.getPortada().getId();
-                }
-                Portada portada = sPortada.actualizar(idPortada, archivo);
-                libro.setPortada(portada);
-            }
-            //Verifico que exista algun cambio entre los dos objetos
-            if (libro.getTitulo().equalsIgnoreCase(titulo)
-                    && libro.getAnio().equals(anio)
-                    && libro.getAutor().getNombre().equalsIgnoreCase(newNombreAutor)
-                    && libro.getEditorial().getNombre().equalsIgnoreCase(newNombreEditorial)) {
-
-                throw new MiExcepcion("No existen cambios para editar"); 
-            }
-            if (!libro.getTitulo().equalsIgnoreCase(titulo)) {
-                libro.setTitulo(titulo.toUpperCase());
-            }
-            if (!libro.getAnio().equals(anio)) {
-                libro.setAnio(anio);
-            }
-            if (!libro.getAutor().getNombre().equalsIgnoreCase(newNombreAutor)) {
-                Autor autor = sAutor.buscarPorNombre(newNombreAutor.toUpperCase());
-                if (autor == null) { 
-                   sAutor.crearAutor(newNombreAutor);
-                   Autor newautor = sAutor.buscarPorNombre(newNombreAutor.toUpperCase());
-                   libro.setAutor(newautor);
-                }else{
-                    libro.setAutor(autor);
-                }
-            }
-            if (!libro.getEditorial().getNombre().equalsIgnoreCase(newNombreEditorial)) {
-                Editorial editorial = sEditorial.buscarporNombre(newNombreEditorial.toUpperCase());
-                if (editorial == null) {
-                    sEditorial.crearEditorial(newNombreEditorial);
-                    Editorial neweditorial = sEditorial.buscarporNombre(newNombreEditorial.toUpperCase());
-                    libro.setEditorial(neweditorial);
-                } else {
-                    libro.setEditorial(editorial);
-                }
-            }
-            
-            libroRepo.save(libro);
-        } else {
-            throw new MiExcepcion("No se encontró a este libro en la base de datos"); //Ver si lo dejo o lo pongo en el controlador al throw
+        if (libro == null) {
+            throw new MiExcepcion("No se encontró a este libro en la base de datos");
         }
+
+        if(archivo != null){
+            String idPortada = null;
+            if (libro.getPortada().getId() != null){
+                idPortada = libro.getPortada().getId();
+            }
+            Portada portada = sPortada.actualizar(idPortada, archivo);
+            libro.setPortada(portada);
+        }
+
+        String autorActualNombre = libro.getAutor() != null ? libro.getAutor().getNombre() : null;
+        String editorialActualNombre = libro.getEditorial() != null ? libro.getEditorial().getNombre() : null;
+
+        boolean sinCambios = equalsIgnoreCaseNullSafe(libro.getTitulo(), tituloNorm)
+                && Objects.equals(libro.getAnio(), anio)
+                && equalsIgnoreCaseNullSafe(autorActualNombre, nombreAutorNorm)
+                && equalsIgnoreCaseNullSafe(editorialActualNombre, nombreEditorialNorm);
+        if (sinCambios) {
+            throw new MiExcepcion("No existen cambios para editar");
+        }
+
+        Autor autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
+        if (autorExistente != null) {
+            if (!Boolean.TRUE.equals(autorExistente.isAlta())) {
+                throw new MiExcepcion("El autor '" + autorExistente.getNombre() + "' existe pero está dado de baja. Debe reactivarlo antes de asignarlo a este libro.");
+            }
+            validarDuplicado(tituloNorm, autorExistente.getId(), id);
+        }
+
+        Editorial editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
+        if (editorialExistente != null && !Boolean.TRUE.equals(editorialExistente.isAlta())) {
+            throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
+        }
+
+        if (autorExistente == null) {
+            sAutor.crearAutor(nombreAutorNorm);
+            autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
+        }
+        libro.setAutor(autorExistente);
+
+        if (editorialExistente == null) {
+            sEditorial.crearEditorial(nombreEditorialNorm);
+            editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
+        }
+        libro.setEditorial(editorialExistente);
+
+        libro.setTitulo(tituloNorm);
+        libro.setAnio(anio);
+
+        libroRepo.save(libro);
     }
     
     //2 Formas de buscar por Id
@@ -293,24 +319,67 @@ public class ServiceLibro {
         }
     }
     
-    public void validacion(String titulo, Integer anio, String idAutor, String idEditorial) throws MiExcepcion {
-        
-        if (titulo == null || titulo.isEmpty()) {
+    private String normalizar(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        String limpio = valor.trim();
+        return limpio.isEmpty() ? null : limpio;
+    }
+
+    private boolean equalsIgnoreCaseNullSafe(String a, String b) {
+        if (a == null || b == null) {
+            return a == b;
+        }
+        return a.equalsIgnoreCase(b);
+    }
+
+    private void validarFormatoBasico(String tituloNorm, Integer anio) throws MiExcepcion {
+        if (tituloNorm == null) {
             throw new MiExcepcion("Debe indicar el título");
         }
         if (anio == null || anio < 0 || anio > 2080) {
             throw new MiExcepcion("Debe indicar el año");
         }
-        if (idAutor == null || idAutor.trim().isEmpty()) {
-            throw new MiExcepcion("Debe indicar el Autor");
-        }
-        if (idEditorial == null || idEditorial.trim().isEmpty()) {
-            throw new MiExcepcion("Debe indicar la Editorial");
-        }
-        Libro l = libroRepo.buscarPorTitulo(titulo);
-        if(l != null && l.getAutor().getId().equals(idAutor)){
-            throw new MiExcepcion(" Este Libro ya existe");
-        }    
     }
-    
+
+    private void validarDuplicado(String tituloNorm, String autorId, String idLibroActual) throws MiExcepcion {
+        List<Libro> coincidencias = libroRepo.buscarPorTituloNormalizadoYAutor(tituloNorm, autorId);
+        boolean hayBajaCoincidente = false;
+        for (Libro coincidente : coincidencias) {
+            if (idLibroActual != null && idLibroActual.equals(coincidente.getId())) {
+                continue;
+            }
+            if (Boolean.TRUE.equals(coincidente.getAlta())) {
+                throw new MiExcepcion("Ya existe un libro con ese título y autor.");
+            }
+            hayBajaCoincidente = true;
+        }
+        if (hayBajaCoincidente) {
+            throw new MiExcepcion("Ya existe un libro con ese título y autor, pero está dado de baja. Podés reactivarlo en vez de crear uno nuevo.");
+        }
+    }
+
+    private Autor resolverAutorActivoPorId(String idAutor) throws MiExcepcion {
+        Autor autor = sAutor.buscarporId(idAutor);
+        if (autor == null) {
+            throw new MiExcepcion("El autor seleccionado no existe");
+        }
+        if (!Boolean.TRUE.equals(autor.isAlta())) {
+            throw new MiExcepcion("El autor seleccionado está dado de baja. Debe reactivarlo antes de asignarlo a un libro.");
+        }
+        return autor;
+    }
+
+    private Editorial resolverEditorialActivaPorId(String idEditorial) throws MiExcepcion {
+        Editorial editorial = sEditorial.buscarporId(idEditorial);
+        if (editorial == null) {
+            throw new MiExcepcion("La editorial seleccionada no existe");
+        }
+        if (!Boolean.TRUE.equals(editorial.isAlta())) {
+            throw new MiExcepcion("La editorial seleccionada está dada de baja. Debe reactivarla antes de asignarla a un libro.");
+        }
+        return editorial;
+    }
+
 }
