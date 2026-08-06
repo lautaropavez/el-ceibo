@@ -108,21 +108,27 @@ public class LibroController {
         return "biblioteca";
     }
     
-    @GetMapping("/modificar/{id}") 
+    @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable String id,ModelMap modelo){
-        modelo.put("libro",servLibro.buscarPorId(id));
-        return "modif-Libro"; 
+        Libro libro = servLibro.buscarPorId(id);
+        modelo.put("id", id);
+        if (libro != null) {
+            modelo.put("titulo", libro.getTitulo());
+            modelo.put("anio", libro.getAnio());
+            modelo.put("nombreAut", libro.getAutor() != null ? libro.getAutor().getNombre() : null);
+            modelo.put("nombreEdit", libro.getEditorial() != null ? libro.getEditorial().getNombre() : null);
+        }
+        return "modif-Libro";
     }
-    
+
     @PostMapping("/modificar/{id}") //@RequestParam MultipartFile archivo
     public String modificar(ModelMap modelo,@PathVariable String id, @RequestParam String titulo,@RequestParam Integer anio, @RequestParam String nombreAut,@RequestParam String nombreEdit)throws Exception{
         try{
             servLibro.modificarLibro(null,id,titulo,anio,nombreAut,nombreEdit);
-            return "list-libro";
+            return "redirect:/libro/lista";
         }catch(MiExcepcion ex){
             modelo.put("error",ex.getMessage());
             modelo.put("id",id);
-           // modelo.put("archivo",archivo);
             modelo.put("titulo",titulo);
             modelo.put("anio",anio);
             modelo.put("nombreAut",nombreAut);
