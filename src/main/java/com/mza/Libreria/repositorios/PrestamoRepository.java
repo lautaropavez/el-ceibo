@@ -15,5 +15,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PrestamoRepository extends JpaRepository<Prestamo, String>{
-    
+
+    boolean existsByLibro_Id(String libroId);
+
+    boolean existsByUsuario_Id(String usuarioId);
+
 }

@@ -8,6 +8,7 @@ import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.AutorRepository;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
+import com.mza.Libreria.repositorios.PrestamoRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +33,10 @@ public class ServiceLibro {
 
     @Autowired
     private EditorialRepository editorialRepo;
-    
+
+    @Autowired
+    private PrestamoRepository prestamoRepo;
+
     @Autowired
     private ServiceAutor sAutor;
 
@@ -288,15 +292,20 @@ public class ServiceLibro {
         return editorialRepo.save(editorial);
     }
     
-    @Transactional
-    public void eliminarLibro(String id) throws Exception {
+    @Transactional(rollbackFor = MiExcepcion.class)
+    public void eliminarLibro(String id) throws MiExcepcion {
         Libro l = libroRepo.buscarPorId(id);
-        if (l != null) {
-            l.setAutor(null);
-            l.setEditorial(null);
-            libroRepo.deleteById(id); 
-        } else {
-            throw new Exception("No se encontró a este libro en la base de datos");
+        if (l == null) {
+            throw new MiExcepcion("No se encontró a este libro en la base de datos");
+        }
+        if (prestamoRepo.existsByLibro_Id(id)) {
+            throw new MiExcepcion("Este libro tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
+        }
+        try {
+            libroRepo.delete(l);
+            libroRepo.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("No se puede eliminar este libro porque tiene registros asociados.");
         }
     }
     
