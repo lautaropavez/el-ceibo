@@ -1,6 +1,7 @@
 package com.mza.Libreria.repositorios;
 
 import com.mza.Libreria.entidades.Usuario;
+import com.mza.Libreria.enumeradores.Rol;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, String>{
     List<Usuario> buscaPrestamos(@Param("cantPrestamos") Integer cantPrestamos);
     
     @Query("SELECT a FROM Usuario a WHERE a.baja = NULL")
-    List<Usuario> listaActivos(@Param("baja") Date baja); 
+    List<Usuario> listaActivos(@Param("baja") Date baja);
+
+    long countByRolAndBajaIsNull(Rol rol);
 
     //@Query("SELECT a FROM Usuario a WHERE a.baja = null")
     //List<Usuario> buscaActivos();

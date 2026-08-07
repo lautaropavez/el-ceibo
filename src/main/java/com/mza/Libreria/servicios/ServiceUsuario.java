@@ -4,6 +4,7 @@ package com.mza.Libreria.servicios;
 import com.mza.Libreria.entidades.Usuario;
 import com.mza.Libreria.enumeradores.Rol;
 import com.mza.Libreria.excepciones.MiExcepcion;
+import com.mza.Libreria.repositorios.PrestamoRepository;
 import com.mza.Libreria.repositorios.UsuarioRepository;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,7 +29,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class ServiceUsuario {
     @Autowired
     private UsuarioRepository usuarioRepo;
-    
+
+    @Autowired
+    private PrestamoRepository prestamoRepo;
+
     @Autowired
     private ServiceNotificacion sNotific;
 
@@ -112,17 +116,22 @@ public class ServiceUsuario {
     }
     
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void deshabilitar(String id)throws MiExcepcion{
-        
+
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
-        if(respuesta.isPresent()){ 
-            Usuario usuario = respuesta.get();
-            usuario.setBaja(new Date());
-            usuarioRepo.save(usuario);
-        }else{
-         throw new MiExcepcion("No se encontró el usuario ingresado");   
-        }  
+        if(!respuesta.isPresent()){
+            throw new MiExcepcion("No se encontró el usuario ingresado");
+        }
+        Usuario usuario = respuesta.get();
+        if (usuario.getBaja() != null) {
+            return; // ya estaba de baja: no pisamos la fecha original
+        }
+        if (Rol.ADMIN.equals(usuario.getRol()) && usuarioRepo.countByRolAndBajaIsNull(Rol.ADMIN) <= 1) {
+            throw new MiExcepcion("No se puede dar de baja al último administrador activo del sistema.");
+        }
+        usuario.setBaja(new Date());
+        usuarioRepo.save(usuario);
     }
     
     @Transactional
@@ -153,13 +162,24 @@ public class ServiceUsuario {
         }
     }
     
-    @Transactional
-    public void eliminar(String id)throws Exception{
+    @Transactional(rollbackFor = MiExcepcion.class)
+    public void eliminar(String id)throws MiExcepcion{
         Usuario u = usuarioRepo.buscarPorId(id);
-        if (u != null) {
-            usuarioRepo.deleteById(id);
-        } else {
-            throw new Exception("No se encontró a este usuario en la base de datos");
+        if (u == null) {
+            throw new MiExcepcion("No se encontró a este usuario en la base de datos");
+        }
+        if (prestamoRepo.existsByUsuario_Id(id)) {
+            throw new MiExcepcion("Este usuario tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
+        }
+        if (Rol.ADMIN.equals(u.getRol()) && u.getBaja() == null
+                && usuarioRepo.countByRolAndBajaIsNull(Rol.ADMIN) <= 1) {
+            throw new MiExcepcion("No se puede eliminar al último administrador activo del sistema.");
+        }
+        try {
+            usuarioRepo.delete(u);
+            usuarioRepo.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("No se puede eliminar este usuario porque tiene registros asociados.");
         }
     }
     
