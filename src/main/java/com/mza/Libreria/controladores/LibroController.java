@@ -121,10 +121,10 @@ public class LibroController {
         return "modif-Libro";
     }
 
-    @PostMapping("/modificar/{id}") //@RequestParam MultipartFile archivo
-    public String modificar(ModelMap modelo,@PathVariable String id, @RequestParam String titulo,@RequestParam Integer anio, @RequestParam String nombreAut,@RequestParam String nombreEdit)throws Exception{
+    @PostMapping("/modificar/{id}")
+    public String modificar(ModelMap modelo,@PathVariable String id, @RequestParam(value = "archivo", required = false) MultipartFile archivo, @RequestParam String titulo,@RequestParam Integer anio, @RequestParam String nombreAut,@RequestParam String nombreEdit)throws Exception{
         try{
-            servLibro.modificarLibro(null,id,titulo,anio,nombreAut,nombreEdit);
+            servLibro.modificarLibro(archivo,id,titulo,anio,nombreAut,nombreEdit);
             return "redirect:/libro/lista";
         }catch(MiExcepcion ex){
             modelo.put("error",ex.getMessage());
