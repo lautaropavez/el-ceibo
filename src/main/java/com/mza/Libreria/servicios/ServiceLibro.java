@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -99,7 +100,10 @@ public class ServiceLibro {
         libroRepo.save(lib);
     }
 
-    @Transactional(rollbackFor = MiExcepcion.class)
+    @Transactional(
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor = MiExcepcion.class
+    )
     public void modificarLibro(MultipartFile archivo, String id, String titulo, Integer anio, String newNombreAutor, String newNombreEditorial) throws MiExcepcion {
 
         String tituloNorm = normalizar(titulo);
@@ -312,7 +316,10 @@ public class ServiceLibro {
         return editorialRepo.save(editorial);
     }
     
-    @Transactional(rollbackFor = MiExcepcion.class)
+    @Transactional(
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor = MiExcepcion.class
+    )
     public void eliminarLibro(String id) throws MiExcepcion {
         try {
             Libro l = libroRepo.buscarYBloquearPorId(id);
