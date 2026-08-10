@@ -8,6 +8,7 @@ import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.AutorRepository;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
+import com.mza.Libreria.repositorios.PortadaRepository;
 import com.mza.Libreria.repositorios.PrestamoRepository;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +46,9 @@ public class ServiceLibro {
     
     @Autowired
     private ServicePortada sPortada;
+
+    @Autowired
+    private PortadaRepository portadaRepo;
 
     @Transactional(rollbackFor = MiExcepcion.class)
     public void crearLibro(
@@ -115,23 +119,15 @@ public class ServiceLibro {
             throw new MiExcepcion("No se encontró a este libro en la base de datos");
         }
 
-        if(archivo != null){
-            String idPortada = null;
-            if (libro.getPortada().getId() != null){
-                idPortada = libro.getPortada().getId();
-            }
-            Portada portada = sPortada.actualizar(idPortada, archivo);
-            libro.setPortada(portada);
-        }
-
         String autorActualNombre = libro.getAutor() != null ? libro.getAutor().getNombre() : null;
         String editorialActualNombre = libro.getEditorial() != null ? libro.getEditorial().getNombre() : null;
 
+        boolean hayArchivoNuevo = archivo != null && !archivo.isEmpty();
         boolean sinCambios = equalsIgnoreCaseNullSafe(libro.getTitulo(), tituloNorm)
                 && Objects.equals(libro.getAnio(), anio)
                 && equalsIgnoreCaseNullSafe(autorActualNombre, nombreAutorNorm)
                 && equalsIgnoreCaseNullSafe(editorialActualNombre, nombreEditorialNorm);
-        if (sinCambios) {
+        if (sinCambios && !hayArchivoNuevo) {
             throw new MiExcepcion("No existen cambios para editar");
         }
 
@@ -146,6 +142,24 @@ public class ServiceLibro {
         Editorial editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
         if (editorialExistente != null && !Boolean.TRUE.equals(editorialExistente.isAlta())) {
             throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
+        }
+
+        if (archivo != null && !archivo.isEmpty()) {
+            Portada portadaFinal;
+            if (libro.getPortada() == null) {
+                portadaFinal = sPortada.guardar(archivo);
+            } else {
+                String idPortada = libro.getPortada().getId();
+                if (idPortada == null) {
+                    throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
+                }
+                long referencias = libroRepo.countByPortada_Id(idPortada);
+                if (referencias != 1) {
+                    throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
+                }
+                portadaFinal = sPortada.actualizar(idPortada, archivo);
+            }
+            libro.setPortada(portadaFinal);
         }
 
         if (autorExistente == null) {
@@ -301,9 +315,18 @@ public class ServiceLibro {
         if (prestamoRepo.existsByLibro_Id(id)) {
             throw new MiExcepcion("Este libro tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
         }
+        Portada portadaActual = l.getPortada();
+        String portadaId = portadaActual != null ? portadaActual.getId() : null;
         try {
             libroRepo.delete(l);
             libroRepo.flush();
+            if (portadaId != null) {
+                long referencias = libroRepo.countByPortada_Id(portadaId);
+                if (referencias == 0) {
+                    portadaRepo.delete(portadaActual);
+                    portadaRepo.flush();
+                }
+            }
         } catch (DataIntegrityViolationException ex) {
             throw new MiExcepcion("No se puede eliminar este libro porque tiene registros asociados.");
         }
