@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Optional;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -60,13 +59,11 @@ public class ServicePortada {
         }
         ImagenValidada validada = validarYRecodificar(archivo);
 
-        Portada portada = new Portada();
-        if (idPortada != null) {
-            Optional<Portada> respuesta = portadaRepo.findById(idPortada);
-            if (respuesta.isPresent()) {
-                portada = respuesta.get();
-            }
+        if (idPortada == null) {
+            throw new MiExcepcion("La portada que se intenta actualizar ya no existe.");
         }
+        Portada portada = portadaRepo.findById(idPortada)
+                .orElseThrow(() -> new MiExcepcion("La portada que se intenta actualizar ya no existe."));
         portada.setMime(validada.mime);
         portada.setNombre(null);
         portada.setContenido(validada.bytes);

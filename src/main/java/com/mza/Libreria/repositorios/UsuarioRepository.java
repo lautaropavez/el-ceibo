@@ -5,7 +5,9 @@ import com.mza.Libreria.enumeradores.Rol;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -33,6 +35,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, String>{
     List<Usuario> listaActivos(@Param("baja") Date baja);
 
     long countByRolAndBajaIsNull(Rol rol);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.baja IS NULL ORDER BY u.id")
+    List<Usuario> buscarYBloquearActivosPorRol(@Param("rol") Rol rol);
 
     //@Query("SELECT a FROM Usuario a WHERE a.baja = null")
     //List<Usuario> buscaActivos();

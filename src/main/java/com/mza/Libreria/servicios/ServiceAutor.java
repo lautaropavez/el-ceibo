@@ -6,6 +6,7 @@ import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.AutorRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +21,18 @@ public class ServiceAutor {
     @Autowired
     private AutorRepository autorRepo;
         
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void crearAutor(String nombre) throws MiExcepcion {
         validacion(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre.trim().toUpperCase());
         autor.setAlta(Boolean.TRUE);
 
-        autorRepo.save(autor);
+        try {
+            autorRepo.saveAndFlush(autor);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("El autor ya existe");
+        }
     }
        
     @Transactional(readOnly = true)

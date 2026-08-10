@@ -127,14 +127,14 @@ public class ServiceUsuario {
         if (usuario.getBaja() != null) {
             return; // ya estaba de baja: no pisamos la fecha original
         }
-        if (Rol.ADMIN.equals(usuario.getRol()) && usuarioRepo.countByRolAndBajaIsNull(Rol.ADMIN) <= 1) {
-            throw new MiExcepcion("No se puede dar de baja al último administrador activo del sistema.");
+        if (Rol.ADMIN.equals(usuario.getRol())) {
+            protegerUltimoAdminActivo("No se puede dar de baja al último administrador activo del sistema.");
         }
         usuario.setBaja(new Date());
         usuarioRepo.save(usuario);
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void habilitar(String id)throws MiExcepcion{
         
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
@@ -147,19 +147,23 @@ public class ServiceUsuario {
         }
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void cambiarRol(String id)throws MiExcepcion{
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
-
-        if (respuesta.isPresent()) {
-            Usuario usuario = respuesta.get();
-
-            if (usuario.getRol().equals(Rol.USUARIO)) {
-                usuario.setRol(Rol.ADMIN);
-            } else if (usuario.getRol().equals(Rol.ADMIN)) {
-                usuario.setRol(Rol.USUARIO);
-            }
+        if (!respuesta.isPresent()) {
+            throw new MiExcepcion("No se encontró el usuario ingresado");
         }
+        Usuario usuario = respuesta.get();
+
+        if (Rol.USUARIO.equals(usuario.getRol())) {
+            usuario.setRol(Rol.ADMIN);
+        } else if (Rol.ADMIN.equals(usuario.getRol())) {
+            if (usuario.getBaja() == null) {
+                protegerUltimoAdminActivo("No se puede cambiar el rol del último administrador activo del sistema.");
+            }
+            usuario.setRol(Rol.USUARIO);
+        }
+        usuarioRepo.save(usuario);
     }
     
     @Transactional(rollbackFor = MiExcepcion.class)
@@ -171,9 +175,8 @@ public class ServiceUsuario {
         if (prestamoRepo.existsByUsuario_Id(id)) {
             throw new MiExcepcion("Este usuario tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
         }
-        if (Rol.ADMIN.equals(u.getRol()) && u.getBaja() == null
-                && usuarioRepo.countByRolAndBajaIsNull(Rol.ADMIN) <= 1) {
-            throw new MiExcepcion("No se puede eliminar al último administrador activo del sistema.");
+        if (Rol.ADMIN.equals(u.getRol()) && u.getBaja() == null) {
+            protegerUltimoAdminActivo("No se puede eliminar al último administrador activo del sistema.");
         }
         try {
             usuarioRepo.delete(u);
@@ -215,6 +218,17 @@ public class ServiceUsuario {
         
         if(!clave1.equals(clave2)) {
             throw new MiExcepcion("Las claves deben ser iguales");
+        }
+    }
+
+    // Bloquea las filas ADMIN activas dentro de la transacción actual antes de
+    // contarlas, para que dos requests concurrentes no puedan ver ambas "quedan 2"
+    // y dejar el sistema sin administradores. La segunda transacción que llegue
+    // espera el lock y, al obtenerlo, ve el estado ya actualizado por la primera.
+    private void protegerUltimoAdminActivo(String mensajeError) throws MiExcepcion {
+        List<Usuario> adminsActivos = usuarioRepo.buscarYBloquearActivosPorRol(Rol.ADMIN);
+        if (adminsActivos.size() <= 1) {
+            throw new MiExcepcion(mensajeError);
         }
     }
 
