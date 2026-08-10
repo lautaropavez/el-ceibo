@@ -250,7 +250,7 @@ public class ServiceLibro {
         return libroRepo.save(entidad);
     }
     
-    @Transactional 
+    @Transactional(rollbackFor = MiExcepcion.class)
     public Libro baja(String id) throws MiExcepcion {
         Libro entidad = findbyId(id);
         entidad.setAlta(false);

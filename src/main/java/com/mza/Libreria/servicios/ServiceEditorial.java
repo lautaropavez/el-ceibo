@@ -5,6 +5,7 @@ import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +21,18 @@ public class ServiceEditorial {
     @Autowired
     private EditorialRepository editorialRepo;
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void crearEditorial(String nombre) throws MiExcepcion {
         validacion(nombre);
         Editorial editorial = new Editorial();
         editorial.setNombre(nombre.trim().toUpperCase());
         editorial.setAlta(Boolean.TRUE);
 
-        editorialRepo.save(editorial);
+        try {
+            editorialRepo.saveAndFlush(editorial);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("La editorial ya existe");
+        }
     }
     
     @Transactional(readOnly = true)

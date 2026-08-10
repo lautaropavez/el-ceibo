@@ -134,7 +134,7 @@ public class ServiceUsuario {
         usuarioRepo.save(usuario);
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void habilitar(String id)throws MiExcepcion{
         
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
@@ -147,7 +147,7 @@ public class ServiceUsuario {
         }
     }
     
-    @Transactional
+    @Transactional(rollbackFor = MiExcepcion.class)
     public void cambiarRol(String id)throws MiExcepcion{
         Optional<Usuario> respuesta = usuarioRepo.findById(id);
 
