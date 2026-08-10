@@ -144,7 +144,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         libro.setAnio(anio);
         libro.setAlta(Boolean.TRUE);
         libro.setNroejemplares(nroEjemplares);
-        libro.setIsbn((long) (Math.random() * 999999 + 1));
         libro.setAutor(autor);
         libro.setEditorial(editorial);
         if (archivoPortada != null) {

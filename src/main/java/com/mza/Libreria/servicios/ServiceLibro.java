@@ -89,7 +89,6 @@ public class ServiceLibro {
         lib.setNroejemplares(nroEjemplares);
         lib.setEjemplaresPrestados(0);
         lib.setEjemplaresRestantes(nroEjemplares);
-        lib.setIsbn((long) (int) (Math.random() * 999999 + 1));
         lib.setAutor(autor);
         lib.setEditorial(editorial);
 
