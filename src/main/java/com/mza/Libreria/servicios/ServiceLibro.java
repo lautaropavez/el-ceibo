@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -113,70 +114,76 @@ public class ServiceLibro {
             throw new MiExcepcion("Debe indicar la Editorial");
         }
 
-        Libro libro = libroRepo.buscarPorId(id);
-        if (libro == null) {
-            throw new MiExcepcion("No se encontró a este libro en la base de datos");
-        }
-
-        String autorActualNombre = libro.getAutor() != null ? libro.getAutor().getNombre() : null;
-        String editorialActualNombre = libro.getEditorial() != null ? libro.getEditorial().getNombre() : null;
-
-        boolean hayArchivoNuevo = archivo != null && !archivo.isEmpty();
-        boolean sinCambios = equalsIgnoreCaseNullSafe(libro.getTitulo(), tituloNorm)
-                && Objects.equals(libro.getAnio(), anio)
-                && equalsIgnoreCaseNullSafe(autorActualNombre, nombreAutorNorm)
-                && equalsIgnoreCaseNullSafe(editorialActualNombre, nombreEditorialNorm);
-        if (sinCambios && !hayArchivoNuevo) {
-            throw new MiExcepcion("No existen cambios para editar");
-        }
-
-        Autor autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
-        if (autorExistente != null) {
-            if (!Boolean.TRUE.equals(autorExistente.isAlta())) {
-                throw new MiExcepcion("El autor '" + autorExistente.getNombre() + "' existe pero está dado de baja. Debe reactivarlo antes de asignarlo a este libro.");
+        try {
+            Libro libro = libroRepo.buscarYBloquearPorId(id);
+            if (libro == null) {
+                throw new MiExcepcion("No se encontró a este libro en la base de datos");
             }
-            validarDuplicado(tituloNorm, autorExistente.getId(), id);
-        }
 
-        Editorial editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
-        if (editorialExistente != null && !Boolean.TRUE.equals(editorialExistente.isAlta())) {
-            throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
-        }
+            String autorActualNombre = libro.getAutor() != null ? libro.getAutor().getNombre() : null;
+            String editorialActualNombre = libro.getEditorial() != null ? libro.getEditorial().getNombre() : null;
 
-        if (archivo != null && !archivo.isEmpty()) {
-            Portada portadaFinal;
-            if (libro.getPortada() == null) {
-                portadaFinal = sPortada.guardar(archivo);
-            } else {
-                String idPortada = libro.getPortada().getId();
-                if (idPortada == null) {
-                    throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
-                }
-                long referencias = libroRepo.countByPortada_Id(idPortada);
-                if (referencias != 1) {
-                    throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
-                }
-                portadaFinal = sPortada.actualizar(idPortada, archivo);
+            boolean hayArchivoNuevo = archivo != null && !archivo.isEmpty();
+            boolean sinCambios = equalsIgnoreCaseNullSafe(libro.getTitulo(), tituloNorm)
+                    && Objects.equals(libro.getAnio(), anio)
+                    && equalsIgnoreCaseNullSafe(autorActualNombre, nombreAutorNorm)
+                    && equalsIgnoreCaseNullSafe(editorialActualNombre, nombreEditorialNorm);
+            if (sinCambios && !hayArchivoNuevo) {
+                throw new MiExcepcion("No existen cambios para editar");
             }
-            libro.setPortada(portadaFinal);
+
+            Autor autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
+            if (autorExistente != null) {
+                if (!Boolean.TRUE.equals(autorExistente.isAlta())) {
+                    throw new MiExcepcion("El autor '" + autorExistente.getNombre() + "' existe pero está dado de baja. Debe reactivarlo antes de asignarlo a este libro.");
+                }
+                validarDuplicado(tituloNorm, autorExistente.getId(), id);
+            }
+
+            Editorial editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
+            if (editorialExistente != null && !Boolean.TRUE.equals(editorialExistente.isAlta())) {
+                throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
+            }
+
+            if (archivo != null && !archivo.isEmpty()) {
+                Portada portadaFinal;
+                if (libro.getPortada() == null) {
+                    portadaFinal = sPortada.guardar(archivo);
+                } else {
+                    String idPortada = libro.getPortada().getId();
+                    if (idPortada == null) {
+                        throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
+                    }
+                    portadaRepo.buscarYBloquearPorId(idPortada)
+                            .orElseThrow(() -> new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse."));
+                    long referencias = libroRepo.countByPortada_Id(idPortada);
+                    if (referencias != 1) {
+                        throw new MiExcepcion("La portada actual del libro tiene un dato inconsistente y no puede reemplazarse.");
+                    }
+                    portadaFinal = sPortada.actualizar(idPortada, archivo);
+                }
+                libro.setPortada(portadaFinal);
+            }
+
+            if (autorExistente == null) {
+                sAutor.crearAutor(nombreAutorNorm);
+                autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
+            }
+            libro.setAutor(autorExistente);
+
+            if (editorialExistente == null) {
+                sEditorial.crearEditorial(nombreEditorialNorm);
+                editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
+            }
+            libro.setEditorial(editorialExistente);
+
+            libro.setTitulo(tituloNorm);
+            libro.setAnio(anio);
+
+            libroRepo.save(libro);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El libro está siendo modificado por otra operación. Intente nuevamente.");
         }
-
-        if (autorExistente == null) {
-            sAutor.crearAutor(nombreAutorNorm);
-            autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
-        }
-        libro.setAutor(autorExistente);
-
-        if (editorialExistente == null) {
-            sEditorial.crearEditorial(nombreEditorialNorm);
-            editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
-        }
-        libro.setEditorial(editorialExistente);
-
-        libro.setTitulo(tituloNorm);
-        libro.setAnio(anio);
-
-        libroRepo.save(libro);
     }
     
     //2 Formas de buscar por Id
@@ -307,27 +314,33 @@ public class ServiceLibro {
     
     @Transactional(rollbackFor = MiExcepcion.class)
     public void eliminarLibro(String id) throws MiExcepcion {
-        Libro l = libroRepo.buscarPorId(id);
-        if (l == null) {
-            throw new MiExcepcion("No se encontró a este libro en la base de datos");
-        }
-        if (prestamoRepo.existsByLibro_Id(id)) {
-            throw new MiExcepcion("Este libro tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
-        }
-        Portada portadaActual = l.getPortada();
-        String portadaId = portadaActual != null ? portadaActual.getId() : null;
         try {
+            Libro l = libroRepo.buscarYBloquearPorId(id);
+            if (l == null) {
+                throw new MiExcepcion("No se encontró a este libro en la base de datos");
+            }
+            Portada portadaActual = l.getPortada();
+            String portadaId = portadaActual != null ? portadaActual.getId() : null;
+            Portada portadaBloqueada = null;
+            if (portadaId != null) {
+                portadaBloqueada = portadaRepo.buscarYBloquearPorId(portadaId).orElse(null);
+            }
+            if (prestamoRepo.existsByLibro_Id(id)) {
+                throw new MiExcepcion("Este libro tiene préstamos registrados y no puede eliminarse físicamente. Use la baja.");
+            }
             libroRepo.delete(l);
             libroRepo.flush();
-            if (portadaId != null) {
+            if (portadaBloqueada != null) {
                 long referencias = libroRepo.countByPortada_Id(portadaId);
                 if (referencias == 0) {
-                    portadaRepo.delete(portadaActual);
+                    portadaRepo.delete(portadaBloqueada);
                     portadaRepo.flush();
                 }
             }
         } catch (DataIntegrityViolationException ex) {
             throw new MiExcepcion("No se puede eliminar este libro porque tiene registros asociados.");
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El libro está siendo modificado por otra operación. Intente nuevamente.");
         }
     }
     

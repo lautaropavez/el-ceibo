@@ -2,7 +2,9 @@ package com.mza.Libreria.repositorios;
 
 import com.mza.Libreria.entidades.Libro;
 import java.util.List;
+import javax.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,6 +18,10 @@ public interface LibroRepository  extends JpaRepository<Libro, String>{
 
     @Query("SELECT l FROM Libro l WHERE l.id = :id")
     Libro buscarPorId(@Param("id")String id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Libro l WHERE l.id = :id")
+    Libro buscarYBloquearPorId(@Param("id") String id);
 
     // con esta query se obtiene contenido parecido a, LIKE %?1% remplaza a LIKE :variable
     @Query("SELECT p FROM Libro p "
