@@ -23,7 +23,7 @@ public class Libro {
     private String id;
     
     @Column(unique = true)
-    private Long isbn;
+    private String isbn;
     
     @Column(nullable = false)
     private String titulo;
@@ -53,11 +53,11 @@ public class Libro {
         this.id = id;
     }
 
-    public Long getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(Long isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 
