@@ -97,7 +97,11 @@ public class ServiceLibro {
         Portada portada = sPortada.guardar(archivo); //En el caso de que yo no mande un archivo adjunto, no hay problema pq está contemplado y el método guardar me va a devolver null entonces el usuario va a quedar sin foto.
         lib.setPortada(portada);
 
-        libroRepo.save(lib);
+        try {
+            libroRepo.saveAndFlush(lib);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MiExcepcion("Ya existe un libro con ese título y autor.");
+        }
     }
 
     @Transactional(

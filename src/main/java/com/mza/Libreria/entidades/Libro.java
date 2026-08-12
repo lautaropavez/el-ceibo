@@ -3,6 +3,7 @@ package com.mza.Libreria.entidades;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -23,7 +24,7 @@ public class Libro {
     private String id;
     
     @Column(unique = true)
-    private Long isbn;
+    private String isbn;
     
     @Column(nullable = false)
     private String titulo;
@@ -34,13 +35,15 @@ public class Libro {
     private Integer ejemplaresRestantes;
     private Boolean alta;
     
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "autor_id", nullable = false)
     private Autor autor; //2° Clase min 5
 
     @ManyToOne
     private Editorial editorial;
-    
+
     @OneToOne
+    @JoinColumn(name = "portada_id", unique = true)
     private Portada portada;
     
 //  GETTERS & SETTERS
@@ -53,11 +56,11 @@ public class Libro {
         this.id = id;
     }
 
-    public Long getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(Long isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 
