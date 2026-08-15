@@ -1,0 +1,1160 @@
+# ROADMAP EL CEIBO — VERSIÓN ACTUALIZADA
+
+**Fecha:** 13 de agosto de 2026
+**Rama actual:** `master`
+**HEAD:** `d40dc23`
+**Estado DB:** Flyway schema version 3
+**Objetivo:** convertir El Ceibo en un proyecto Java Spring Boot sólido, demostrable, entendible y defendible en entrevistas técnicas.
+
+```text
+                                🏔️ CIMA
+            Proyecto Java Spring Boot listo para entrevistas
+       Catálogo + Seguridad + Usuarios + Préstamos + Tests + Demo
+
+                                   ▲
+                                  ╱ ╲
+                                 ╱   ╲
+                                ╱     ╲
+                               ╱       ╲
+                              ╱         ╲
+                             ╱           ╲
+                            ╱             ╲
+                           ╱               ╲
+                          ╱                 ╲
+                         ╱                   ╲
+                        ╱                     ╲
+                       ╱                       ╲
+                      ╱_________________________╲
+```
+
+# RUTA A LA CIMA — POSTAS
+
+## 🚩 P16 ⏳ PORTFOLIO Y PUBLICACIÓN — Listo para mostrar
+
+**Objetivo:** convertir el proyecto terminado en una pieza de portfolio profesional.
+
+### P16.1 — Limpieza visual final
+
+* revisar catálogo;
+* revisar navbar;
+* responsive básico;
+* corregir detalles visuales evidentes;
+* no hacer rediseño completo.
+
+### P16.2 — README profesional
+
+* problema que resuelve;
+* funcionalidades;
+* stack;
+* arquitectura MVC;
+* modelo de datos;
+* seguridad;
+* Flyway;
+* configuración local;
+* ejecución;
+* datos demo;
+* tests;
+* decisiones técnicas;
+* mejoras futuras.
+
+### P16.3 — Diagramas y capturas
+
+* Controller → Service → Repository → MariaDB;
+* diagrama de entidades;
+* flujo préstamo/devolución;
+* catálogo;
+* administración;
+* Mis préstamos;
+* préstamos ADMIN.
+
+### P16.4 — Demo de entrevista
+
+Preparar:
+
+* presentación de ~2 minutos;
+* demo de ~5 minutos;
+* decisiones técnicas defendibles;
+* problemas encontrados y cómo se resolvieron.
+
+### P16.5 — Publicación Git
+
+* revisión final `git ls-files`;
+* confirmar ausencia de secretos;
+* configurar remoto;
+* push seguro de `master`.
+
+### P16.6 — Prueba desde clon limpio
+
+* clonar en otra carpeta;
+* configurar entorno;
+* crear DB;
+* Flyway desde cero;
+* seed demo;
+* tests;
+* levantar app;
+* probar ADMIN/USUARIO;
+* préstamo/devolución;
+* `git status` limpio.
+
+---
+
+## 🚩 P15 ⏳ SEGURIDAD FINAL — Formularios blindados
+
+### P15.1 — Inventario de mutaciones HTTP
+
+Detectar operaciones que todavía modifican estado mediante GET.
+
+### P15.2 — GET → POST
+
+Convertir:
+
+* altas/bajas;
+* eliminaciones;
+* otras mutaciones pendientes.
+
+### P15.3 — Reactivar CSRF
+
+* quitar deshabilitación temporal;
+* revisar formularios;
+* tokens CSRF correctos.
+
+### P15.4 — Logout seguro
+
+* logout mediante POST;
+* CSRF activo.
+
+### P15.5 — Seguridad y regresión
+
+Probar:
+
+* rutas públicas;
+* autenticadas;
+* ADMIN;
+* USUARIO;
+* 403;
+* 404;
+* ausencia de 500;
+* IDOR;
+* secretos;
+* hashes;
+* credenciales.
+
+### P15.6 — Cierre
+
+* `clean test`;
+* `clean package`;
+* control acumulado;
+* commit;
+* merge.
+
+---
+
+## 🚩 P14 ⏳ TESTS PERMANENTES — Red de seguridad
+
+**Objetivo:** incorporar tests útiles, no perseguir cobertura artificial.
+
+### P14.1 — Infraestructura de test
+
+Evaluar/crear:
+
+* perfil `test`;
+* DB de test aislada;
+* Maven Wrapper si corresponde;
+* configuración reproducible.
+
+### P14.2 — Tests de préstamos
+
+Casos mínimos:
+
+* préstamo reduce stock;
+* stock 0 rechaza préstamo;
+* última unidad concurrente;
+* devolución recupera stock;
+* doble devolución rechazada.
+
+### P14.3 — Tests de usuarios y catálogo
+
+* modificación sin password conserva hash;
+* email duplicado controlado;
+* invariantes importantes ya estabilizadas.
+
+### P14.4 — Tests de seguridad/controller
+
+* ruta ADMIN sin login;
+* USUARIO intentando administración;
+* respuestas controladas;
+* ausencia de 500.
+
+### P14.5 — Matriz y cierre
+
+* ejecutar suite completa;
+* revisar estabilidad;
+* commit;
+* merge.
+
+---
+
+# 🚩 P13 ⏳ PRÉSTAMOS MVP + AGENT ENGINEERING V1
+
+**Esta es la próxima posta.**
+
+Rama futura:
+
+`feature/prestamos-mvp`
+
+No empezar implementación hasta cerrar P13.0 y la SPEC.
+
+---
+
+## P13.0 — Preparar Agent Engineering V1
+
+### P13.0A — Reglas permanentes ✅
+
+`CLAUDE.md` actualizado con:
+
+* Flyway;
+* testing proporcional;
+* reglas de agentes;
+* checkpoints existentes conservados.
+
+### P13.0B — Endurecer permisos locales
+
+Revisar `.claude/settings.local.json`.
+
+Especialmente:
+
+* eliminar permisos MySQL globales demasiado amplios;
+* proteger secretos;
+* mantener operaciones peligrosas bajo aprobación.
+
+### P13.0C — SPEC de préstamos
+
+Completar:
+
+`docs/specs/P13_PRESTAMOS.md`
+
+Debe definir:
+
+* objetivo;
+* modelo;
+* reglas de negocio;
+* invariantes;
+* permisos;
+* concurrencia;
+* errores;
+* criterios de aceptación;
+* fuera de scope.
+
+### P13.0D — Reviewer independiente
+
+Completar:
+
+`.claude/agents/code-reviewer.md`
+
+Rol:
+
+* read-only;
+* revisar SPEC + diff;
+* buscar bugs;
+* revisar transacciones;
+* seguridad;
+* regresiones;
+* scope creep;
+* no corregir su propio review.
+
+### P13.0E — Tester adversarial
+
+Completar:
+
+`.claude/agents/adversarial-tester.md`
+
+Misión:
+
+**intentar demostrar que la implementación está rota.**
+
+Buscar especialmente:
+
+* stock 0;
+* última unidad;
+* concurrencia;
+* doble préstamo;
+* usuario inválido/inactivo;
+* libro inválido/inactivo;
+* devolución doble;
+* rollback;
+* corrupción de stock;
+* historial;
+* permisos;
+* IDOR;
+* HTTP 500.
+
+Puede utilizar DB temporal y harness descartable.
+
+No puede modificar código productivo.
+
+### P13.0F — Definir workflow operativo
+
+Primera versión:
+
+```text
+Humano + SPEC
+      ↓
+Planner
+      ↓
+Implementer
+      ↓
+Self-check/build
+      ↓
+Adversarial Tester
+      ↓
+Code Reviewer
+      ↓
+Findings
+      ↓
+Implementer corrige
+      ↓
+retest/review
+      ↓
+Checkpoint humano
+      ↓
+Commit
+```
+
+Inicialmente **secuencial**.
+
+No usar todavía como base:
+
+* Agent Teams;
+* swarm grande;
+* Dynamic Workflows;
+* múltiples workers escribiendo en paralelo.
+
+### P13.0G — `/goal`
+
+Usarlo solamente en tareas pequeñas con condición verificable.
+
+Nunca:
+
+`/goal terminar P13`
+
+Sí puede usarse para condiciones acotadas como:
+
+`stock=1 + 2 requests concurrentes → exactamente 1 préstamo`.
+
+---
+
+## P13.1 — SPEC FUNCIONAL / MODELO REAL
+
+Antes de modificar código:
+
+Revisar puntualmente la entidad y schema `Prestamo` actuales.
+
+Actualmente ya tenemos:
+
+* `Prestamo → Usuario` como `@ManyToOne`;
+* DB preparada para varios préstamos por usuario;
+* historial todavía vacío.
+
+Definir antes de implementar:
+
+* campos definitivos del MVP;
+* semántica de `alta`;
+* fecha de préstamo;
+* devolución;
+* necesidad o no de fecha de vencimiento;
+* necesidad o no de estado explícito;
+* si hace falta una migración V4.
+
+**No crear V4 por anticipado.**
+
+Primero decidir el modelo.
+
+---
+
+## P13.2 — REGLAS DE NEGOCIO E INVARIANTES
+
+Definir en la SPEC:
+
+### Usuario
+
+* debe estar autenticado;
+* debe existir;
+* debe estar activo;
+* definir límite de préstamos activos;
+* definir si puede pedir dos veces el mismo libro.
+
+### Libro
+
+* debe existir;
+* debe estar activo;
+* debe tener stock disponible.
+
+### Stock
+
+Invariante permanente:
+
+```text
+nroEjemplares =
+ejemplaresRestantes +
+ejemplaresPrestados
+```
+
+Nunca permitir:
+
+* restantes negativos;
+* prestados negativos;
+* préstamo con stock 0.
+
+### Historial
+
+Un préstamo devuelto no desaparece.
+
+La devolución debe conservar el registro histórico.
+
+### Autorización
+
+Un usuario solo puede operar sobre lo que le corresponde.
+
+ADMIN puede gestionar préstamos según reglas explícitas.
+
+Prevenir IDOR.
+
+---
+
+## P13.3 — NÚCLEO TRANSACCIONAL DEL PRÉSTAMO
+
+Implementar ServicePrestamo.
+
+La creación de préstamo debe ser una única operación transaccional:
+
+```text
+validar usuario
+      ↓
+obtener/lockear libro
+      ↓
+validar stock
+      ↓
+crear préstamo
+      ↓
+restantes - 1
+prestados + 1
+      ↓
+flush/commit
+```
+
+### Concurrencia
+
+Caso crítico:
+
+```text
+stock = 1
+
+request A ─┐
+           ├── simultáneas
+request B ─┘
+```
+
+Resultado obligatorio:
+
+```text
+1 préstamo exitoso
+1 rechazo controlado
+stock restante = 0
+nunca -1
+```
+
+Evaluar lock pesimista usando las técnicas ya aprendidas en P12.5.6.
+
+---
+
+## P13.4 — SOLICITUD DE PRÉSTAMO
+
+Flujo:
+
+```text
+Usuario autenticado
+      ↓
+Libro disponible
+      ↓
+Pantalla de confirmación
+      ↓
+POST
+      ↓
+ServicePrestamo
+      ↓
+MySQL
+      ↓
+mensaje controlado
+```
+
+No crear préstamos mediante GET.
+
+---
+
+## P13.5 — MIS PRÉSTAMOS
+
+Vista del usuario autenticado.
+
+Mostrar como mínimo:
+
+* libro;
+* fecha préstamo;
+* estado/devolución según modelo final.
+
+Un usuario no puede consultar préstamos de otro usuario manipulando IDs.
+
+---
+
+## P13.6 — ADMINISTRACIÓN DE PRÉSTAMOS
+
+ADMIN puede:
+
+* listar préstamos;
+* distinguir activos/devueltos;
+* identificar usuario;
+* identificar libro;
+* ejecutar devolución.
+
+USUARIO:
+
+* no accede a administración;
+* backend bloquea aunque escriba URL manualmente.
+
+---
+
+## P13.7 — DEVOLUCIÓN
+
+Debe ser transaccional.
+
+Flujo:
+
+```text
+ADMIN
+  ↓
+POST devolución
+  ↓
+validar préstamo activo
+  ↓
+lock si corresponde
+  ↓
+marcar devolución
+  ↓
+prestados - 1
+restantes + 1
+  ↓
+commit
+```
+
+Debe rechazar:
+
+* préstamo inexistente;
+* préstamo ya devuelto;
+* estados inconsistentes.
+
+Nunca borrar el préstamo.
+
+---
+
+## P13.8 — TESTER ADVERSARIAL
+
+Ejecutar el agente independiente después de cada bloque importante.
+
+Prioridad:
+
+1. stock 1 concurrente;
+2. stock 0;
+3. doble devolución;
+4. rollback;
+5. usuario/libro inactivo;
+6. IDs manipulados;
+7. permisos;
+8. estados imposibles;
+9. HTTP 500.
+
+Los findings vuelven al implementer.
+
+---
+
+## P13.9 — CODE REVIEW INDEPENDIENTE
+
+Reviewer recibe:
+
+* SPEC;
+* diff;
+* resultados de tests.
+
+Debe revisar:
+
+* reglas de negocio;
+* transacciones;
+* locks;
+* errores;
+* seguridad;
+* scope;
+* mantenibilidad mínima.
+
+No modifica código.
+
+---
+
+## P13.10 — COMPRENSIÓN
+
+Lauti debe poder explicar:
+
+* `Usuario 1:N Prestamo`;
+* `Libro 1:N Prestamo`;
+* `@ManyToOne`;
+* Controller → Service → Repository → MariaDB;
+* transacción;
+* commit;
+* rollback;
+* lock pesimista;
+* por qué el último ejemplar está protegido;
+* cómo se evita IDOR;
+* cómo se mantiene consistente el stock.
+
+Además:
+
+* probar manualmente stock 1;
+* stock 0;
+* devolución;
+* permisos;
+* hacer personalmente una validación pequeña.
+
+---
+
+## P13.11 — CIERRE P13
+
+Condición de terminado:
+
+* préstamo completo punta a punta;
+* devolución funcionando;
+* stock consistente;
+* concurrencia protegida;
+* historial preservado;
+* permisos correctos;
+* tester adversarial PASS;
+* reviewer sin findings bloqueantes;
+* build PASS;
+* branch limpia;
+* control acumulado;
+* merge a `master`.
+
+---
+
+# 🚩 P12.5 ✅ ESTABILIZACIÓN PRE-PRÉSTAMOS
+
+**Merge final:** `d40dc23`
+
+Esta etapa terminó siendo mucho más grande de lo previsto, pero dejó la base preparada para P13.
+
+---
+
+## P12.5.1 ✅ Contraseñas de registro
+
+* dejar de repoblar passwords;
+* evitar devolver hashes/credenciales al formulario.
+
+Commit:
+
+`737c91b Stop repopulating registration passwords`
+
+Merge:
+
+`6a87f3c`
+
+---
+
+## P12.5.2 ✅ Integridad del dominio
+
+Commit:
+
+`957a1e0 Fix catalog domain integrity`
+
+Incluyó:
+
+* relaciones Libro/Autor/Editorial;
+* validaciones;
+* stock;
+* transacciones;
+* manejo de entidades activas/inactivas.
+
+---
+
+## P12.5.3 ✅ Identidad, modificación y borrado
+
+Commits principales:
+
+`86b9112 Fix book identity and normalization`
+
+`e3e110d Fix book modification form flow`
+
+`acfe489 Fix entity state transition integrity`
+
+`770cfdf Enforce history-aware deletion`
+
+Merges:
+
+`a2db42c`
+
+`497b1a5`
+
+---
+
+## P12.5.4 ✅ Ciclo de vida de portadas
+
+Commits:
+
+`b6a5ef3 Harden cover image uploads`
+
+`e55bcdf Enable safe cover replacement`
+
+`620dfe1 Serve and clean up book covers`
+
+Merge:
+
+`ed61abb`
+
+Resultado:
+
+* validación real JPEG/PNG;
+* límites de tamaño/dimensiones;
+* reemplazo seguro;
+* serving controlado;
+* lifecycle consistente;
+* portadas compartidas protegidas;
+* limpieza segura.
+
+---
+
+## P12.5.5 ✅ ISBN falso eliminado
+
+Commit:
+
+`42d0026 Stop generating fake ISBN values`
+
+Merge:
+
+`89e76b8`
+
+Después Flyway completó la migración definitiva a ISBN bibliográfico opcional.
+
+---
+
+## P12.5.6 ✅ Transacciones y concurrencia
+
+Commits:
+
+`1b7245e Harden transactional exception handling`
+
+`216ce48 Protect last admin from concurrent changes`
+
+`811b217 Serialize concurrent book cover operations`
+
+`a62de48 Use read committed for cover lifecycle operations`
+
+Merge:
+
+`8858673`
+
+Resultado:
+
+* rollback coherente;
+* Autor/Editorial protegidos;
+* último ADMIN protegido;
+* lifecycle de portadas protegido bajo concurrencia;
+* locks pesimistas;
+* `READ_COMMITTED` donde fue necesario.
+
+---
+
+## P12.5.7 ✅ Flyway y esquema
+
+Commits:
+
+`b8b1c5a Introduce Flyway schema management`
+
+`1d84f94 Migrate ISBN to bibliographic format`
+
+`119a6fc Enforce book integrity constraints`
+
+`3939503 Handle concurrent duplicate book creation`
+
+`a8a6c1d Fix loan user cardinality`
+
+Merge:
+
+`d40dc23`
+
+Resultado final:
+
+* Flyway 8.5.13;
+* Hibernate `ddl-auto=validate`;
+* V1 baseline;
+* V2 ISBN;
+* V3 integridad Libro;
+* DB real adoptada a schema version 3;
+* ISBN `VARCHAR(13) NULL`;
+* ISBN legacy eliminados;
+* `autor_id NOT NULL`;
+* `UNIQUE portada_id`;
+* `UNIQUE titulo + autor`;
+* carrera de libro duplicado controlada;
+* `Prestamo.usuario @ManyToOne`;
+* backup pre-Flyway generado, restaurado y verificado;
+* instalación desde cero probada;
+* adopción de DB existente probada;
+* reinicio/idempotencia probados.
+
+---
+
+# 🚩 P12 ✅ EMAIL DUPLICADO
+
+Commit:
+
+`494486d Validate duplicate user emails`
+
+Merge:
+
+`540bf0d`
+
+---
+
+# 🚩 P11 ✅ ROLES VISUALES Y CATÁLOGO ADMIN
+
+Commit:
+
+`9648297 Restrict catalog management views and update auth navigation`
+
+Merge:
+
+`351e85f`
+
+---
+
+# 🚩 P10 ✅ ROADMAP / FOOTER
+
+Commit:
+
+`8bf6937 Update project roadmap and footer year`
+
+---
+
+# 🚩 P9 ✅ DATOS DEMO
+
+Commit:
+
+`81cb83c Add demo catalog seed and assets`
+
+Merge relacionado:
+
+`58effb0`
+
+Resultado:
+
+* 17 libros;
+* 14 autores;
+* 12 editoriales;
+* 8 portadas;
+* seed demo reproducible.
+
+---
+
+# 🚩 P8 ✅ CATÁLOGO REAL
+
+Commit:
+
+`8060f4b Add public catalog and controlled book stock`
+
+---
+
+# 🚩 P7 ✅ INTEGRACIÓN BIBLIOTECA
+
+Merge:
+
+`d62ae96 Merge branch 'fix/libro-biblioteca-view'`
+
+---
+
+# 🚩 P6 ✅ BIBLIOTECA PÚBLICA
+
+Commit:
+
+`ee52ac1 Fix biblioteca view rendering`
+
+---
+
+# 🚩 P5 ✅ INTEGRACIÓN USUARIOS
+
+Merge:
+
+`6dd0e02 Merge branch 'fix/usuario-modificar-validation'`
+
+---
+
+# 🚩 P4 ✅ EDICIÓN DE USUARIO SEGURA
+
+Commit:
+
+`3389323 Fix user edit validation and hide password hash`
+
+---
+
+# 🚩 P3 ✅ BLINDAJE DE SECRETOS
+
+Commit:
+
+`86b3bc4 Harden gitignore secret patterns and add mail config template`
+
+---
+
+# 🚩 P2 ✅ SPRING SECURITY
+
+Commit:
+
+`d58e5f2 Add Spring Security login, roles, and error pages`
+
+---
+
+# 🚩 P1 ✅ BASE DEL PROYECTO
+
+Commit:
+
+`6ca91ec Initial project setup`
+
+---
+
+# ESTADO ACTUAL
+
+```text
+P1 ──────────────── ✅
+P2 ──────────────── ✅
+P3 ──────────────── ✅
+P4 ──────────────── ✅
+P5 ──────────────── ✅
+P6 ──────────────── ✅
+P7 ──────────────── ✅
+P8 ──────────────── ✅
+P9 ──────────────── ✅
+P10 ─────────────── ✅
+P11 ─────────────── ✅
+P12 ─────────────── ✅
+P12.5.1 ─────────── ✅
+P12.5.2 ─────────── ✅
+P12.5.3 ─────────── ✅
+P12.5.4 ─────────── ✅
+P12.5.5 ─────────── ✅
+P12.5.6 ─────────── ✅
+P12.5.7 ─────────── ✅
+
+P13 ─────────────── ⏳ PRÓXIMA
+P14 ─────────────── ⏳
+P15 ─────────────── ⏳
+P16 ─────────────── ⏳
+```
+
+**Estamos entrando en la última gran funcionalidad nueva del proyecto.**
+
+Después de P13, el foco deja de ser agregar comportamiento y pasa principalmente a:
+
+```text
+probar
+↓
+asegurar
+↓
+documentar
+↓
+publicar
+```
+
+---
+
+# REGLA DEL CAMINO
+
+No buscamos perfección infinita.
+
+Buscamos un proyecto:
+
+* funcional;
+* consistente;
+* seguro en un nivel razonable;
+* probado;
+* reproducible;
+* entendible;
+* demostrable;
+* defendible técnicamente.
+
+Cada posta termina cuando:
+
+1. funciona;
+2. está probada proporcionalmente a su riesgo;
+3. está commiteada y mergeada;
+4. Lauti puede explicar qué hace y por qué.
+
+---
+
+# AGENT ENGINEERING — ESCALADO
+
+## Nivel actual — P13
+
+```text
+Planner
+↓
+Implementer
+↓
+Adversarial Tester
+↓
+Code Reviewer
+↓
+Implementer corrige
+↓
+Humano aprueba
+```
+
+## Próximo escalón — cuando el workflow anterior esté probado
+
+Evaluar:
+
+* `/goal`;
+* worktrees aislados;
+* Dynamic Workflows;
+* workers paralelos.
+
+## Experimental / no bloqueante
+
+Evaluar más adelante:
+
+* Agent Teams;
+* swarm;
+* múltiples implementers concurrentes;
+* automatización de postas completas.
+
+No introducir complejidad multiagente si no aporta una mejora medible.
+
+---
+
+# FUERA DE ALCANCE PARA TERMINAR EL CEIBO
+
+No bloquean la cima:
+
+* mails reales;
+* multas;
+* pagos;
+* renovaciones;
+* puntuaciones;
+* lista de espera;
+* PDF;
+* Docker;
+* SweetAlert;
+* Java 17;
+* migración grande de Spring Boot;
+* rediseño completo;
+* suite de tests gigantesca;
+* arquitectura distribuida;
+* Agent Teams como requisito.
+
+---
+
+# SIGUIENTE ACCIÓN EXACTA
+
+**P13.0 — preparar Agent Engineering V1 y completar `P13_PRESTAMOS.md`.**
+
+Todavía no implementar préstamos hasta cerrar la SPEC y los dos agentes iniciales.
+
+# ESTIMACIÓN ACTUALIZADA — DESDE 13/08/2026
+
+P12.5 está completamente terminado.
+
+El trabajo restante comienza en P13.
+
+| Bloque                                            | Estimación |
+| ------------------------------------------------- | ---------: |
+| P13.0 — SPEC + configuración Agent Engineering V1 |      2–4 h |
+| P13 — Préstamos MVP                               |    12–18 h |
+| P14 — Tests permanentes                           |      5–8 h |
+| P15 — CSRF + cierre de seguridad                  |      4–7 h |
+| P16 — README + diagramas + demo + publicación     |     7–11 h |
+| Prueba final desde clon limpio                    |      2–3 h |
+
+**Total restante estimado: 32–51 horas.**
+
+Estimación central razonable:
+
+**aproximadamente 40 horas.**
+
+A un ritmo de 2 horas efectivas por día:
+
+* rápido: ~16 días de trabajo;
+* central: ~20 días;
+* prudente: ~25–26 días.
+
+A 5 días de trabajo por semana:
+
+* rápido: ~3 semanas;
+* central: ~4 semanas;
+* prudente: ~5 semanas.
+
+## P13 en detalle
+
+| Subposta                                   | Estimación |
+| ------------------------------------------ | ---------: |
+| P13.0 — SPEC + agentes + permisos          |      2–4 h |
+| P13.1 — modelo y decisiones funcionales    |      1–2 h |
+| P13.2 — invariantes y diseño transaccional |      1–2 h |
+| P13.3 — núcleo de creación de préstamo     |      2–3 h |
+| P13.4 — solicitud / confirmación           |      1–2 h |
+| P13.5 — Mis préstamos                      |      1–2 h |
+| P13.6 — administración                     |      1–2 h |
+| P13.7 — devolución                         |      1–2 h |
+| P13.8 — adversarial testing                |      2–3 h |
+| P13.9 — code review + correcciones         |      1–2 h |
+| P13.10/11 — comprensión + cierre + merge   |      1–2 h |
+
+No sumar mecánicamente el máximo de cada fila: varias actividades se solapan durante implementación y testing.
+
+## Efecto esperado de los agentes
+
+P13 puede inicialmente tardar parecido o incluso un poco más que con el workflow anterior porque también estamos construyendo y aprendiendo el sistema de agentes.
+
+El beneficio debería aparecer progresivamente en P14–P16:
+
+```text
+P13
+invertimos en el workflow
+        ↓
+P14
+tester/reviewer ya reutilizables
+        ↓
+P15
+menos supervisión manual
+        ↓
+P16
+workflow ya aceitado
+```
+
+Por eso el objetivo de Agent Engineering V1 no es solamente terminar P13 más rápido.
+
+También queremos reducir:
+
+* intervenciones humanas;
+* errores que llegan a nuestros checkpoints;
+* repetición de prompts;
+* tiempo dedicado a matrices manuales;
+* regresiones no detectadas.
+
+## Cómo medir P13
+
+Al terminar registrar:
+
+* horas reales;
+* cantidad de intervenciones humanas;
+* findings del adversarial tester;
+* findings del reviewer;
+* bugs encontrados posteriormente por nosotros;
+* cantidad de ciclos implementer → tester;
+* cantidad de commits;
+* tests ejecutados;
+* fallos/regresiones;
+* costo/tokens si resulta fácil medirlos.
+
+Con eso podremos comparar el workflow nuevo contra P12.5 y decidir cuánto aumentar la autonomía en P14.
