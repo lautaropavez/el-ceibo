@@ -40,6 +40,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, String>{
     @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.baja IS NULL ORDER BY u.id")
     List<Usuario> buscarYBloquearActivosPorRol(@Param("rol") Rol rol);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM Usuario u WHERE u.id = :id")
+    Usuario buscarYBloquearPorId(@Param("id") String id);
+
     //@Query("SELECT a FROM Usuario a WHERE a.baja = null")
     //List<Usuario> buscaActivos();
 }
