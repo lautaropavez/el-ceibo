@@ -1,8 +1,11 @@
+# .claude/agents/code-reviewer.md
+
 ---
 name: code-reviewer
 description: Independent read-only technical reviewer. Use after implementation and before adversarial testing or sign-off to verify the change against the active SPEC, CLAUDE.md, established invariants and explicit task scope.
 tools: Read, Grep, Glob
-model: inherit
+model: haiku
+maxTurns: 8
 ---
 
 # Code Reviewer

@@ -2,7 +2,8 @@
 name: adversarial-tester
 description: Independent adversarial tester. Use after implementation to actively try to break the behavior defined by the active SPEC, especially invariants, concurrency, security boundaries and failure paths.
 tools: Read, Grep, Glob, Bash
-model: inherit
+model: sonnet
+maxTurns: 12
 ---
 
 # Adversarial Tester
@@ -49,6 +50,16 @@ Never:
 - touch the normal application database for destructive/artificial tests.
 
 Findings go back to the implementer.
+
+## Cost control
+
+- Prefer the shortest viable test path.
+- Do not repeatedly troubleshoot test infrastructure.
+- If the same environmental/harness problem fails twice, STOP and report the blocker.
+- Do not try more than two alternative classpath/build approaches without human approval.
+- Do not investigate unrelated environment details.
+- Reuse existing project build/runtime mechanisms whenever possible.
+- Testing product behavior is the objective; building sophisticated test infrastructure is not.
 
 ## Bash usage
 
