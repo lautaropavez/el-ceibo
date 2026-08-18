@@ -81,6 +81,9 @@ public class SecurityConfig {
                 // Security usa la primera coincidencia, no la mas especifica.
                 .antMatchers("/prestamo/lista", "/prestamo/devolver").hasRole("ADMIN")
 
+                // --- Solo USUARIO: solicitud y consulta propia de prestamos (P13.2E) ---
+                .antMatchers("/prestamo/solicitar", "/prestamo/mis-prestamos").hasRole("USUARIO")
+
                 // --- Cualquier usuario logueado (USUARIO o ADMIN) ---
                 .antMatchers("/prestamo/**").authenticated()
 

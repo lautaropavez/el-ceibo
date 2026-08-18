@@ -53,7 +53,7 @@
                         <li class="nav-item" sec:authorize="isAuthenticated()">
                             <span class="nav-link" sec:authentication="name"></span>
                         </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <li class="nav-item" sec:authorize="hasRole('USUARIO')">
                             <a href="/prestamo/mis-prestamos" class="nav-link">Mis préstamos</a>
                         </li>
                         <li class="nav-item" sec:authorize="isAuthenticated()">
@@ -98,7 +98,7 @@
                                     <p class="mb-1" th:text="${libro.anio}"></p>
                                     <span th:if="${libro.ejemplaresRestantes > 0}" class="badge bg-success" th:text="|Disponible (${libro.ejemplaresRestantes})|"></span>
                                     <span th:if="${libro.ejemplaresRestantes <= 0}" class="badge bg-danger">Sin disponibilidad</span>
-                                    <form th:if="${libro.ejemplaresRestantes > 0}" sec:authorize="isAuthenticated()"
+                                    <form th:if="${libro.ejemplaresRestantes > 0}" sec:authorize="hasRole('USUARIO')"
                                           method="post" th:action="@{/prestamo/solicitar}" class="mt-2">
                                         <input type="hidden" name="libroId" th:value="${libro.id}"/>
                                         <button type="submit" class="btn btn-sm btn-outline-success">Solicitar</button>
