@@ -110,6 +110,58 @@ public class ServicePrestamo {
         return prestamoRepo.findByUsuario_Id(usuario.getId());
     }
 
+    @Transactional(readOnly = true)
+    public List<Prestamo> listarTodos() {
+        return prestamoRepo.findAll();
+    }
+
+    // Orden de locks obligatorio: PRESTAMO -> LIBRO (ver SPEC P13 seccion 9),
+    // simetrico al orden USUARIO -> LIBRO de solicitar(). La validacion de
+    // "ya devuelto" ocurre despues del lock de Prestamo, nunca antes.
+    @Transactional(
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor = MiExcepcion.class
+    )
+    public Prestamo devolver(String prestamoId) throws MiExcepcion {
+        try {
+            Prestamo prestamo = prestamoRepo.buscarYBloquearPorId(prestamoId);
+            if (prestamo == null) {
+                throw new MiExcepcion("El préstamo indicado no existe.");
+            }
+            if (prestamo.getFechaDevolucion() != null) {
+                throw new MiExcepcion("Este préstamo ya fue devuelto.");
+            }
+
+            Libro libro = libroRepo.buscarYBloquearPorId(prestamo.getLibro().getId());
+            if (libro == null) {
+                throw new MiExcepcion("El libro asociado a este préstamo ya no existe.");
+            }
+
+            Integer nroEjemplares = libro.getNroejemplares();
+            Integer restantes = libro.getEjemplaresRestantes();
+            Integer prestados = libro.getEjemplaresPrestados();
+
+            boolean stockInconsistente = nroEjemplares == null || restantes == null || prestados == null
+                    || restantes < 0
+                    || prestados <= 0
+                    || restantes >= nroEjemplares
+                    || !nroEjemplares.equals(restantes + prestados);
+            if (stockInconsistente) {
+                throw new MiExcepcion("El stock de este libro es inconsistente y no puede procesarse la devolución. Contactá a un administrador.");
+            }
+
+            prestamo.setFechaDevolucion(new Date());
+
+            libro.setEjemplaresRestantes(restantes + 1);
+            libro.setEjemplaresPrestados(prestados - 1);
+            libroRepo.save(libro);
+
+            return prestamoRepo.save(prestamo);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El préstamo o el libro están siendo modificados por otra operación. Intente nuevamente.");
+        }
+    }
+
     private Date sumarDias(Date fecha, int dias) {
         Calendar calendario = Calendar.getInstance();
         calendario.setTime(fecha);

@@ -76,6 +76,11 @@ public class SecurityConfig {
                     "/editorial/alta/**", "/editorial/baja/**", "/editorial/eliminar/**"
                 ).hasRole("ADMIN")
 
+                // --- Solo ADMIN: administracion de prestamos (P13.2D) ---
+                // Debe evaluarse antes que la regla generica de abajo: Spring
+                // Security usa la primera coincidencia, no la mas especifica.
+                .antMatchers("/prestamo/lista", "/prestamo/devolver").hasRole("ADMIN")
+
                 // --- Cualquier usuario logueado (USUARIO o ADMIN) ---
                 .antMatchers("/prestamo/**").authenticated()
 

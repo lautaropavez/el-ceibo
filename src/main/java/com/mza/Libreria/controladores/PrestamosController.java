@@ -53,4 +53,25 @@ public class PrestamosController {
         }
         return "mis-prestamos";
     }
+
+    @GetMapping("/lista")
+    public String lista(ModelMap modelo) {
+        modelo.addAttribute("prestamos", servPrestamo.listarTodos());
+        return "list-prestamo";
+    }
+
+    // recibe unicamente prestamoId; el libro se resuelve internamente a
+    // partir del propio Prestamo, nunca de un parametro separado de request.
+    @PostMapping("/devolver")
+    public String devolver(
+            @RequestParam String prestamoId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            servPrestamo.devolver(prestamoId);
+            redirectAttributes.addFlashAttribute("exito", "Devolución registrada con éxito.");
+        } catch (MiExcepcion ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/prestamo/lista";
+    }
 }
