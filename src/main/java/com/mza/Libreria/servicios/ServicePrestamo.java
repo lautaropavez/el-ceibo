@@ -10,6 +10,7 @@ import com.mza.Libreria.repositorios.PrestamoRepository;
 import com.mza.Libreria.repositorios.UsuarioRepository;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -98,6 +99,15 @@ public class ServicePrestamo {
         } catch (PessimisticLockingFailureException ex) {
             throw new MiExcepcion("El usuario o el libro están siendo modificados por otra operación. Intente nuevamente.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Prestamo> misPrestamos(String mailUsuarioAutenticado) throws MiExcepcion {
+        Usuario usuario = usuarioRepo.buscarPorMail(mailUsuarioAutenticado);
+        if (usuario == null) {
+            throw new MiExcepcion("No se encontró al usuario autenticado.");
+        }
+        return prestamoRepo.findByUsuario_Id(usuario.getId());
     }
 
     private Date sumarDias(Date fecha, int dias) {

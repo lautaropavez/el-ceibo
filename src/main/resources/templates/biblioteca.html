@@ -54,6 +54,9 @@
                             <span class="nav-link" sec:authentication="name"></span>
                         </li>
                         <li class="nav-item" sec:authorize="isAuthenticated()">
+                            <a href="/prestamo/mis-prestamos" class="nav-link">Mis préstamos</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAuthenticated()">
                             <a href="/logout" class="nav-link">Cerrar sesión</a>
                         </li>
                     </ul>
@@ -72,6 +75,7 @@
         <!-- Section-->
         <section class="py-5">
             <div class="container px-4 px-lg-5 mt-5">
+                <div th:replace="/fragments/message :: div"></div>
                 <form class="row g-3 mb-4" method="get" th:action="@{/libro/biblioteca}">
                     <div class="col-auto">
                         <input type="text" class="form-control" name="buscar" th:value="${buscar}" placeholder="Buscar por título, autor o editorial...">
@@ -94,6 +98,11 @@
                                     <p class="mb-1" th:text="${libro.anio}"></p>
                                     <span th:if="${libro.ejemplaresRestantes > 0}" class="badge bg-success" th:text="|Disponible (${libro.ejemplaresRestantes})|"></span>
                                     <span th:if="${libro.ejemplaresRestantes <= 0}" class="badge bg-danger">Sin disponibilidad</span>
+                                    <form th:if="${libro.ejemplaresRestantes > 0}" sec:authorize="isAuthenticated()"
+                                          method="post" th:action="@{/prestamo/solicitar}" class="mt-2">
+                                        <input type="hidden" name="libroId" th:value="${libro.id}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Solicitar</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
