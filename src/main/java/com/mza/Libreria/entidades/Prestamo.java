@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -18,28 +19,36 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 @Entity
 public class Prestamo {
-     
+
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     @Column(length = 36)
     private String id;
 
-    private Boolean alta;
-
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "libro_id", nullable = false)
     private Libro libro;
 
-
+    // Nombre de campo alineado con la SPEC (P13_PRESTAMOS.md); la columna
+    // fisica se mantiene como "prestamo" (V1) para no reescribir V1/V2/V3.
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "dd-MMM-YYYY")
-    private Date prestamo;
+    @Column(name = "prestamo", nullable = false)
+    private Date fechaPrestamo;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date devolucion;
+    @Column(nullable = false)
+    private Date fechaVencimiento;
+
+    // Idem: campo fechaDevolucion, columna fisica "devolucion".
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "devolucion")
+    private Date fechaDevolucion;
 
     public String getId() {
         return id;
@@ -47,14 +56,6 @@ public class Prestamo {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Boolean getAlta() {
-        return alta;
-    }
-
-    public void setAlta(Boolean alta) {
-        this.alta = alta;
     }
 
     public Usuario getUsuario() {
@@ -73,21 +74,29 @@ public class Prestamo {
         this.libro = libro;
     }
 
-    public Date getPrestamo() {
-        return prestamo;
+    public Date getFechaPrestamo() {
+        return fechaPrestamo;
     }
 
-    public void setPrestamo(Date prestamo) {
-        this.prestamo = prestamo;
+    public void setFechaPrestamo(Date fechaPrestamo) {
+        this.fechaPrestamo = fechaPrestamo;
     }
 
-    public Date getDevolucion() {
-        return devolucion;
+    public Date getFechaVencimiento() {
+        return fechaVencimiento;
     }
 
-    public void setDevolucion(Date devolucion) {
-        this.devolucion = devolucion;
+    public void setFechaVencimiento(Date fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
     }
 
-    
+    public Date getFechaDevolucion() {
+        return fechaDevolucion;
+    }
+
+    public void setFechaDevolucion(Date fechaDevolucion) {
+        this.fechaDevolucion = fechaDevolucion;
+    }
+
+
 }

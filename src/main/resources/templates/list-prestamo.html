@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es-AR" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="/fragments/head :: head (pageTitle='Libreria El Ceibo - Lista de Prestamos')"></head>
+    <body id="body">
+        <header>
+            <nav th:replace="/fragments/nav :: nav"></nav>
+        </header>
+        <div th:replace="/fragments/sidebar :: div"></div>
+        <div th:replace="/fragments/message :: div"></div>
+        <!-- Lista -->
+        <div class="container-fluid m-3">
+            <div class="card mt-2">
+              <div class="card-header d-flex bg-dark text-white-50">
+                <h1>Administración de Préstamos</h1>
+              </div>
+                <div class="card-body">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Libro</th>
+                                <th>Fecha de préstamo</th>
+                                <th>Fecha de vencimiento</th>
+                                <th>Estado</th>
+                                <th sec:authorize="hasRole('ADMIN')">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prestamo : ${prestamos}">
+                                <td th:text="${prestamo.usuario.nombre + ' ' + prestamo.usuario.apellido + ' (' + prestamo.usuario.mail + ')'}"></td>
+                                <td th:text="${prestamo.libro.titulo}"></td>
+                                <td th:text="${#dates.format(prestamo.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+                                <td th:text="${#dates.format(prestamo.fechaVencimiento, 'dd-MM-yyyy')}"></td>
+                                <td>
+                                  <span th:if="${prestamo.fechaDevolucion == null}" style="color: chartreuse;"><p>Activo</p></span>
+                                  <span th:if="${prestamo.fechaDevolucion != null}" style="color:rgb(231, 67, 17)"
+                                        th:text="|Devuelto (${#dates.format(prestamo.fechaDevolucion, 'dd-MM-yyyy')})|"></span>
+                                </td>
+                                <td sec:authorize="hasRole('ADMIN')">
+                                  <form th:if="${prestamo.fechaDevolucion == null}" method="post" th:action="@{/prestamo/devolver}">
+                                      <input type="hidden" name="prestamoId" th:value="${prestamo.id}"/>
+                                      <button type="submit" class="btn btn-sm btn-outline-light" title="Devolver"><i class="fas fa-undo"></i> Devolver</button>
+                                  </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <p th:if="${prestamos.isEmpty}">No hay préstamos para mostrar</p>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Footer-->
+        <footer th:replace="/fragments/footer :: footer"></footer>
+        <!-- Bootstrap js -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- Sidebar js -->
+        <script src="/js/sidebar.js"></script>
+    </body>
+</html>
