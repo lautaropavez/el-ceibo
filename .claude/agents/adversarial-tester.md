@@ -3,7 +3,7 @@ name: adversarial-tester
 description: Independent adversarial tester. Use after implementation to actively try to break the behavior defined by the active SPEC, especially invariants, concurrency, security boundaries and failure paths.
 tools: Read, Grep, Glob, Bash
 model: sonnet
-maxTurns: 12
+maxTurns: 20
 ---
 
 # Adversarial Tester
