@@ -104,25 +104,25 @@ verifican CSRF — esa verificación activa es exclusiva de P15.
 ## 6. Estrategia técnica
 
 * Integración contra MariaDB real (`libreriaweb_testsuite`), nunca H2.
-* Aislamiento entre tests — **todavía no decidido de forma definitiva**:
-  * se prefiere rollback transaccional por test si la auditoría de
-    P14.2 confirma que no oculta el comportamiento real de
-    `ServicePrestamo` ni genera problemas de transacción marcada
-    rollback-only;
-  * la estrategia exacta de aislamiento se decide antes de implementar
-    P14.2, no queda fijada por este documento;
+* Aislamiento entre tests — **decisión cerrada en P14.2**:
+  * `ServicePrestamoIntegrationTest` no usa ninguna transacción
+    administrada por Spring Test (sin `@Transactional` de test);
+  * `ServicePrestamo` conserva su ciclo transaccional real
+    begin→commit/rollback exactamente como en producción;
+  * el aislamiento entre tests se logra con fixtures únicas y
+    deterministas por caso, no con rollback automático;
+  * ningún test supone que la base está vacía: los datos persisten
+    durante toda la vida de cada `ApplicationContext` de la suite;
   * no usar `DELETE` masivos, scripts de limpieza ni `@DirtiesContext`
     salvo necesidad demostrada.
 * Fixtures mínimas: solo los campos realmente exigidos por las
   constraints de V1–V4 y por las validaciones de cada service, sin
   datos decorativos.
-* `@LibreriaIntegrationTest` (anotación compuesta) agrupa inicialmente:
+* `@LibreriaIntegrationTest` (anotación compuesta) agrupa:
   * `@SpringBootTest`;
   * `@ActiveProfiles("test")`;
   * `@ContextConfiguration(initializers = TestDatabaseInitializer.class)`.
-  No incluye `@Transactional` todavía — se agrega en las clases que lo
-  necesiten recién después de validar la estrategia de aislamiento del
-  punto anterior.
+  La anotación compuesta no incluye `@Transactional`.
 * Tests deterministas, sin dependencia del orden de ejecución entre
   clases ni entre métodos.
 
