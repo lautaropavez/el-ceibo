@@ -150,3 +150,37 @@ locks o las queries relacionadas.
 * review independiente (`code-reviewer`) sin findings bloqueantes;
 * commit y merge controlados, con aprobación humana explícita en cada
   paso, igual que el resto del proyecto.
+
+## 10. Cierre P14.5
+
+La suite permanente quedó cerrada sobre el baseline de código
+`5adbe1b`, contenido exacto sobre el que se ejecutó la última corrida
+completa.
+
+* 45 invocaciones totales, 0 failures, 0 errors, 0 skipped:
+  * `LibreriaWebApplicationTests`: 2;
+  * `ServicePrestamoIntegrationTest`: 14;
+  * `ServiceUsuarioIntegrationTest`: 3;
+  * `ServiceLibroIntegrationTest`: 7;
+  * `WebSecurityMockMvcTest`: 19 (13 invocaciones parametrizadas y
+    6 tests funcionales).
+* Infraestructura: Maven Wrapper reproducible, MariaDB real
+  (`libreriaweb_testsuite`), Flyway V1→V4 y Hibernate `validate`,
+  sin H2 ni Testcontainers.
+* Aislamiento: sin `@Transactional` de Spring Test, fixtures
+  deterministas únicas por posta (`P142`, `P143`, `P144`), sin
+  `deleteAll`, `@DirtiesContext` ni orden de ejecución forzado.
+* Las cinco clases usan la misma configuración declarativa mediante
+  `@LibreriaIntegrationTest`. `WebSecurityMockMvcTest` construye
+  `MockMvc` manualmente desde el `WebApplicationContext`, evitando
+  introducir `@AutoConfigureMockMvc` y una configuración de contexto
+  diferente.
+* Las revisiones independientes de P14.1, P14.2, P14.3 y P14.4
+  terminaron en PASS, sin findings bloqueantes remanentes.
+* P14.5 reutiliza la evidencia `45/45` porque ningún archivo productivo
+  ni de test cambió desde esa ejecución. No se realizó otro
+  `DROP/CREATE` meramente ceremonial; la auditoría final tampoco
+  encontró riesgos concretos de flakiness.
+* Deudas explícitamente diferidas a P15: CSRF deshabilitado,
+  12 mutaciones mediante GET y logout mediante GET. Ver
+  `P15_SEGURIDAD_FINAL.md`.
