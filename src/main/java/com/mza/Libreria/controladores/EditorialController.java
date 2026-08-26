@@ -53,7 +53,7 @@ public class EditorialController {
          return "list-editorial"; 
     }
     
-    @GetMapping("/alta/{id}") 
+    @PostMapping("/alta/{id}")
     public String alta(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.altaxEditorial(id);
@@ -64,7 +64,7 @@ public class EditorialController {
         }
     }
     
-    @GetMapping("/baja/{id}")
+    @PostMapping("/baja/{id}")
     public String baja(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.bajaxEditorial(id);
@@ -75,7 +75,7 @@ public class EditorialController {
         }
     }
     
-    @GetMapping("/eliminar/{id}") 
+    @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable String id,ModelMap modelo) throws Exception{
         try {
             servLibro.eliminarEditorial(id);

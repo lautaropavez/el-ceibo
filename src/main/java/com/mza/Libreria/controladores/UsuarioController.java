@@ -57,7 +57,7 @@ public class UsuarioController {
         }
     }
     
-    @GetMapping("/baja/{id}") 
+    @PostMapping("/baja/{id}")
     public String baja(@PathVariable String id,ModelMap modelo){
         try {
             servUsuario.deshabilitar(id);
@@ -68,8 +68,8 @@ public class UsuarioController {
         }
     }
     
-    @GetMapping("/alta/{id}") 
-    public String alta(@PathVariable String id,ModelMap modelo){ //Acá recibo un id que viene por URL --> /modificar/${id} y ese id es el que uso para buscar el usuario y mostrarlo, lo enviamos tambien por url 
+    @PostMapping("/alta/{id}")
+    public String alta(@PathVariable String id,ModelMap modelo){ //Acá recibo un id que viene por URL --> /modificar/${id} y ese id es el que uso para buscar el usuario y mostrarlo, lo enviamos tambien por url
         try {
             servUsuario.habilitar(id);
             return "redirect:/usuario/lista";  
@@ -78,7 +78,7 @@ public class UsuarioController {
         }
     }
     
-    @GetMapping("/eliminar/{id}") 
+    @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable String id,ModelMap modelo) throws Exception{
         try {
             servUsuario.eliminar(id);

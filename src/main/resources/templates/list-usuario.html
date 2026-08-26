@@ -54,9 +54,9 @@
                                 </td>
                                 <td>
                                   <a class="mx-2" title="Modificar" th:href="@{/usuario/modificar/__${usuario.id}__}"><i class="fas fa-edit" style="color: cornflowerblue;"></i></a>
-                                  <a th:if="${usuario.baja} == null" class="mx-2" title="Dar de baja" th:href="@{/usuario/baja/__${usuario.id}__}"><i class="fas fa-arrow-circle-down" style="color:rgb(231, 67, 17)"></i></a> 
-                                  <a th:if="${usuario.baja} != null" class="mx-2" title="Dar de alta" th:href="@{/usuario/alta/__${usuario.id}__}"><i class="fas fa-arrow-circle-up" style="color:rgb(57, 204, 37)"></i></a> 
-                                  <a class="mx-2" th:href="@{/usuario/eliminar/__${usuario.id}__}" title="Eliminar"><i class="fas fa-trash-alt" style="color: cornflowerblue;"></i></a>
+                                  <form th:if="${usuario.baja} == null" class="d-inline" method="post" th:action="@{/usuario/baja/{id}(id=${usuario.id})}"><button type="submit" class="mx-2 btn btn-link p-0 border-0" title="Dar de baja"><i class="fas fa-arrow-circle-down" style="color:rgb(231, 67, 17)"></i></button></form>
+                                  <form th:if="${usuario.baja} != null" class="d-inline" method="post" th:action="@{/usuario/alta/{id}(id=${usuario.id})}"><button type="submit" class="mx-2 btn btn-link p-0 border-0" title="Dar de alta"><i class="fas fa-arrow-circle-up" style="color:rgb(57, 204, 37)"></i></button></form>
+                                  <form class="d-inline" method="post" th:action="@{/usuario/eliminar/{id}(id=${usuario.id})}"><button type="submit" class="mx-2 btn btn-link p-0 border-0" title="Eliminar"><i class="fas fa-trash-alt" style="color: cornflowerblue;"></i></button></form>
                                 </td>                            
                             </tr>
                         </tbody>

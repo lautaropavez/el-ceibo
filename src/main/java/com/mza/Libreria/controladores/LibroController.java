@@ -137,7 +137,7 @@ public class LibroController {
         }
     }
     
-    @GetMapping("/baja/{id}")
+    @PostMapping("/baja/{id}")
     public String baja(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.baja(id);
@@ -148,7 +148,7 @@ public class LibroController {
         }
     }
     
-    @GetMapping("/alta/{id}") 
+    @PostMapping("/alta/{id}")
     public String alta(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.alta(id);
@@ -159,7 +159,7 @@ public class LibroController {
         }
     }
     
-    @GetMapping("/eliminar/{id}") 
+    @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable String id,ModelMap modelo) throws Exception{
         try {
             servLibro.eliminarLibro(id);

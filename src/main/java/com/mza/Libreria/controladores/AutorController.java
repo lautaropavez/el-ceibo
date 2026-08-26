@@ -53,7 +53,7 @@ public class AutorController {
     }
      
     
-    @GetMapping("/alta/{id}") 
+    @PostMapping("/alta/{id}")
     public String alta(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.altaxAutor(id);
@@ -64,7 +64,7 @@ public class AutorController {
         }
     }
     
-    @GetMapping("/baja/{id}")
+    @PostMapping("/baja/{id}")
     public String baja(@PathVariable String id,ModelMap modelo){
         try {
             servLibro.bajaxAutor(id);
@@ -75,7 +75,7 @@ public class AutorController {
         }
     }
 
-    @GetMapping("/eliminar/{id}") 
+    @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable String id,ModelMap modelo) throws Exception{
         try {
             servLibro.eliminarAutor(id);
