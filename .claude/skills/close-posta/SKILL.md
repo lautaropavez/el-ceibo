@@ -1,7 +1,7 @@
 ---
 name: close-posta
-description: Run the controlled technical closing workflow for a completed posta/task. Verify scope, build/checks, proportional testing evidence, reviewer/tester findings, Git state, and prepare the required human checkpoint before commit or merge.
-argument-hint: "[pre-commit|post-commit|pre-merge]"
+description: Run the controlled technical closing workflow for a completed posta/task. Reconstruct Git state, verify scope/build/evidence, and — only under explicit human authorization — perform the conditional stage+commit (Gate C) or fast-forward merge (Gate D). Read-only inspection, resume, and dry-run modes are also available.
+argument-hint: "[status|pre-commit|commit|post-commit|pre-merge|merge|dry-run]"
 disable-model-invocation: true
 disallowed-tools: Write Edit
 ---
@@ -15,7 +15,9 @@ This skill coordinates verification and checkpoints.
 It does NOT implement features.
 It does NOT fix findings.
 It does NOT make product decisions.
-It does NOT stage, commit, merge or push.
+It only stages, commits, or merges when explicitly authorized for the
+exact scope described in that authorization (Gate C / Gate D below) —
+never on its own initiative, never as a side effect of inspection.
 
 Always obey the repository's root `CLAUDE.md`.
 
@@ -27,287 +29,288 @@ The active SPEC/task defines:
 - acceptance criteria;
 - tests.
 
-Do not reopen already-closed audits unless the current diff or test evidence
-reveals a concrete new problem.
+Do not reopen already-closed audits unless the current diff or test
+evidence reveals a concrete new problem.
 
 ## Invocation
 
-Expected argument:
+Expected argument (mode):
 
-`pre-commit`
-`post-commit`
-or
-`pre-merge`
+- `status` — read-only state reconstruction / resume. No action.
+- `pre-commit` — read-only pre-commit checkpoint (legacy alias).
+- `commit` — Gate C: conditional stage + commit.
+- `post-commit` — read-only verification of a commit that already exists.
+- `pre-merge` — read-only pre-merge checkpoint (legacy alias).
+- `merge` — Gate D: conditional fast-forward merge.
+- `dry-run [commit|merge]` — fully read-only simulation of the named
+  gate (or of whichever gate the reconstructed state implies, if
+  omitted). Never writes to Git under any circumstance.
 
-If the phase is missing or ambiguous, ask which phase to execute.
+If the mode is missing or ambiguous, ask which mode to run. No complex
+parser: it is a single literal argument.
 
-Never infer permission to commit or merge from the invocation of this skill.
+Never infer permission to commit or merge from the invocation itself.
+`commit` and `merge` still require the human's authorization content
+(exact file scope + commit message, or base + feature branch) to be
+present before touching Git.
 
 ---
 
-# Phase: pre-commit
+## State reconstruction (always first, every mode)
 
-Use after implementation is complete and before requesting permission to
-commit.
+Before doing anything else, reconstruct the real state from Git —
+never from conversation memory, never from files under a temp
+directory. This is what makes every mode safely resumable after a
+compaction, a new chat, or an interruption: nothing durable is stored
+outside Git itself.
 
-## 1. Establish state
+Read-only commands only:
 
-Verify:
+- `git branch --show-current`
+- `git log -1 --format=...` (HEAD)
+- `git status --short --untracked-files=all`
+- `git diff --cached --name-status` (index)
+- `git diff --name-only` (unstaged)
+- `git merge-base <base> <feature>` and `--is-ancestor`
+- `git log --oneline <base>..<feature>` / `<feature>..<base>`
 
-- current branch;
-- HEAD;
-- git status;
-- active task/SPEC;
-- expected scope.
+Classify the posta into exactly one state:
 
-Identify:
+1. `sin-stage` — uncommitted changes, index empty.
+2. `staged-parcial` — index has some but not all expected files, or
+   files beyond the expected scope.
+3. `ya-commiteada` — working tree clean, HEAD already contains the
+   expected change.
+4. `lista-para-merge` — feature HEAD is ahead of base by exactly the
+   expected commit(s), base is an ancestor, no drift.
+5. `ya-mergeada` — base already contains feature's HEAD.
 
-- files expected to change;
-- files actually changed;
-- unexpected files;
-- known manual/untracked files that must remain untouched.
+If the state does not cleanly match exactly one of these five: STOP.
+Never guess, never auto-correct, never silently pick the closest one.
 
-If scope is unclear, STOP.
+Never repeat a commit or a merge that state reconstruction shows
+already happened.
 
-## 2. Verify implementation
+---
 
-Run the project-appropriate build/static verification required by the active
-project rules.
+## Phase: pre-commit (read-only)
 
-Do not invent a new build system.
+Use after implementation is complete and before requesting permission
+to commit. Produces a report only — never stages, never commits.
 
-Use the existing repository configuration and `CLAUDE.md`.
+1. Run state reconstruction (see "State reconstruction" above) and confirm branch, HEAD, and
+   expected scope.
+2. Identify files expected to change vs. files actually changed;
+   unexpected files → note them, do not resolve them here.
+3. Run the project-appropriate build/static verification required by
+   `CLAUDE.md`. Do not invent a build system. Do not run destructive
+   operations here (that is Gate B, defined in `CLAUDE.md`, always its
+   own separate authorization).
+4. Review the diff against the active SPEC/task, `CLAUDE.md`,
+   established invariants, and explicit out-of-scope items. Check
+   especially for missing implementation, scope creep, unrelated
+   refactors, accidental config changes, secrets, generated files, dead
+   code, unexpected schema/config changes.
+5. Determine test level per `CLAUDE.md` proportionality (small/medium/
+   high risk). Never lower it merely to finish faster. Never repeat a
+   closed matrix without a concrete reason.
+6. If required, invoke the tester and/or the reviewer agents, following
+   the Gate A policy defined in the project's `CLAUDE.md` (scope of what
+   they receive, correction-cycle limits). Their findings go back to
+   the implementer — this skill does not fix them.
+7. Emit the report per "Reporte compacto obligatorio" below. Do not stage. Do not commit.
 
-Then verify:
+---
 
-- build result;
-- static/compiler errors;
-- `git diff --check`;
-- changed file list;
-- no accidental unrelated changes.
+## Authorization for Gate C and Gate D
 
-Do not modify source files while this skill is active.
+Gate C and Gate D may mutate Git only when the current invocation
+explicitly includes a concise authorization and its exact targets.
+The user does not need to repeat the complete original authorization
+or previous conversation. Approval from an earlier message, invocation,
+or session never carries over. Reconstruct the actual Git state and
+abort if the branch, HEAD, scope, index, or topology differs from the
+authorized operation.
 
-If verification fails:
+- Gate C necesita autorización actual con branch, paths exactos y
+  mensaje de commit.
+- Gate D necesita autorización actual con rama base y rama feature.
 
-STOP
-and return the findings to the implementer.
+---
 
-## 3. Review the diff
+## Gate C — stage + commit condicional (mode `commit`)
 
-Inspect the actual change against:
+Requires the current authorization described above, with the exact
+file scope (paths) and the exact commit message.
 
-1. active SPEC/task;
-2. CLAUDE.md;
-3. established invariants;
-4. explicit out-of-scope items.
+1. Run state reconstruction (see "State reconstruction" above). If
+   state is not `sin-stage` with exactly the expected files changed
+   (or `staged-parcial` with only expected files already staged),
+   STOP and report the mismatch.
+2. Confirm branch and HEAD match what the authorization assumes.
+3. Confirm the only changed files (staged + unstaged + untracked) are
+   the authorized paths. Any extra file → STOP, report it, stage
+   nothing.
+4. Run the same read-only validations as the `pre-commit` phase
+   (build/check proportional to risk) if not already fresh/valid per
+   "Evidence" below.
+5. If any precondition from steps 1-4 fails: do not stage, do not
+   commit. Report the first concrete cause. STOP.
+6. If everything passes: stage with `git add -- <exact authorized
+   paths>`. Never `git add .`, `git add -A`, `git add *`, or any glob.
+7. Verify `git diff --cached --name-status` matches the authorized
+   scope exactly, and `git diff --cached --check` is clean.
+8. Create exactly one commit with the authorized message. No
+   `--amend`, no `Co-Authored-By`, no extra body text unless the
+   authorization explicitly included one.
+9. No push.
+10. Immediately run the `post-commit` verification below and include
+    it in the same report — do not wait for a separate invocation.
 
-Check especially for:
+---
 
-- missing implementation;
-- scope creep;
-- unrelated refactors;
-- accidental configuration changes;
-- secrets;
-- generated files;
-- dead code introduced by the change;
-- unexpected schema/config changes.
+## Phase: post-commit (read-only)
 
-## 4. Determine test level
+Use after a commit already exists (created by Gate C or manually with
+explicit human approval). Do NOT create the commit yourself here.
 
-Follow the testing proportionality defined by `CLAUDE.md`.
+Verify: current branch; new HEAD; commit message; expected files
+contained in the commit; no unrelated files accidentally committed;
+working tree status; known manual/untracked files remain untouched.
+Compare against the approved scope. If the commit contains unexpected
+changes: STOP.
 
-### Small / low risk
+Emit the report per "Reporte compacto obligatorio" below.
 
-Require the project's lightweight verification.
+---
 
-Functional testing may be deferred only when project rules explicitly allow
-it.
+## Phase: pre-merge (read-only)
 
-### Medium risk
+Use after the posta's commits are complete and before requesting
+permission to merge. Produces a report only — never merges.
 
-Require focused functional testing for the affected behavior.
+Use the base branch defined by the active workflow/project. Do not
+assume `master`/`main` if the repository says otherwise.
 
-### High risk
+Verify: branch history; accumulated diff; accumulated file list;
+commits belonging to the posta; no unrelated changes; required tests/
+checks still correspond to the final branch (see "Evidence" below); reviewer/
+tester findings resolved; no unresolved human decisions; working tree
+state.
 
-Security, database, migrations, concurrency, files, permissions or destructive
-operations require a dedicated matrix before commit.
+Do not rerun expensive matrices automatically unless project rules
+require it, the accumulated diff changed relevant behavior, or
+previous evidence no longer represents the branch.
 
-Never lower the test level merely to finish faster.
+Emit the report per "Reporte compacto obligatorio" below.
 
-Never repeat a closed matrix without a concrete reason.
+---
 
-## 5. Tester
+## Gate D — pre-merge + fast-forward condicional (mode `merge`)
 
-If the active workflow requires adversarial testing and the configured tester
-agent is available, invoke/use it for the approved scope.
+Requires the current authorization described in "Authorization for
+Gate C and Gate D" above, with the base branch and the feature branch.
 
-The tester must receive:
+1. Run state reconstruction (see "State reconstruction" above).
+2. Confirm working tree is clean and current branch is consistent with
+   the authorization.
+3. Confirm `<base>` is a direct ancestor of `<feature>`
+   (`git merge-base --is-ancestor`). If not: STOP, report the actual
+   topology, do not switch branches, do not merge.
+4. Show the exact commit(s) and diff in the range
+   (`git log --oneline <base>..<feature>`,
+   `git diff --name-status <base>...<feature>`).
+5. Confirm that range matches the approved scope. Any unexpected file
+   or commit → STOP, report it, do not merge.
+6. If everything passes: `git switch <base>` then
+   `git merge --ff-only <feature>`. Never any other merge strategy,
+   never rebase, never cherry-pick, never delete the feature branch,
+   never push.
+7. If the fast-forward itself fails: STOP immediately, do not attempt
+   another merge strategy, report the exact Git error.
+8. Immediately run the post-merge verification (both branches point to
+   the same HEAD, feature branch still exists, no push occurred) and
+   include it in the same report.
 
-- active SPEC;
-- implementation scope;
-- invariants;
-- relevant test environment restrictions.
+---
 
-Tester findings go back to the implementer.
+## Other safe modes
 
-Do not fix findings inside this skill.
+- `status` — reconstruct and report state only (see "State
+  reconstruction" above). Never writes to Git. Use this to resume
+  after a compaction or a new chat.
+- `dry-run [commit|merge]` — runs the same checks as the named gate
+  (or the gate implied by the reconstructed state) but never executes
+  the Git-writing step; reports what it would have done instead.
 
-If there are blocking findings:
+---
 
-STOP.
+## Evidence
 
-## 6. Reviewer
+- Evidence is tied to the exact content it was produced against:
+  commit SHA once committed, file SHA-256 while still in the working
+  tree.
+- Documentary-only changes do not invalidate test evidence over code
+  that did not change.
+- Changes to production code, tests, migrations, or relevant
+  configuration DO invalidate the evidence tied to those specific
+  files. Invalidate only what changed; state concretely what must be
+  re-run and why.
+- Never re-run a destructive operation merely for ceremony when the
+  content it would validate is unchanged from the last real run.
+- Never hide a command's real exit code behind a pipe or filter (e.g.
+  `| Select-Object -Last N`, `| tail`). If output must be filtered for
+  length, capture and report the actual exit code separately.
+- No polling, no sleep loops, no automatic retries. Use the normal
+  wait/notification mechanism for anything that runs in the
+  background.
 
-If the active workflow requires independent review and the configured reviewer
-agent is available, invoke/use it after implementation/test evidence is ready.
+---
 
-The reviewer must compare the implementation against the active SPEC and
-invariants.
+## Reporte compacto obligatorio
 
-Reviewer findings go back to the implementer.
+Use only the blocks that apply — omit any with nothing to say:
 
-Do not fix findings inside this skill.
+```
+RESULTADO
+ESTADO
+SCOPE
+EVIDENCIA
+FINDINGS
+MÉTRICAS
+SIGUIENTE GATE
+REANUDAR
+```
 
-If there are blocking findings:
-
-STOP.
-
-## 7. Final pre-commit verification
-
-After testing/review, confirm:
-
-- expected files only;
-- diff has not changed unexpectedly;
-- build/checks still represent the current diff;
-- required tests passed;
-- no blocking tester findings;
-- no blocking reviewer findings;
-- no unresolved product decision;
-- no secrets/config accidentally included.
-
-Then output the checkpoint below.
-
-Do NOT stage.
-Do NOT commit.
-
-### PRE-COMMIT CHECKPOINT
-
-Report:
-
+`REANUDAR` is always present and contains, at minimum:
+- posta/gate;
 - branch;
 - HEAD;
-- scope;
-- modified files;
-- build/check result;
-- test matrix/result;
-- tester verdict;
-- reviewer verdict;
-- unresolved findings;
-- residual risks;
-- git status.
+- working tree state;
+- evidencia vigente (referenced, not re-printed if already shown and
+  still valid);
+- next operation;
+- pending prohibitions or authorization still required.
 
-Final line:
-
-`STOP — listo para aprobación humana de commit.`
-
-If not ready:
-
-`STOP — volver al implementer.`
+Do not reprint a diff, hash, or review verdict already shown that
+remains valid — reference it instead.
 
 ---
 
-# Phase: post-commit
+## Métricas
 
-Use only after the human has explicitly approved the commit and the commit has
-already been created.
+Report, only when the data is actually available from this session —
+never estimate:
 
-Do NOT create the commit yourself.
+- number of distinct human authorizations;
+- commands executed;
+- agent invocations;
+- tests/invocations executed;
+- retries;
+- automatic corrections applied;
+- approximate elapsed time, only if reliable evidence exists.
 
-Verify:
-
-- current branch;
-- new HEAD;
-- commit message;
-- expected files contained in the commit;
-- no unrelated files accidentally committed;
-- working tree status;
-- known manual/untracked files remain untouched.
-
-Compare the commit against the approved pre-commit scope.
-
-If the commit contains unexpected changes:
-
-STOP.
-
-### POST-COMMIT CHECKPOINT
-
-Report:
-
-- branch;
-- HEAD;
-- commit inspected;
-- files committed;
-- working tree status;
-- discrepancies, if any.
-
-Final line:
-
-`STOP — commit verificado; falta control acumulado antes de merge.`
-
----
-
-# Phase: pre-merge
-
-Use after the posta's commits are complete and before requesting permission to
-merge.
-
-Do NOT merge.
-
-Compare the feature branch against its intended base branch.
-
-Use the base branch defined by the active workflow/project.
-Do not assume `master` or `main` if the repository says otherwise.
-
-Verify:
-
-- branch history;
-- accumulated diff;
-- accumulated file list;
-- commits belonging to the posta;
-- no unrelated changes;
-- required tests/checks still correspond to the final branch;
-- reviewer/tester findings are resolved;
-- no unresolved human decisions;
-- working tree state.
-
-Do not rerun expensive matrices automatically unless:
-
-- project rules require it;
-- the accumulated diff changed relevant behavior;
-- previous evidence no longer represents the branch.
-
-### PRE-MERGE CHECKPOINT
-
-Report:
-
-- source branch;
-- base branch;
-- HEAD;
-- commits included;
-- accumulated changed files;
-- accumulated verification evidence;
-- tester/reviewer final state;
-- unresolved risks;
-- working tree status.
-
-Final line:
-
-`STOP — listo para aprobación humana de merge.`
-
-If anything is inconsistent:
-
-`STOP — merge bloqueado.`
+Do not write this to any file. It is a report block only.
 
 ---
 
@@ -316,28 +319,44 @@ If anything is inconsistent:
 While this skill is active:
 
 - never Write or Edit project files;
-- never use shell commands to modify tracked source/config/docs;
-- never stage files;
-- never commit;
-- never merge;
+- never modify tracked source/config/docs outside of `git add`/
+  `git commit`/`git merge --ff-only` as described above;
+- never stage with `git add .`, `git add -A`, `git add *`, or a glob —
+  only exact paths from the authorization;
+- never commit without an explicit authorized scope + message;
+- never `--amend`, never `Co-Authored-By`;
+- never merge with anything but `--ff-only`;
+- never rebase, cherry-pick, reset, or clean destructively;
+- never use `git stash`/`git stash pop` to compare states, prepare a
+  close, or temporarily hold changes;
+- never use `reset`, `restore`, or `checkout` on files to reconstruct
+  state;
+- state comparisons are made exclusively through read-only Git
+  commands (see "State reconstruction" above); if the current state
+  blocks progress, report the difference and STOP — never work around
+  it with any of the commands above;
+- never delete branches;
 - never push;
-- never reset/clean/rebase destructively;
 - never change permissions;
 - never modify secrets or local configuration;
-- never perform destructive operations against a real database;
+- never perform destructive operations against a real database — that
+  is Gate B, defined in the project's `CLAUDE.md`, always its own
+  separate human authorization;
 - never broaden scope;
-- never resolve a new product decision without the human.
+- never resolve a new product decision without the human;
+- never hide a command's real exit code;
+- never poll with sleep loops or start your own retry loops.
 
-Build artifacts and disposable test artifacts are allowed only when required
-by the project's approved verification workflow.
+Build artifacts and disposable test artifacts are allowed only when
+required by the project's approved verification workflow.
 
-If a required command needs permission, request it normally.
-Never bypass the permission system.
+If a required command needs permission, request it normally. Never
+bypass the permission system.
 
 # Core principle
 
-A posta is ready to advance only when the evidence corresponds to the exact
-code that is about to advance.
+A posta is ready to advance only when the evidence corresponds to the
+exact code that is about to advance.
 
 Do not optimize for producing a PASS.
 

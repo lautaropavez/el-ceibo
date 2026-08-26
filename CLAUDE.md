@@ -307,3 +307,89 @@ Las decisiones nuevas de producto vuelven al humano.
 No usar autonomía multiagente para tareas triviales si agrega
 
 más complejidad que valor.
+
+
+
+Gate A — Implementación y review
+
+
+
+Scope exacto autorizado antes de editar.
+
+
+
+Verificación estática o compilación proporcional al riesgo del cambio.
+
+
+
+El reviewer independiente recibe únicamente la SPEC/contrato activo, el
+
+diff real y los archivos estrictamente necesarios. No recibe la
+
+conclusión del implementador ni una lista de findings esperados.
+
+Preguntas dirigidas solo se agregan después de su revisión abierta,
+
+únicamente para riesgos concretos ya identificados.
+
+
+
+El implementer puede aplicar una sola corrección automática dentro del
+
+scope autorizado, exclusivamente para findings objetivos de severidad
+
+LOW o MEDIUM. El reviewer nunca aplica correcciones ni stagea ni
+
+commitea, conforme a la sección "Agentes" de este documento.
+
+
+
+BLOCKER, HIGH, una decisión de producto o cualquier expansión de scope
+
+requieren STOP humano. Un segundo ciclo de corrección también requiere
+
+STOP humano.
+
+
+
+El adversarial-tester se invoca únicamente ante riesgo concreto:
+
+seguridad, concurrencia, migraciones, operaciones destructivas o un
+
+threat model explícito. No se invoca por rutina.
+
+
+
+Gate B — Operación destructiva
+
+
+
+Toda operación destructiva (ejecución real de tests que tocan una base
+
+de datos, migraciones, DROP/CREATE, u operaciones equivalentes) requiere
+
+una autorización humana separada de los Gates A, C y D — nunca implícita
+
+ni agrupada con otro gate.
+
+
+
+Antes de ejecutar: preflight read-only, destino e impacto exactos
+
+confirmados.
+
+
+
+Una sola ejecución por autorización. Si falla: no reintentar, no reparar
+
+automáticamente. Identificar la primera causa raíz y STOP.
+
+
+
+Gates C y D (stage+commit condicional y pre-merge+merge condicional)
+
+están definidos operativamente en .claude/skills/close-posta/SKILL.md.
+
+Esta sección no duplica ese procedimiento; define únicamente la política
+
+de los Gates A y B.
