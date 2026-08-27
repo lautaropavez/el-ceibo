@@ -11286,3 +11286,19 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+
+/* P15.3: botón de logout del navbar (antes <a class="nav-link">, ahora
+   <button> dentro de un <form method="post"> para que CSRF lo proteja en
+   P15.4). Solo resetea lo propio de <button> que nav-link no cubre; color,
+   padding, display, line-height, text-decoration y hover siguen viniendo
+   de nav-link, igual que en el enlace anterior. */
+.logout-nav-button {
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}

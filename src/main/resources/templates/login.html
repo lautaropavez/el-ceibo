@@ -60,7 +60,7 @@
                     </div>
                     <div class="col-lg-6 order-lg-1">
                         <div class="p-5">
-                            <form action="/logincheck" method="POST" id="form">
+                            <form th:action="@{/logincheck}" method="POST" id="form">
                                 <div class="form">
                                     <h2 class=" align-content-center">¡Ingresa, tus libros te están esperando!</h2>
                                     <div th:if="${exito}!=null" class="card text-white bg-success">

@@ -127,6 +127,36 @@ bottom: 0;
     cursor: pointer;
 }
 
+/* Botón de logout: mismo aspecto que los demás <a> de .options__menu,
+   pero es un <button> dentro de un <form method="post"> (POST real,
+   requerido para que CSRF lo proteja en P15.4). Reutiliza color/hover/
+   transition de ".options__menu a" y solo resetea lo propio de <button>
+   (fondo, borde, ancho, fuente, alineación) que ".option" no cubre. */
+.options__menu .option-logout{
+    background: none;
+    border: none;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    color: #ffffffb2;
+    cursor: default;
+    transition: color 300ms;
+}
+
+.options__menu .option-logout:hover{
+    color: white;
+}
+
+.options__menu .option-logout:focus-visible{
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.options__menu .option-logout span{
+    font-weight: 300;
+    cursor: pointer;
+}
+
 /* Es para marcar la clase(el ícono) seleccionada en blanco min34*/
 a.selected{
     color: #fff;

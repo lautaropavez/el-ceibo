@@ -52,13 +52,11 @@
                     <h4>Nosotros</h4>
                 </div>
             </a>
-            <!-- TODO revisar comentario antes de publicar: cuando se reactive CSRF,
-                 revisar este logout y probablemente cambiarlo a un form POST /logout. -->
-            <a href="/logout">
-                <div class="option">
+            <form method="post" th:action="@{/logout}">
+                <button type="submit" class="option option-logout">
                     <i class="fa-solid fa-right-from-bracket" title="Cerrar sesión"></i>
-                    <h4>Cerrar sesión</h4>
-                </div>
-            </a>
+                    <span class="h4">Cerrar sesión</span>
+                </button>
+            </form>
         </div>
     </div>

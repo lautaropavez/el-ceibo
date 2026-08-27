@@ -73,7 +73,7 @@
                                     <p class="card-text"th:text="${error}"></p> 
                                 </div>
                             </div>
-                            <form action="/registrar" method="POST" id="form">  <!-- Cuando yo haga click en registrarme, va a ejecutar una action que es una URL, entonces action le ponemos el nombre de la action que se va a ejecutar en el servidor-->
+                            <form th:action="@{/registrar}" method="POST" id="form">  <!-- Cuando yo haga click en registrarme, va a ejecutar una action que es una URL, entonces action le ponemos el nombre de la action que se va a ejecutar en el servidor-->
                                 <div class="form">
                                     <h2 class="">Registro</h2>
                                     
