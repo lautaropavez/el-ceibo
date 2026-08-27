@@ -1,6 +1,7 @@
 package com.mza.Libreria.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -102,7 +103,7 @@ class WebSecurityMockMvcTest {
     void autorizacionPorRutaYRol_respetaLasReglasDeSecurityConfig(
             String actor, String metodo, String ruta, String esperado) throws Exception {
 
-        MockHttpServletRequestBuilder request = "POST".equals(metodo) ? post(ruta) : get(ruta);
+        MockHttpServletRequestBuilder request = "POST".equals(metodo) ? post(ruta).with(csrf()) : get(ruta);
 
         if (!"ANONIMO".equals(actor)) {
             request = request.with(
@@ -129,7 +130,7 @@ class WebSecurityMockMvcTest {
         Usuario usuario = crearUsuario("solicitar-ok", Rol.USUARIO);
         Libro libro = crearLibroConStock("solicitar-ok");
 
-        mockMvc.perform(post("/prestamo/solicitar").param("libroId", libro.getId()))
+        mockMvc.perform(post("/prestamo/solicitar").param("libroId", libro.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/prestamo/mis-prestamos"))
                 .andExpect(flash().attributeExists("exito"));
@@ -158,7 +159,7 @@ class WebSecurityMockMvcTest {
         assertThat(libroAgotado.getEjemplaresRestantes()).isEqualTo(0);
         assertThat(libroAgotado.getEjemplaresPrestados()).isEqualTo(1);
 
-        mockMvc.perform(post("/prestamo/solicitar").param("libroId", libro.getId()))
+        mockMvc.perform(post("/prestamo/solicitar").param("libroId", libro.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/libro/biblioteca"))
                 .andExpect(flash().attributeExists("error"));
@@ -179,7 +180,8 @@ class WebSecurityMockMvcTest {
 
         mockMvc.perform(post("/prestamo/solicitar")
                         .param("libroId", libro.getId())
-                        .param("usuarioId", usuarioB.getId()))
+                        .param("usuarioId", usuarioB.getId())
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/prestamo/mis-prestamos"))
                 .andExpect(flash().attributeExists("exito"));
@@ -223,7 +225,7 @@ class WebSecurityMockMvcTest {
 
         Prestamo prestamo = servicePrestamo.solicitar(usuario.getMail(), libro.getId());
 
-        mockMvc.perform(post("/prestamo/devolver").param("prestamoId", prestamo.getId()))
+        mockMvc.perform(post("/prestamo/devolver").param("prestamoId", prestamo.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/prestamo/lista"))
                 .andExpect(flash().attributeExists("exito"));
@@ -241,7 +243,7 @@ class WebSecurityMockMvcTest {
     void devolver_conPrestamoInexistente_redirigeConFlashErrorSin500() throws Exception {
         assertThat(prestamoRepo.findById(PRESTAMO_ID_INEXISTENTE)).isEmpty();
 
-        mockMvc.perform(post("/prestamo/devolver").param("prestamoId", PRESTAMO_ID_INEXISTENTE))
+        mockMvc.perform(post("/prestamo/devolver").param("prestamoId", PRESTAMO_ID_INEXISTENTE).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/prestamo/lista"))
                 .andExpect(flash().attributeExists("error"));

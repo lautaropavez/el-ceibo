@@ -29,13 +29,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // TODO revisar comentario antes de publicar:
-            // CSRF deshabilitado a propósito. Los forms actuales (login.html,
-            // registro.html, nuevoLibro.html, etc.) usan action="..." plano,
-            // sin th:action ni token _csrf oculto. Con CSRF activo, todo POST
-            // (incluido /logincheck y /registrar) devolvería 403 Forbidden.
-            // Reactivar cuando los templates usen th:action + input _csrf.
-            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // --- Público: home, auth, registro, estáticos, consulta de catálogo ---
                 .antMatchers(

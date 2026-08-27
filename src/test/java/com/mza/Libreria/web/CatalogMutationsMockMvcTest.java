@@ -1,6 +1,7 @@
 package com.mza.Libreria.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -67,7 +68,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarAutor(autor.getId()).isAlta()).isFalse();
 
-        mockMvc.perform(post("/autor/alta/{id}", autor.getId()))
+        mockMvc.perform(post("/autor/alta/{id}", autor.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/autor/lista"));
         assertThat(recargarAutor(autor.getId()).isAlta()).isTrue();
@@ -82,7 +83,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarAutor(autor.getId()).isAlta()).isTrue();
 
-        mockMvc.perform(post("/autor/baja/{id}", autor.getId()))
+        mockMvc.perform(post("/autor/baja/{id}", autor.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/autor/lista"));
         assertThat(recargarAutor(autor.getId()).isAlta()).isFalse();
@@ -97,7 +98,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(autorRepo.findById(autor.getId())).isPresent();
 
-        mockMvc.perform(post("/autor/eliminar/{id}", autor.getId()))
+        mockMvc.perform(post("/autor/eliminar/{id}", autor.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/autor/lista"));
         assertThat(autorRepo.findById(autor.getId())).isEmpty();
@@ -112,7 +113,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarEditorial(editorial.getId()).isAlta()).isFalse();
 
-        mockMvc.perform(post("/editorial/alta/{id}", editorial.getId()))
+        mockMvc.perform(post("/editorial/alta/{id}", editorial.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/editorial/lista"));
         assertThat(recargarEditorial(editorial.getId()).isAlta()).isTrue();
@@ -127,7 +128,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarEditorial(editorial.getId()).isAlta()).isTrue();
 
-        mockMvc.perform(post("/editorial/baja/{id}", editorial.getId()))
+        mockMvc.perform(post("/editorial/baja/{id}", editorial.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/editorial/lista"));
         assertThat(recargarEditorial(editorial.getId()).isAlta()).isFalse();
@@ -142,7 +143,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(editorialRepo.findById(editorial.getId())).isPresent();
 
-        mockMvc.perform(post("/editorial/eliminar/{id}", editorial.getId()))
+        mockMvc.perform(post("/editorial/eliminar/{id}", editorial.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/editorial/lista"));
         assertThat(editorialRepo.findById(editorial.getId())).isEmpty();
@@ -161,7 +162,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarLibro(libro.getId()).getAlta()).isFalse();
 
-        mockMvc.perform(post("/libro/alta/{id}", libro.getId()))
+        mockMvc.perform(post("/libro/alta/{id}", libro.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/libro/lista"));
         assertThat(recargarLibro(libro.getId()).getAlta()).isTrue();
@@ -179,7 +180,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarLibro(libro.getId()).getAlta()).isTrue();
 
-        mockMvc.perform(post("/libro/baja/{id}", libro.getId()))
+        mockMvc.perform(post("/libro/baja/{id}", libro.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/libro/lista"));
         assertThat(recargarLibro(libro.getId()).getAlta()).isFalse();
@@ -196,7 +197,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(libroRepo.findById(libro.getId())).isPresent();
 
-        mockMvc.perform(post("/libro/eliminar/{id}", libro.getId()))
+        mockMvc.perform(post("/libro/eliminar/{id}", libro.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/libro/lista"));
         assertThat(libroRepo.findById(libro.getId())).isEmpty();
@@ -211,7 +212,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarUsuario(usuario.getId()).getBaja()).isNotNull();
 
-        mockMvc.perform(post("/usuario/alta/{id}", usuario.getId()))
+        mockMvc.perform(post("/usuario/alta/{id}", usuario.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/usuario/lista"));
         assertThat(recargarUsuario(usuario.getId()).getBaja()).isNull();
@@ -226,7 +227,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(recargarUsuario(usuario.getId()).getBaja()).isNull();
 
-        mockMvc.perform(post("/usuario/baja/{id}", usuario.getId()))
+        mockMvc.perform(post("/usuario/baja/{id}", usuario.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/usuario/lista"));
         assertThat(recargarUsuario(usuario.getId()).getBaja()).isNotNull();
@@ -241,7 +242,7 @@ class CatalogMutationsMockMvcTest {
                 .andExpect(status().isMethodNotAllowed());
         assertThat(usuarioRepo.findById(usuario.getId())).isPresent();
 
-        mockMvc.perform(post("/usuario/eliminar/{id}", usuario.getId()))
+        mockMvc.perform(post("/usuario/eliminar/{id}", usuario.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/usuario/lista"));
         assertThat(usuarioRepo.findById(usuario.getId())).isEmpty();
