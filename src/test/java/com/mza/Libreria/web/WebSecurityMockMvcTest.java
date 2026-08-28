@@ -98,7 +98,12 @@ class WebSecurityMockMvcTest {
         "USUARIO, GET,  /prestamo/lista,         FORBIDDEN",
         "USUARIO, POST, /prestamo/devolver,      FORBIDDEN",
         "ADMIN,   GET,  /libro/lista,            OK",
-        "ADMIN,   GET,  /prestamo/lista,         OK"
+        "ADMIN,   GET,  /prestamo/lista,         OK",
+        "USUARIO, GET,  /autor/registroAutor,        FORBIDDEN",
+        "USUARIO, GET,  /editorial/registroEditorial, FORBIDDEN",
+        "USUARIO, GET,  /libro/registro,              FORBIDDEN",
+        "USUARIO, GET,  /libro/modificar/1,           FORBIDDEN",
+        "USUARIO, GET,  /usuario/modificar/1,         FORBIDDEN"
     })
     void autorizacionPorRutaYRol_respetaLasReglasDeSecurityConfig(
             String actor, String metodo, String ruta, String esperado) throws Exception {
