@@ -1,6 +1,6 @@
 # ROADMAP EL CEIBO — ESTADO CANÓNICO Y CIERRE
 
-**Actualizado:** 27 de agosto de 2026
+**Actualizado:** 28 de agosto de 2026
 
 **Objetivo:** terminar El Ceibo como un proyecto Java/Spring Boot funcional, seguro, probado, reproducible y defendible en entrevistas técnicas.
 
@@ -25,12 +25,13 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 27/08/2026 |
+| Fecha del checkpoint | 28/08/2026 |
 | Branch de trabajo | `feature/final-security-csrf` |
-| Último commit funcional | `ce023f8450f09d9ecf4871ff076c7412edff0093` |
-| Mensaje | `Enable CSRF protection and tests` |
-| Fase actual | P15.5 — Roles, navegación y privilegios |
-| Próxima operación | P15.5 Gate A |
+| Último commit funcional validado | `cafe44215ac2d27816c236f85da2ef5ce6ed606f` |
+| Mensaje | `Expand role authorization coverage` |
+| P15 | implementación y validación final completadas |
+| Próxima fase funcional | P16 |
+| Integración prevista | fast-forward only — Gate D pendiente de autorización separada |
 | Base normal `libreriaweb` | Flyway V3; protegida |
 | Base de tests | `libreriaweb_testsuite`; descartable; Flyway V1→V4 |
 
@@ -43,15 +44,13 @@ este roadmap
 | P1–P12.5 | ✅ Cerradas | Base, seguridad inicial, catálogo, usuarios, Flyway e integridad |
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
-| P15 | 🟡 En curso | P15.0–P15.4 cerradas; P15.5 próxima; P15.6 pendiente antes del merge |
+| P15 | 🟢 Validación completa, merge pendiente | P15.0–P15.6 cerradas; build final PASS; pendiente Gate D (merge fast-forward, requiere autorización) |
 | P16 | ⏳ Pendiente | Smoke, documentación, demo, clon limpio y publicación |
 
 Secuencia restante:
 
 ```text
-P15.5 roles, navegación y privilegios
-    ↓
-P15.6 validación acumulada y merge
+Gate D — merge fast-forward a master (pendiente autorización)
     ↓
 P16 migración demo + smoke + portfolio
     ↓
@@ -70,8 +69,8 @@ migraciones.
 | 08–23 ago | ✅ P12.5, P13 y P14 cerradas |
 | 24–26 ago | ✅ P15.0–P15.3 y TOOLING.2 cerradas |
 | 27–30 ago | ✅ P15.4 — CSRF activado, 72/72 tests y commit |
-| 31 ago–3 sep | P15.5: roles, navegación y privilegios |
-| 4–6 sep | P15.6: validación acumulada y merge a `master` |
+| 31 ago–3 sep | ✅ P15.5 — roles y privilegios, 5 casos nuevos, 77/77 (cerrada 28 ago, antes de lo previsto) |
+| 4–6 sep | ✅ P15.6 — build final PASS, merge pendiente de autorización (cerrada 28 ago) |
 | 7–10 sep | P16.0–P16.2: migración V4 controlada, smoke y pulido visual |
 | 11–13 sep | P16.3–P16.7: README, diagramas, demo, clon limpio y publicación |
 | 14–20 sep | Margen para findings reales o deudas imprevistas |
@@ -86,13 +85,11 @@ Estimación restante aproximada:
 
 | Bloque | Horas efectivas |
 |---|---:|
-| P15.5 — gaps de seguridad | 2–4 h |
-| P15.6 — cierre y merge | 2–3 h |
-| P16.0–P16.2 — DB demo, smoke y visual | 2–4 h |
+| P16.0–P16.2 — DB demo, smoke y visual (incluye migración V4) | 2–4 h |
 | P16.3–P16.5 — README, diagramas y demo | 5–8 h |
 | P16.6–P16.7 — clon limpio y publicación | 2–3 h |
 
-**Total estimado:** 13–22 horas efectivas, más margen si aparece un finding
+**Total estimado:** 9–15 horas efectivas, más margen si aparece un finding
 real. No sumar tiempo artificial repitiendo matrices que ya tienen evidencia
 vigente.
 
@@ -177,75 +174,56 @@ Commit:
 
 `ce023f8450f09d9ecf4871ff076c7412edff0093`
 
-## P15.5 — Roles, navegación y privilegios ⏳
+## P15.5 — Roles, navegación y privilegios ✅
 
-P15.5 no debe duplicar P15.2/P15.4 ni perseguir una cifra decorativa de tests.
-Primero debe contrastar la SPEC y el inventario de rutas contra el baseline
-confirmado: 72 tests en 7 clases. Solo se agregan casos cuando exista un gap
-demostrable.
+Resultado:
 
-Revisar:
+- auditoría completa de roles, navegación y privilegios — no se encontraron
+  vulnerabilidades de aplicación dentro del scope auditado;
+- matriz anónimo/USUARIO/ADMIN, IDOR, escalada de privilegios y navegación
+  verificadas contra el código real, no solo contra templates;
+- 5 casos HTTP nuevos: USUARIO por GET sobre 5 rutas administrativas →
+  `403` (`/autor/registroAutor`, `/editorial/registroEditorial`,
+  `/libro/registro`, `/libro/modificar/{id}`, `/usuario/modificar/{id}`);
+- `WebSecurityMockMvcTest`: 19 → 24 tests;
+- suite resultante: 77/77 en 7 clases;
+- review independiente: PASS, 0 findings;
+- 3 deudas diferidas identificadas (ver sección 6).
 
-- matriz anónimo / USUARIO / ADMIN sobre rutas públicas, autenticadas y
-  administrativas;
-- coherencia entre `SecurityConfig` y los controladores (privilegios backend
-  reales, no solo visuales);
-- navegación visible acorde a esos privilegios (qué ve cada rol en
-  sidebar/navbar);
-- anónimo → redirección/login cuando corresponda;
-- IDOR y parámetros de identidad manipulados;
-- respuestas 403 y redirecciones correctas según el caso (login para
-  anónimo, 403 para rol insuficiente);
-- ausencia de mutaciones GET residuales;
-- ausencia de 500 en entradas inválidas importantes — respuesta controlada;
-- hashes de contraseña no expuestos ni reemplazados accidentalmente;
-- ausencia de secretos o credenciales trackeadas;
-- coherencia final entre `SecurityConfig`, controladores y templates.
+Commit:
 
-Hallazgos LOW conocidos que deben decidirse, no corregirse por reflejo:
+`cafe44215ac2d27816c236f85da2ef5ce6ed606f`
 
-- respuesta 400 genérica cuando falta algún `id`;
-- navegación ADMIN poco visible o ausente en ciertos flujos.
+## P15.6 — Cierre acumulado y validación final ✅
 
-El primero no bloquea por sí solo. El segundo debe verificarse durante el smoke
-visual de P16 y corregirse solamente si continúa afectando la demo.
+Resultado:
 
-Salida esperada de P15.5:
+- topología confirmada: `master` (`bea2a36`) ancestro directo de HEAD, sin
+  drift, 5 commits exclusivos de P15, sin merges/fixups — fast-forward
+  posible;
+- scope acumulado auditado íntegro (`master...HEAD`, 23 paths): ninguna
+  migración V1–V4, servicio, entidad, repositorio ni `pom.xml` tocados fuera
+  de lo previsto por la SPEC de P15;
+- revisión acumulada independiente (diff completo `master...HEAD`): PASS,
+  0 BLOCKER, 0 HIGH, 0 MEDIUM;
+- `./mvnw -ntp clean package` → `BUILD SUCCESS`;
+- 77 tests, 0 failures, 0 errors, 0 skipped, en 7 reportes Surefire frescos;
+- Flyway V1→V4 con `success = 1` exclusivamente en `libreriaweb_testsuite`;
+  `libreriaweb` no fue objetivo de ninguna conexión ni operación;
+- JAR generado: `target/Libreria-0.0.1-SNAPSHOT.jar`, 47116438 bytes,
+  SHA-256 `34bc1e010075d5084431661de727da7de90aa8e2d0ceb9a42b248bd1b639d78e`
+  — inspeccionado read-only: manifest válido (`Main-Class`
+  `org.springframework.boot.loader.JarLauncher`, `Start-Class`
+  `com.mza.Libreria.LibreriaWebApplication`), clases productivas y
+  migraciones V1–V4 presentes, sin recursos ni clases de `src/test`, sin
+  secretos. El hash identifica el artefacto de este Gate B — no constituye
+  todavía una garantía de build reproducible desde clon limpio, eso se valida
+  recién en P16.6;
+- `java -jar` diferido a P16.
 
-- matriz real cerrada;
-- tests dirigidos únicamente para gaps;
-- suite PASS;
-- review independiente;
-- commit propio si hubo cambios.
-
-La cantidad final de tests se fija después de la auditoría de P15.5; no se
-inventa anticipadamente.
-
-## P15.6 — Cierre acumulado y merge ⏳
-
-Checklist:
-
-- branch limpia y commits coherentes;
-- comparar `feature/final-security-csrf` contra `master`;
-- confirmar que `master` no cambió inesperadamente;
-- review independiente del diff acumulado de P15;
-- revisar secretos, archivos generados y scope;
-- confirmar migraciones V1–V4 inmutables;
-- ejecutar una validación final limpia contra `libreriaweb_testsuite`;
-- verificar artefacto empaquetado;
-- Gate D y merge a `master`;
-- checkpoint post-merge;
-- sin push todavía.
-
-Validación final propuesta:
-
-`./mvnw -ntp clean package`
-
-`package` ya ejecuta la suite. No correr además `clean test` y luego
-`clean package`, porque eso repetiría la misma suite y reconstruiría la base dos
-veces sin ganar evidencia. Solo separar comandos si un Gate A posterior
-demuestra una necesidad concreta. Esta ejecución requiere su propio Gate B
-porque vuelve a reconstruir `libreriaweb_testsuite`.
+**Pendiente, no ejecutado todavía:** Gate D (revisión pre-merge y merge
+fast-forward de `feature/final-security-csrf` a `master`) — requiere
+autorización separada.
 
 ---
 
@@ -405,18 +383,30 @@ clon limpio reproducible
 
 ## Bloqueantes antes de publicar
 
-- completar P15.5 y P15.6;
-- migrar `libreriaweb` de V3 a V4 de forma controlada;
-- hacer smoke funcional;
-- verificar clon limpio;
-- revisar secretos y archivos trackeados.
+Controles obligatorios antes de cualquier push o publicación:
+
+- auditoría de dependencias y CVEs;
+- escaneo de secretos sobre todo el historial Git;
+- clon limpio y build reproducible;
+- migración controlada de `libreriaweb` a V4;
+- ejecución `java -jar`;
+- smoke funcional y visual;
+- navegación ADMIN y deudas LOW;
+- README, diagramas, capturas y demo.
 
 ## No bloqueantes
 
-- mejorar el 400 genérico por parámetros ausentes si aporta UX real;
+- navegación ADMIN ausente en `index.html`, `biblioteca.html` y
+  `mis-prestamos.html` → diferida a P16;
+- `cambiarRol()` sin ruta HTTP → código muerto, evaluar en backlog/P16;
+- `UsuarioController` sin null-check para ID inexistente en
+  `/usuario/modificar/{id}` → un ADMIN sí puede alcanzar el controller con un
+  id inválido y provocar un `500`; deuda LOW de robustez/UX, no
+  vulnerabilidad de autorización;
+- mejorar el 400 genérico por parámetros ausentes si aporta UX real (ya
+  aceptado y documentado en la SPEC de P15, sin cambios);
 - limpiar bases temporales históricas cuando ya no hagan falta;
 - revisar la cuarentena/mantenimiento de MariaDB;
-- pulir navegación ADMIN si el smoke confirma el defecto;
 - adaptar `close-posta` a Gastos Express después de cerrar El Ceibo.
 
 ## Deuda ya cerrada
@@ -604,4 +594,7 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**P15.5 — Gate A: auditoría read-only de roles, navegación y privilegios.**
+**Gate D — revisión pre-merge y merge fast-forward de
+`feature/final-security-csrf` a `master`.** Requiere autorización separada;
+todavía no ejecutado. Después de ese merge, P16.0 arranca con una
+autorización nueva.
