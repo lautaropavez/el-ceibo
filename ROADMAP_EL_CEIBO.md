@@ -1,6 +1,6 @@
 # ROADMAP EL CEIBO — ESTADO CANÓNICO Y CIERRE
 
-**Actualizado:** 28 de agosto de 2026
+**Actualizado:** 1 de septiembre de 2026
 
 **Objetivo:** terminar El Ceibo como un proyecto Java/Spring Boot funcional, seguro, probado, reproducible y defendible en entrevistas técnicas.
 
@@ -25,15 +25,16 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 28/08/2026 |
-| Branch de trabajo | `feature/final-security-csrf` |
-| Último commit funcional validado | `cafe44215ac2d27816c236f85da2ef5ce6ed606f` |
-| Mensaje | `Expand role authorization coverage` |
-| P15 | implementación y validación final completadas |
-| Próxima fase funcional | P16 |
-| Integración prevista | fast-forward only — Gate D pendiente de autorización separada |
+| Fecha del checkpoint | 01/09/2026 |
+| Rama activa | `feature/portfolio-publication` |
+| Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
+| Mensaje del HEAD base | `Finalize P15 security roadmap` |
+| P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
+| `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
+| P16 | iniciada únicamente en Gate A (auditoría read-only); implementación todavía no iniciada |
 | Base normal `libreriaweb` | Flyway V3; protegida |
 | Base de tests | `libreriaweb_testsuite`; descartable; Flyway V1→V4 |
+| Baseline de tests vigente | 77 tests en 7 clases |
 
 ---
 
@@ -44,15 +45,15 @@ este roadmap
 | P1–P12.5 | ✅ Cerradas | Base, seguridad inicial, catálogo, usuarios, Flyway e integridad |
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
-| P15 | 🟢 Validación completa, merge pendiente | P15.0–P15.6 cerradas; build final PASS; pendiente Gate D (merge fast-forward, requiere autorización) |
-| P16 | ⏳ Pendiente | Smoke, documentación, demo, clon limpio y publicación |
+| P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
+| P16 | 🟡 En auditoría (Gate A) | Baseline, secretos, higiene de repo, concurrencia, demo seeder y licencias relevados; implementación todavía no iniciada |
 
 Secuencia restante:
 
 ```text
-Gate D — merge fast-forward a master (pendiente autorización)
+P16.0 — baseline canónico y SPEC
     ↓
-P16 migración demo + smoke + portfolio
+P16.1–P16.7 — dependencias, concurrencia, demo, UX, smoke, documentación, publicación
     ↓
 publicación
 ```
@@ -70,28 +71,28 @@ migraciones.
 | 24–26 ago | ✅ P15.0–P15.3 y TOOLING.2 cerradas |
 | 27–30 ago | ✅ P15.4 — CSRF activado, 72/72 tests y commit |
 | 31 ago–3 sep | ✅ P15.5 — roles y privilegios, 5 casos nuevos, 77/77 (cerrada 28 ago, antes de lo previsto) |
-| 4–6 sep | ✅ P15.6 — build final PASS, merge pendiente de autorización (cerrada 28 ago) |
-| 7–10 sep | P16.0–P16.2: migración V4 controlada, smoke y pulido visual |
-| 11–13 sep | P16.3–P16.7: README, diagramas, demo, clon limpio y publicación |
-| 14–20 sep | Margen para findings reales o deudas imprevistas |
+| 4–6 sep | ✅ P15.6 — build final PASS y merge fast-forward a `master` (cerrada 30 ago, antes de lo previsto) |
+| 1 sep | P16.0 — baseline canónico y SPEC |
+| 2–3 sep | P16.1 — dependencias, secretos, wrapper y licencias |
+| 4–6 sep | P16.2 — concurrencia, integridad y robustez |
+| 7 sep | P16.3 — base y datos demo seguros |
+| 8–9 sep | P16.4 — navegación, UX, accesibilidad y assets |
+| 10 sep | P16.5 — smoke funcional y visual |
+| 11–12 sep | P16.6 — README, diagramas, capturas y defensa técnica |
+| 13 sep | P16.7 — clon limpio, package, `java -jar` y publicación |
+| 14–20 sep | Margen para findings reales, modernización si la SCA la exige, o deudas imprevistas |
 
 Objetivos orientativos:
 
-- P15 mergeada: alrededor del **6 de septiembre**;
+- P15 mergeada: **30 de agosto** (real, ya cerrada);
 - proyecto publicable: alrededor del **13 de septiembre**;
 - margen prudente de cierre: hasta el **20 de septiembre**.
 
-Estimación restante aproximada:
-
-| Bloque | Horas efectivas |
-|---|---:|
-| P16.0–P16.2 — DB demo, smoke y visual (incluye migración V4) | 2–4 h |
-| P16.3–P16.5 — README, diagramas y demo | 5–8 h |
-| P16.6–P16.7 — clon limpio y publicación | 2–3 h |
-
-**Total estimado:** 9–15 horas efectivas, más margen si aparece un finding
+**Estimación base:** 22–36 horas efectivas, más margen si aparece un finding
 real. No sumar tiempo artificial repitiendo matrices que ya tienen evidencia
-vigente.
+vigente. Una migración obligatoria a Spring Boot 3, si la SCA de P16.1 la
+demuestra necesaria, se estima por separado y no se oculta dentro de este
+rango.
 
 ---
 
@@ -221,34 +222,127 @@ Resultado:
   recién en P16.6;
 - `java -jar` diferido a P16.
 
-**Pendiente, no ejecutado todavía:** Gate D (revisión pre-merge y merge
-fast-forward de `feature/final-security-csrf` a `master`) — requiere
-autorización separada.
+Gate D (revisión pre-merge y merge fast-forward de
+`feature/final-security-csrf` a `master`) se autorizó y ejecutó por
+separado a continuación de este cierre — ver checkpoint (sección 1) para el
+HEAD final resultante.
 
 ---
 
 # 5. P16 — PORTFOLIO Y PUBLICACIÓN
 
-## P16.0 — Preparar la base demo y aplicar V4 ⏳ NUEVO BLOQUE NECESARIO
+## P16.0 — Baseline canónico y SPEC 🟡 EN AUDITORÍA (Gate A)
 
-La migración V4 existe y está validada en bases de prueba, pero la base normal
-`libreriaweb` continúa en Flyway V3. Antes de iniciar la aplicación real para
-smoke, capturas o demo:
+Auditoría read-only completa realizada: identidad y topología Git,
+comparación del snapshot exportado contra el contenido ya auditado, secretos
+en todo el historial (69 commits, todas las ramas), higiene de repo
+(`.gitattributes`, checksum del wrapper, coordenadas del conector MySQL,
+dependencias sin uso), concurrencia en `ServiceLibro`/`ServicePrestamo`,
+`DemoDataSeeder`, procedencia de imágenes, y estado de README/CLAUDE.md.
 
-1. confirmar branch `master` limpia después de P15;
-2. identificar de forma explícita host, puerto y schema;
-3. verificar que el target sea exactamente `libreriaweb`;
-4. generar y comprobar un backup previo;
-5. confirmar que Flyway informa versión 3;
-6. autorizar separadamente la aplicación de V4;
-7. dejar que Flyway sea el único dueño del cambio de schema;
-8. validar que la base queda en V4 y que Hibernate
-   `ddl-auto=validate` inicia correctamente.
+No se encontraron secretos reales en la auditoría manual disponible sobre
+todo el historial; **scanners dedicados (gitleaks/trufflehog) quedan
+pendientes antes de publicar** — no hay ninguno instalado en este entorno y
+no se instaló nada sin autorización (ver P16.1).
 
-No ejecutar la aplicación contra `libreriaweb` mientras siga en V3. No aplicar
-DDL manual ni reutilizar los scripts destructivos de `libreriaweb_testsuite`.
+### Findings MEDIUM de concurrencia — diseño pendiente, sin corregir todavía
 
-## P16.1 — Smoke funcional y visual ⏳
+**MEDIUM 1 — Carrera préstamo/devolución vs alta/baja de Libro.**
+El `UPDATE` de InnoDB espera el lock, pero no refresca la entidad ya leída en
+memoria. Sin `@Version` ni lock explícito, `ServiceLibro.alta()`/`baja()`
+pueden terminar operando sobre una instancia de `Libro` con datos de stock
+obsoletos. Finding pendiente de corrección y de una matriz de test
+concurrente dedicada.
+
+**MEDIUM 2 — Baja de Autor/Editorial vs crear, modificar o reactivar Libro.**
+Puede terminar con un `Libro` activo asociado a un Autor/Editorial inactivo.
+`AutorRepository` y `EditorialRepository` no tienen ningún método de lock
+pesimista, a diferencia de `UsuarioRepository`, `LibroRepository`,
+`PrestamoRepository` y `PortadaRepository`.
+
+**MEDIUM 3 — `modificarLibro()` puede terminar en `500`.**
+Puede recibir `DataIntegrityViolationException` durante el flush/commit por
+la constraint `UK_libro_titulo_autor`, sin ningún `catch` que la convierta en
+`MiExcepcion`. La solución deberá usar `saveAndFlush()` dentro del `try` para
+forzar el flush en el punto controlado, y capturar la colisión ahí mismo.
+
+**Orden de locks a diseñar** (diseño pendiente, no implementación cerrada):
+
+- `AUTOR → EDITORIAL → LIBRO → PORTADA`;
+- `USUARIO → LIBRO`;
+- `PRÉSTAMO → LIBRO`.
+
+Los tests concurrentes deben comprobar serialización real y los invariantes
+finales del sistema — no imponer artificialmente que una de las dos
+operaciones concurrentes siempre falle.
+
+**Siguiente paso de P16.0:** cerrar la SPEC de portfolio/publicación y
+diseñar exactamente la corrección de estos findings. Sin implementación
+todavía.
+
+## P16.1 — Dependencias, secretos, wrapper y licencias ⏳
+
+- `.gitattributes` y line endings del wrapper (`mvnw` sin protección
+  `eol=lf`: un clon limpio en Linux/Mac, o en Windows con `core.autocrlf`
+  activo, puede romper el shebang del script);
+- `distributionSha256Sum` oficial de Maven 3.9.16 en
+  `.mvn/wrapper/maven-wrapper.properties`;
+- cambio de coordenadas del conector MySQL a `com.mysql:mysql-connector-j`,
+  sin subir de versión arbitrariamente antes de la SCA;
+- eliminar `spring-boot-starter-mail` y `ServiceNotificacion` solo después de
+  confirmar nuevamente que no tienen consumidores;
+- scanner dedicado de secretos sobre todo el historial Git (instalación
+  requiere autorización explícita separada);
+- SCA de dependencias y análisis de alcanzabilidad;
+- procedencia/licencias de imágenes (8 portadas de libros comerciales reales
+  sin licencia documentada — decisión pendiente: reemplazar, documentar como
+  uso educativo no comercial, o remover);
+- README y CLAUDE.md desactualizados frente al estado real del proyecto.
+
+## P16.2 — Concurrencia, integridad y robustez ⏳
+
+Implementar el diseño de locks cerrado en P16.0:
+
+- métodos `buscarYBloquearPorId` nuevos en `AutorRepository` y
+  `EditorialRepository`, mismo patrón que los repositorios existentes;
+- adoptar el lock, en el orden canónico, en `ServiceLibro.alta()`,
+  `bajaxAutor()`, `altaxAutor()`, `bajaxEditorial()`, `altaxEditorial()`,
+  `crearLibro()` y `modificarLibro()`;
+- corregir `modificarLibro()` para capturar `DataIntegrityViolationException`
+  vía `saveAndFlush()` dentro del `try`;
+- matriz adversarial dedicada con hilos reales — requiere Gate B propio,
+  autorizado por separado, contra `libreriaweb_testsuite`.
+
+## P16.3 — Base y datos demo seguros ⏳
+
+- crear `libreriaweb_demo` como schema descartable y fijo, con una guarda
+  equivalente a `TestDatabaseInitializer` que impida ejecutar el seeder
+  contra cualquier otro schema;
+- `DemoDataSeeder`: agregar usuarios ADMIN y USUARIO demo, con contraseñas
+  externalizadas (nunca hardcodeadas en el código);
+- reemplazar `crearLibroConStockCero` por un préstamo demo real vía
+  `ServicePrestamo.solicitar()`, no manipulación directa de contadores;
+- no tocar `libreriaweb` histórica durante todo el desarrollo de P16.
+
+La migración de `libreriaweb` histórica a V4 queda como **mantenimiento
+opcional**, con backup y autorización separada — no bloquea la demo ni la
+publicación del proyecto (ver sección 6).
+
+## P16.4 — Navegación, UX, accesibilidad y assets ⏳
+
+Corregir únicamente defectos observables:
+
+- navegación ADMIN ausente en `index.html`, `biblioteca.html` y
+  `mis-prestamos.html` (deuda diferida desde P15.5);
+- alineación y espaciado;
+- formularios y mensajes;
+- catálogo y vistas de préstamos;
+- responsive básico;
+- resolución de la deuda de licencias de imágenes decidida en P16.1.
+
+No realizar un rediseño completo ni cambiar la arquitectura visual.
+
+## P16.5 — Smoke funcional y visual ⏳
 
 Recorrer con navegador real:
 
@@ -267,21 +361,9 @@ Recorrer con navegador real:
 El smoke valida integración y experiencia. No reemplaza ni repite toda la
 matriz automatizada.
 
-## P16.2 — Limpieza visual final ⏳
+## P16.6 — README, diagramas, capturas y defensa técnica ⏳
 
-Corregir únicamente defectos observables:
-
-- navegación ADMIN;
-- alineación y espaciado;
-- formularios y mensajes;
-- catálogo y vistas de préstamos;
-- responsive básico.
-
-No realizar un rediseño completo ni cambiar la arquitectura visual.
-
-## P16.3 — README profesional ⏳
-
-Debe explicar:
+El README debe explicar:
 
 - problema y alcance;
 - funcionalidades por rol;
@@ -299,10 +381,8 @@ Debe explicar:
 - decisiones técnicas y tradeoffs;
 - límites conocidos y mejoras futuras.
 
-No publicar credenciales reales ni instrucciones que dependan de la máquina de
-desarrollo.
-
-## P16.4 — Diagramas y capturas ⏳
+No publicar credenciales reales ni instrucciones que dependan de la máquina
+de desarrollo.
 
 Diagramas mínimos:
 
@@ -321,9 +401,7 @@ Capturas mínimas:
 - administración de préstamos;
 - flujo exitoso de préstamo/devolución.
 
-## P16.5 — Demo y defensa técnica ⏳
-
-Preparar:
+Defensa técnica a preparar:
 
 - presentación de aproximadamente 2 minutos;
 - demo guiada de aproximadamente 5 minutos;
@@ -336,7 +414,7 @@ Preparar:
 
 Lauti debe poder explicar el flujo sin leer el código línea por línea.
 
-## P16.6 — Prueba desde clon limpio ⏳
+## P16.7 — Clon limpio, package, `java -jar` y publicación ⏳
 
 Antes del push final:
 
@@ -344,17 +422,17 @@ Antes del push final:
 - configurar solamente desde archivos de ejemplo/documentación;
 - usar una base descartable nueva, nunca `libreriaweb`;
 - ejecutar Flyway V1→V4 desde cero;
-- cargar datos demo;
+- cargar datos demo (`libreriaweb_demo`, ver P16.3);
 - ejecutar una sola vez `./mvnw -ntp clean package` con Maven Wrapper,
   incluyendo la suite y la generación del paquete;
-- iniciar la aplicación;
+- ejecutar `java -jar` e iniciar la aplicación;
 - probar los flujos principales de ADMIN y USUARIO;
 - confirmar `git status` limpio.
 
 La prueba debe demostrar que el proyecto funciona fuera del entorno histórico
-de desarrollo.
+de desarrollo, en Windows y en Linux.
 
-## P16.7 — Publicación Git ⏳
+Publicación:
 
 - revisar `git ls-files`;
 - confirmar ausencia de `.env`, secretos, uploads, logs, backups y artefactos;
@@ -386,19 +464,26 @@ clon limpio reproducible
 Controles obligatorios antes de cualquier push o publicación:
 
 - auditoría de dependencias y CVEs;
-- escaneo de secretos sobre todo el historial Git;
-- clon limpio y build reproducible;
-- migración controlada de `libreriaweb` a V4;
+- escaneo de secretos sobre todo el historial Git con una herramienta
+  dedicada (gitleaks/trufflehog) — la auditoría manual disponible en P16.0
+  no encontró secretos reales, pero no reemplaza un scanner real;
+- clon limpio y build reproducible (Windows y Linux);
 - ejecución `java -jar`;
 - smoke funcional y visual;
 - navegación ADMIN y deudas LOW;
 - README, diagramas, capturas y demo.
 
+## Mantenimiento opcional (no bloquea demo ni publicación)
+
+- migración de `libreriaweb` histórica a Flyway V4 — requiere backup previo
+  y autorización separada; el portfolio y la demo se validan enteramente
+  contra `libreriaweb_demo` (P16.3), no contra la base histórica.
+
 ## No bloqueantes
 
 - navegación ADMIN ausente en `index.html`, `biblioteca.html` y
-  `mis-prestamos.html` → diferida a P16;
-- `cambiarRol()` sin ruta HTTP → código muerto, evaluar en backlog/P16;
+  `mis-prestamos.html` → diferida a P16.4;
+- `cambiarRol()` sin ruta HTTP → código muerto, evaluar en backlog/P16.1;
 - `UsuarioController` sin null-check para ID inexistente en
   `/usuario/modificar/{id}` → un ADMIN sí puede alcanzar el controller con un
   id inválido y provocar un `500`; deuda LOW de robustez/UX, no
@@ -578,7 +663,9 @@ Nada de este backlog debe reabrir P15 o retrasar P16.
 El Ceibo queda cerrado cuando:
 
 1. P15 está mergeada a `master` con suite y package PASS;
-2. `libreriaweb` está migrada de forma controlada a V4;
+2. la demo funciona enteramente sobre `libreriaweb_demo` (P16.3); la
+   migración de `libreriaweb` histórica a V4 queda como mantenimiento
+   opcional, no como condición de cierre;
 3. los flujos principales funcionan en navegador;
 4. un clon limpio puede instalar, migrar, probar y ejecutar el proyecto;
 5. README, diagramas y capturas explican el sistema;
@@ -594,7 +681,5 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**Gate D — revisión pre-merge y merge fast-forward de
-`feature/final-security-csrf` a `master`.** Requiere autorización separada;
-todavía no ejecutado. Después de ese merge, P16.0 arranca con una
-autorización nueva.
+**P16.0 — cerrar la SPEC de portfolio/publicación y diseñar exactamente la
+corrección de los findings de concurrencia. Sin implementación todavía.**
