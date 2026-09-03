@@ -34,9 +34,6 @@ public class ServiceUsuario {
     private PrestamoRepository prestamoRepo;
 
     @Autowired
-    private ServiceNotificacion sNotific;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Transactional(rollbackFor = MiExcepcion.class)
