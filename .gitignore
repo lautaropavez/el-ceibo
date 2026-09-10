@@ -22,6 +22,7 @@ nb-configuration.xml
 Thumbs.db
 
 # Configuración local sensible
+/.claude/settings.local.json
 application-local.properties
 .env
 *.env

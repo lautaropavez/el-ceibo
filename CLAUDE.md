@@ -258,6 +258,22 @@ no reemplazan las reglas de seguridad, Git, alcance ni checkpoints.
 
 
 
+Las reglas compartidas entre agentes (límite de subagentes simultáneos,
+
+delegación explícita, independencia, formato de findings, límites de
+
+reportes y logs) tienen como fuente canónica docs/AGENT\_CONTRACT.md,
+
+aplicable a cualquier runtime de agentes (Claude Code, Codex u otro).
+
+Los perfiles pueden repetir el núcleo mínimo de seguridad definido allí
+
+cuando sea necesario para funcionar de forma autónoma. Toda contradicción
+
+con el contrato requiere STOP humano.
+
+
+
 El implementer puede modificar únicamente archivos dentro del
 
 scope explícito de la posta.
