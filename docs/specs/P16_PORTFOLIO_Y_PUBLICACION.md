@@ -176,7 +176,8 @@ real de Git.
 
 **Objetivo:** dejar el repositorio en condiciones de ser publicado.
 **Scope conceptual:** `.gitattributes` (nuevo), `maven-wrapper.properties`,
-`pom.xml`, assets y sus atribuciones, README/CLAUDE.md si corresponde.
+`pom.xml`, README/CLAUDE.md si corresponde. Licencias y assets reubicados
+a P16.4 por decisión humana (ver sección 9).
 **Acceptance criteria:** ver reglas anticipadas en la sección 7.
 **Validación:** `test-compile`; SCA ejecutada; scanner de secretos ejecutado;
 revisión independiente.
@@ -215,7 +216,8 @@ la guarda aborta si el schema no es el esperado.
 **Objetivo:** coherencia visual y de navegación por rol.
 **Scope conceptual:** templates y CSS; navegación ADMIN ausente en
 `index.html`, `biblioteca.html` y `mis-prestamos.html` (deuda diferida desde
-P15.5); assets resueltos en P16.1.
+P15.5); licencias y assets reubicados aquí desde P16.1 por decisión
+humana (ver sección 9).
 **Acceptance criteria:** cada rol ve una navegación coherente con sus
 privilegios reales de backend; sin regresiones de seguridad.
 **Validación:** `test-compile`; suite PASS; revisión independiente.

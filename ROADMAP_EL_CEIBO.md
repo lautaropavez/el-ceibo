@@ -1,6 +1,6 @@
 # ROADMAP EL CEIBO — ESTADO CANÓNICO Y CIERRE
 
-**Actualizado:** 1 de septiembre de 2026
+**Actualizado:** 11 de septiembre de 2026
 
 **Objetivo:** terminar El Ceibo como un proyecto Java/Spring Boot funcional, seguro, probado, reproducible y defendible en entrevistas técnicas.
 
@@ -25,13 +25,15 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 01/09/2026 |
+| Fecha del checkpoint | 11/09/2026 |
 | Rama activa | `feature/portfolio-publication` |
+| Último commit validado | `9854b3f12b4c138b93aba65350c87ced55c92c94` — "Add Codex CLI integration and shared agent contract" |
 | Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
+| Working tree / índice | limpios al iniciar este checkpoint; sin push ni merge |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | iniciada únicamente en Gate A (auditoría read-only); implementación todavía no iniciada |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); P16.2–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
 | Base normal `libreriaweb` | Flyway V3; protegida |
 | Base de tests | `libreriaweb_testsuite`; descartable; Flyway V1→V4 |
 | Baseline de tests vigente | 77 tests en 7 clases |
@@ -46,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En auditoría (Gate A) | Baseline, secretos, higiene de repo, concurrencia, demo seeder y licencias relevados; implementación todavía no iniciada |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
 
 Secuencia restante:
 
@@ -72,15 +74,15 @@ migraciones.
 | 27–30 ago | ✅ P15.4 — CSRF activado, 72/72 tests y commit |
 | 31 ago–3 sep | ✅ P15.5 — roles y privilegios, 5 casos nuevos, 77/77 (cerrada 28 ago, antes de lo previsto) |
 | 4–6 sep | ✅ P15.6 — build final PASS y merge fast-forward a `master` (cerrada 30 ago, antes de lo previsto) |
-| 1 sep | P16.0 — baseline canónico y SPEC |
-| 2–3 sep | P16.1 — dependencias, secretos, wrapper y licencias |
-| 4–6 sep | P16.2 — concurrencia, integridad y robustez |
-| 7 sep | P16.3 — base y datos demo seguros |
-| 8–9 sep | P16.4 — navegación, UX, accesibilidad y assets |
-| 10 sep | P16.5 — smoke funcional y visual |
-| 11–12 sep | P16.6 — README, diagramas, capturas y defensa técnica |
-| 13 sep | P16.7 — clon limpio, package, `java -jar` y publicación |
-| 14–20 sep | Margen para findings reales, modernización si la SCA la exige, o deudas imprevistas |
+| 1 sep | ✅ P16.0 — baseline canónico y SPEC |
+| 2–3 sep | ✅ P16.1 — dependencias, wrapper y build tooling; cerrada con alcance reubicado (commit `5386f06`, 3 sep) |
+| 4–6 sep | *(estimación vencida)* P16.2 — concurrencia, integridad y robustez; diseño preliminar cerrado, implementación no iniciada |
+| 7 sep | *(estimación vencida)* P16.3 — base y datos demo seguros; diseño preliminar cerrado, implementación no iniciada |
+| 8–9 sep | *(estimación vencida)* P16.4 — navegación, UX, accesibilidad y assets; diseño preliminar cerrado, implementación no iniciada |
+| 10 sep | *(estimación vencida)* P16.5 — smoke funcional y visual; solo definida en la SPEC, Gate A propio no iniciado |
+| 11–12 sep | *(estimación vencida)* P16.6 — README, diagramas, capturas y defensa técnica; solo definida en la SPEC, Gate A propio no iniciado |
+| 13 sep | *(estimación vencida)* P16.7 — clon limpio, package, `java -jar` y publicación; solo definida en la SPEC, Gate A propio no iniciado |
+| 14–20 sep | Margen para findings reales, modernización si la SCA la exige, o deudas imprevistas — fechas de P16.2–P16.7 a replanificar, sin fecha nueva asignada todavía |
 
 Objetivos orientativos:
 
@@ -280,7 +282,17 @@ operaciones concurrentes siempre falle.
 diseñar exactamente la corrección de estos findings. Sin implementación
 todavía.
 
-## P16.1 — Dependencias, secretos, wrapper y licencias ⏳
+## P16.1 — Dependencias, secretos, wrapper y licencias — CERRADA CON ALCANCE REUBICADO POR DECISIÓN HUMANA
+
+Implementación técnica cerrada en el commit `5386f06` (3 sep, Gate B 77/77
+tests, JAR verificado). El alcance original completo de esta subposta **no**
+se ejecutó dentro de P16.1: dos de sus ítems quedaron reubicados por
+decisión humana —
+
+- licencias/`LICENSE` y procedencia de imágenes → reubicado a **P16.4**;
+- README y documentación de portfolio → reubicado a **P16.6**.
+
+Lo efectivamente implementado y cerrado en `5386f06`:
 
 - `.gitattributes` y line endings del wrapper (`mvnw` sin protección
   `eol=lf`: un clon limpio en Linux/Mac, o en Windows con `core.autocrlf`
@@ -291,15 +303,21 @@ todavía.
   sin subir de versión arbitrariamente antes de la SCA;
 - eliminar `spring-boot-starter-mail` y `ServiceNotificacion` solo después de
   confirmar nuevamente que no tienen consumidores;
-- scanner dedicado de secretos sobre todo el historial Git (instalación
-  requiere autorización explícita separada);
-- SCA de dependencias y análisis de alcanzabilidad;
-- procedencia/licencias de imágenes (8 portadas de libros comerciales reales
-  sin licencia documentada — decisión pendiente: reemplazar, documentar como
-  uso educativo no comercial, o remover);
-- README y CLAUDE.md desactualizados frente al estado real del proyecto.
+- scanner dedicado de secretos sobre todo el historial Git (Gitleaks,
+  instalado y ejecutado con autorización explícita; sin secretos reales
+  encontrados);
+- SCA de dependencias y análisis de alcanzabilidad (OSV-Scanner, con
+  triage completo por advisory).
 
 ## P16.2 — Concurrencia, integridad y robustez ⏳
+
+Diseño preliminar cerrado (Gate A); implementación no iniciada.
+
+- **delta A — control compensatorio pendiente para evitar autenticación
+  por el truncamiento BCrypt después de 72 bytes UTF-8** (CVE-2025-22228,
+  detectado durante la auditoría de P16.1). No es una vulnerabilidad de
+  denegación de servicio; tampoco está corregido todavía — próxima
+  implementación propuesta.
 
 Implementar el diseño de locks cerrado en P16.0:
 
@@ -314,6 +332,8 @@ Implementar el diseño de locks cerrado en P16.0:
   autorizado por separado, contra `libreriaweb_testsuite`.
 
 ## P16.3 — Base y datos demo seguros ⏳
+
+Diseño preliminar cerrado (Gate A); implementación no iniciada.
 
 - crear `libreriaweb_demo` como schema descartable y fijo, con una guarda
   equivalente a `TestDatabaseInitializer` que impida ejecutar el seeder
@@ -330,6 +350,8 @@ publicación del proyecto (ver sección 6).
 
 ## P16.4 — Navegación, UX, accesibilidad y assets ⏳
 
+Diseño preliminar cerrado (Gate A); implementación no iniciada.
+
 Corregir únicamente defectos observables:
 
 - navegación ADMIN ausente en `index.html`, `biblioteca.html` y
@@ -338,11 +360,14 @@ Corregir únicamente defectos observables:
 - formularios y mensajes;
 - catálogo y vistas de préstamos;
 - responsive básico;
-- resolución de la deuda de licencias de imágenes decidida en P16.1.
+- licencias/`LICENSE` y procedencia de imágenes (identificado en P16.1,
+  reubicado aquí por decisión humana).
 
 No realizar un rediseño completo ni cambiar la arquitectura visual.
 
 ## P16.5 — Smoke funcional y visual ⏳
+
+Solo definida en la SPEC; Gate A propio todavía no iniciado.
 
 Recorrer con navegador real:
 
@@ -362,6 +387,9 @@ El smoke valida integración y experiencia. No reemplaza ni repite toda la
 matriz automatizada.
 
 ## P16.6 — README, diagramas, capturas y defensa técnica ⏳
+
+Solo definida en la SPEC; Gate A propio todavía no iniciado. Incluye el
+README y la documentación de portfolio reubicados desde P16.1.
 
 El README debe explicar:
 
@@ -415,6 +443,9 @@ Defensa técnica a preparar:
 Lauti debe poder explicar el flujo sin leer el código línea por línea.
 
 ## P16.7 — Clon limpio, package, `java -jar` y publicación ⏳
+
+Solo definida en la SPEC; Gate A propio todavía no iniciado. Sin push ni
+merge realizados hasta la fecha de este checkpoint.
 
 Antes del push final:
 
@@ -497,6 +528,10 @@ Controles obligatorios antes de cualquier push o publicación:
 ## Deuda ya cerrada
 
 - TOOLING.2: eliminado de `settings.json` el permiso amplio `git add *`.
+- TOOLING.3: integración de Codex CLI como segundo runtime de agentes
+  junto a Claude Code — no reemplazo — (`AGENTS.md`, contrato compartido
+  en `docs/AGENT_CONTRACT.md`, dos agentes `.codex/agents/*.toml`, límite
+  de concurrencia, smoke real PASS). Commit `9854b3f`.
 
 ---
 
