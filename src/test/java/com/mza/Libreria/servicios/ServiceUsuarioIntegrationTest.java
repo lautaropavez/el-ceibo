@@ -69,4 +69,42 @@ class ServiceUsuarioIntegrationTest {
         assertThat(usuarioARecargado.getMail()).isEqualTo(mailA);
         assertThat(usuarioARecargado.getClave()).isEqualTo(hashOriginalA);
     }
+
+    @Test
+    void registrar_conClaveSobredimensionada_rechazaYNoPersisteUsuario() {
+        String mail = "p162a-registrar-sobredimensionada@test.com";
+        String claveSobredimensionada = repetir('a', 73);
+
+        assertThatThrownBy(() -> servicioUsuario.registrar(
+                        "P162A", "Sobredimensionada", mail, claveSobredimensionada, claveSobredimensionada))
+                .isInstanceOf(MiExcepcion.class);
+
+        assertThat(usuarioRepo.buscarPorMail(mail)).isNull();
+    }
+
+    @Test
+    void modificar_conClaveSobredimensionada_rechazaYConservaHashAnterior() throws MiExcepcion {
+        String mail = "p162a-modificar-sobredimensionada@test.com";
+        servicioUsuario.registrar("P162A", "Original", mail, "password123", "password123");
+
+        Usuario creado = usuarioRepo.buscarPorMail(mail);
+        String hashOriginal = creado.getClave();
+        String claveSobredimensionada = repetir('a', 73);
+
+        assertThatThrownBy(() -> servicioUsuario.modificar(
+                        creado.getId(), "P162A", "Original", mail, claveSobredimensionada, claveSobredimensionada))
+                .isInstanceOf(MiExcepcion.class);
+
+        Usuario tras = usuarioRepo.findById(creado.getId())
+                .orElseThrow(() -> new IllegalStateException("Usuario de fixture no encontrado"));
+        assertThat(tras.getClave()).isEqualTo(hashOriginal);
+    }
+
+    private static String repetir(char c, int veces) {
+        StringBuilder sb = new StringBuilder(veces);
+        for (int i = 0; i < veces; i++) {
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 }

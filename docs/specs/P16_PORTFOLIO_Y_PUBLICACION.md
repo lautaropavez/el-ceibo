@@ -199,6 +199,15 @@ más allá de lo que exija la corrección.
 **STOP conditions:** aparece un deadlock reproducible; la corrección exige
 cambiar migraciones o entidades.
 
+**Delta A — control compensatorio BCrypt (CVE-2025-22228):** política
+fail closed. Toda contraseña que supere 72 bytes UTF-8 se rechaza,
+incluida cualquier contraseña legacy — sin fallback al BCrypt vulnerable,
+sin truncar ni prehashear. No se implementa ahora un flujo nuevo de
+recuperación; una cuenta legacy afectada requerirá un restablecimiento
+administrativo controlado, autorizado por separado, antes de publicar.
+No se intenta detectar cuentas afectadas inspeccionando hashes (BCrypt no
+conserva la longitud original). Decisión humana, 2026-09-11.
+
 ### P16.3 — Base y datos demo seguros
 
 **Objetivo:** una demo reproducible que nunca toque datos reales.

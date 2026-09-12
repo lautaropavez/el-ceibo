@@ -6,6 +6,7 @@ import com.mza.Libreria.enumeradores.Rol;
 import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.PrestamoRepository;
 import com.mza.Libreria.repositorios.UsuarioRepository;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -90,6 +91,7 @@ public class ServiceUsuario {
                 if (clave.length() < 8) {
                     throw new MiExcepcion("La clave no puede tener menos de 8 caracteres");
                 }
+                validarLongitudMaximaClave(clave);
                 if (!clave.equals(clave2)) {
                     throw new MiExcepcion("Las claves deben ser iguales");
                 }
@@ -212,7 +214,8 @@ public class ServiceUsuario {
         if (clave1.length() < 8) {
             throw new MiExcepcion("La clave no puede tener menos de 8 caracteres");
         }
-        
+        validarLongitudMaximaClave(clave1);
+
         if(!clave1.equals(clave2)) {
             throw new MiExcepcion("Las claves deben ser iguales");
         }
@@ -226,6 +229,15 @@ public class ServiceUsuario {
         List<Usuario> adminsActivos = usuarioRepo.buscarYBloquearActivosPorRol(Rol.ADMIN);
         if (adminsActivos.size() <= 1) {
             throw new MiExcepcion(mensajeError);
+        }
+    }
+
+    // Límite real de BCrypt: 72 bytes UTF-8, no 72 caracteres Java. Validado
+    // acá para devolver un MiExcepcion legible antes de llegar al encoder
+    // (que igual rechazaría la misma entrada como último resguardo).
+    private void validarLongitudMaximaClave(String clave) throws MiExcepcion {
+        if (clave.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new MiExcepcion("La clave no puede superar los 72 bytes (72 caracteres si son solo ASCII; menos si usa acentos, eñes u otros caracteres especiales).");
         }
     }
 

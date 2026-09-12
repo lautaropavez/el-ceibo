@@ -187,6 +187,25 @@ class CsrfProtectionMockMvcTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void logincheck_conPasswordSobredimensionada_fallaControladoSinSesion() throws Exception {
+        String mail = "p162a-logincheck-sobredimensionada@test.com";
+        crearUsuarioConClave(mail, "ClaveSegura123");
+        String passwordSobredimensionada = repetir('a', 73);
+
+        MockHttpSession session = new MockHttpSession();
+        mockMvc.perform(post("/logincheck")
+                        .param("username", mail)
+                        .param("password", passwordSobredimensionada)
+                        .session(session)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?error"));
+
+        mockMvc.perform(get("/prestamo/mis-prestamos").session(session))
+                .andExpect(status().is3xxRedirection());
+    }
+
     // ---- 4. /logout ----
 
     @Test
@@ -373,5 +392,13 @@ class CsrfProtectionMockMvcTest {
         usuario.setAlta(new Date());
         usuario.setBaja(null);
         usuarioRepo.saveAndFlush(usuario);
+    }
+
+    private static String repetir(char c, int veces) {
+        StringBuilder sb = new StringBuilder(veces);
+        for (int i = 0; i < veces; i++) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 }

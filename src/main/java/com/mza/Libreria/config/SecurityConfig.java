@@ -21,9 +21,11 @@ public class SecurityConfig {
     // BCrypt hashea con salt random incluido en el propio hash, por eso
     // dos usuarios con la misma clave nunca generan el mismo valor guardado.
     // Se usa tanto acá (para validar login) como en ServiceUsuario (para guardar).
+    // Envuelto para rechazar entradas de más de 72 bytes UTF-8 (CVE-2025-22228):
+    // BCrypt ignora silenciosamente lo que exceda ese límite.
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCrypt72BytePasswordEncoder(new BCryptPasswordEncoder());
     }
 
     @Bean
