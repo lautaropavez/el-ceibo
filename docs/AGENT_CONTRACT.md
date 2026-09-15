@@ -32,6 +32,35 @@ agent resolves these on its own.
 - Never run a reviewer and a tester over exactly the same surface with
   the same objective; if their scopes would fully overlap, run one.
 
+## Subagent clock
+
+The parent session owns the clock for every subagent it invokes, in
+any runtime: record the subagent's name/ID and start time. The parent,
+not the subagent, is responsible for enforcing this limit.
+
+- Absolute maximum: 20 minutes of wall-clock time.
+- Minute 15: the parent demands immediate closure with partial
+  results.
+- Minutes 15-20: only writing/delivering that report is allowed —
+  never further investigation.
+- Minute 20: mandatory real interruption by the parent (e.g. Claude
+  Code's `TaskStop` — mentioned only as that runtime's example; do not
+  invent a Codex-side operation that has not been verified by smoke).
+- No report delivered by then: INCOMPLETE — TIMEBOX.
+- If the subagent is interrupted, keep and report only the partial
+  evidence actually available. Never complete conclusions or invent a
+  verdict. The result remains INCOMPLETE — TIMEBOX unless a complete
+  report was already formally delivered before the cutoff.
+- A partial report is never equivalent to PASS, regardless of content.
+- Any extension or relaunch requires prior human authorization.
+- A human cancel order triggers immediate interruption, overriding any
+  wait or analysis in progress.
+- The parent must regain control and check status every 2-5 minutes
+  while a subagent is active. Blocking waits longer than 5 minutes are
+  prohibited.
+- maxTurns (or any per-agent turn limit) remains an additional
+  ceiling; it never substitutes for this clock.
+
 ## Independence
 
 A reviewer or tester agent, in any runtime, must never:
