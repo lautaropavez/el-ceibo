@@ -267,14 +267,17 @@ public class ServiceLibro {
     
     @Transactional(rollbackFor = MiExcepcion.class)
     public Libro baja(String id) throws MiExcepcion {
-        Libro entidad = findbyId(id);
+        Libro entidad = libroRepo.buscarYBloquearPorId(id);
+        if (entidad == null) {
+            throw new MiExcepcion("Este libro no existe.");
+        }
         entidad.setAlta(false);
         return libroRepo.save(entidad);
     }
-    
+
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente al autor; sus libros deben reactivarse por separado
     public Autor altaxAutor(String idAutor) throws MiExcepcion {
-        Autor autor = sAutor.buscarporId(idAutor);
+        Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
         if (autor == null) {
             throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
@@ -298,7 +301,7 @@ public class ServiceLibro {
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente la editorial; sus libros deben reactivarse por separado
     public Editorial altaxEditorial(String idEditorial) throws MiExcepcion {
-        Editorial editorial = sEditorial.buscarporId(idEditorial);
+        Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorial);
         if (editorial == null) {
             throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
         }
@@ -357,7 +360,7 @@ public class ServiceLibro {
     
     @Transactional(rollbackFor = MiExcepcion.class)
     public void eliminarAutor(String id) throws MiExcepcion {
-        Autor a = autorRepo.buscarPorId(id);
+        Autor a = autorRepo.buscarYBloquearPorId(id);
         if (a == null) {
             throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
@@ -374,7 +377,7 @@ public class ServiceLibro {
     }
     @Transactional(rollbackFor = MiExcepcion.class)
     public void eliminarEditorial(String id) throws MiExcepcion {
-        Editorial e = editorialRepo.buscarPorId(id);
+        Editorial e = editorialRepo.buscarYBloquearPorId(id);
         if (e == null) {
             throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
         }

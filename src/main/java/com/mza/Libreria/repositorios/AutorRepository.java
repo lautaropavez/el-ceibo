@@ -2,6 +2,8 @@ package com.mza.Libreria.repositorios;
 
 import com.mza.Libreria.entidades.Autor;
 import java.util.List;
+import javax.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
@@ -13,10 +15,14 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AutorRepository extends JpaRepository<Autor, String>{
- 
+
     @Query("SELECT a FROM Autor a WHERE a.id = :id")
     Autor buscarPorId(@Param("id")String id);
-    
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Autor a WHERE a.id = :id")
+    Autor buscarYBloquearPorId(@Param("id") String id);
+
     @Query("SELECT a FROM Autor a WHERE a.nombre = :nombre")
     Autor buscarPorNombre(@Param("nombre")String nombre);
 
