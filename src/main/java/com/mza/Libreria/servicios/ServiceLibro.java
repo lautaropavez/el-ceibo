@@ -435,7 +435,7 @@ public class ServiceLibro {
     }
 
     private Autor resolverAutorActivoPorId(String idAutor) throws MiExcepcion {
-        Autor autor = sAutor.buscarporId(idAutor);
+        Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
         if (autor == null) {
             throw new MiExcepcion("El autor seleccionado no existe");
         }
@@ -446,7 +446,7 @@ public class ServiceLibro {
     }
 
     private Editorial resolverEditorialActivaPorId(String idEditorial) throws MiExcepcion {
-        Editorial editorial = sEditorial.buscarporId(idEditorial);
+        Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorial);
         if (editorial == null) {
             throw new MiExcepcion("La editorial seleccionada no existe");
         }
