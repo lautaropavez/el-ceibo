@@ -10,6 +10,8 @@ import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
 import com.mza.Libreria.repositorios.PortadaRepository;
 import com.mza.Libreria.repositorios.PrestamoRepository;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -287,14 +289,35 @@ public class ServiceLibro {
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja al autor y todos sus libros
     public Autor bajaxAutor(String idAutor) throws MiExcepcion {
-        Autor autor = sAutor.buscarporId(idAutor);
+        Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
         if (autor == null) {
             throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
-        List<Libro> librosxAutor = listaporAutor(autor.getNombre());
-        for (Libro libro : librosxAutor) {
-            baja(libro.getId());
+        // La lista preliminar solo identifica candidatos por id; nunca se
+        // muta directamente. Orden canónico de locks: AUTOR -> LIBROS
+        // (ascendente por id), para no invertir el orden ya usado por
+        // crearLibro()/modificarLibro() y evitar deadlocks.
+        List<Libro> candidatosxAutor = listaporAutor(autor.getNombre());
+        List<String> idsLibrosOrdenados = new ArrayList<>();
+        for (Libro candidato : candidatosxAutor) {
+            idsLibrosOrdenados.add(candidato.getId());
         }
+        Collections.sort(idsLibrosOrdenados);
+
+        for (String idLibro : idsLibrosOrdenados) {
+            Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
+            if (libroBloqueado == null) {
+                throw new MiExcepcion("Este libro no existe.");
+            }
+            boolean sigueSiendoDelAutor = libroBloqueado.getAutor() != null
+                    && autor.getId().equals(libroBloqueado.getAutor().getId());
+            if (!sigueSiendoDelAutor) {
+                continue;
+            }
+            libroBloqueado.setAlta(false);
+            libroRepo.save(libroBloqueado);
+        }
+
         autor.setAlta(false);
         return autorRepo.save(autor);
     }
@@ -311,14 +334,34 @@ public class ServiceLibro {
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja la editorial y todos los libros
     public Editorial bajaxEditorial(String idAutor) throws MiExcepcion {
-        Editorial editorial = sEditorial.buscarporId(idAutor);
+        Editorial editorial = editorialRepo.buscarYBloquearPorId(idAutor);
         if (editorial == null) {
             throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
         }
-        List<Libro> librosxEdit = listaporEditorial(editorial.getNombre());
-        for (Libro libro : librosxEdit) {
-            baja(libro.getId());
+        // La lista preliminar solo identifica candidatos por id; nunca se
+        // muta directamente. Orden canónico de locks: EDITORIAL -> LIBROS
+        // (ascendente por id), simétrico a bajaxAutor().
+        List<Libro> candidatosxEdit = listaporEditorial(editorial.getNombre());
+        List<String> idsLibrosOrdenados = new ArrayList<>();
+        for (Libro candidato : candidatosxEdit) {
+            idsLibrosOrdenados.add(candidato.getId());
         }
+        Collections.sort(idsLibrosOrdenados);
+
+        for (String idLibro : idsLibrosOrdenados) {
+            Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
+            if (libroBloqueado == null) {
+                throw new MiExcepcion("Este libro no existe.");
+            }
+            boolean sigueSiendoDeLaEditorial = libroBloqueado.getEditorial() != null
+                    && editorial.getId().equals(libroBloqueado.getEditorial().getId());
+            if (!sigueSiendoDeLaEditorial) {
+                continue;
+            }
+            libroBloqueado.setAlta(false);
+            libroRepo.save(libroBloqueado);
+        }
+
         editorial.setAlta(false);
         return editorialRepo.save(editorial);
     }
