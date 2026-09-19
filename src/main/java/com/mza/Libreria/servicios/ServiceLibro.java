@@ -10,8 +10,6 @@ import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
 import com.mza.Libreria.repositorios.PortadaRepository;
 import com.mza.Libreria.repositorios.PrestamoRepository;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -250,19 +248,44 @@ public class ServiceLibro {
     
     @Transactional(rollbackFor = MiExcepcion.class)
     public Libro alta(String id) throws MiExcepcion {
-        Libro entidad = findbyId(id);
-        if (entidad.getAutor() == null) {
+        // Lectura preliminar NO autoritativa: proyección escalar (no
+        // entity-typed) que solo descubre los ids de autor/editorial
+        // actualmente asociados, sin cargar ningún Libro administrado en el
+        // Persistence Context. Así, el buscarYBloquearPorId de más abajo es
+        // la primera carga real de la entidad Libro en este método, y su
+        // estado refleja genuinamente lo que el lock acaba de bloquear.
+        LibroRepository.IdsPadresLibro idsPreliminares = libroRepo.buscarIdsPadresPorId(id);
+        if (idsPreliminares == null) {
+            throw new MiExcepcion("Este libro no existe.");
+        }
+        String idAutorPreliminar = idsPreliminares.getAutorId();
+        String idEditorialPreliminar = idsPreliminares.getEditorialId();
+        if (idAutorPreliminar == null) {
             throw new MiExcepcion("No se puede reactivar: el libro no tiene autor asignado.");
         }
-        if (entidad.getEditorial() == null) {
+        if (idEditorialPreliminar == null) {
             throw new MiExcepcion("No se puede reactivar: el libro no tiene editorial asignada.");
         }
-        if (!Boolean.TRUE.equals(entidad.getAutor().isAlta())) {
+
+        Autor autor = autorRepo.buscarYBloquearPorId(idAutorPreliminar);
+        if (autor == null || !Boolean.TRUE.equals(autor.isAlta())) {
             throw new MiExcepcion("No se puede reactivar: el autor de este libro está dado de baja.");
         }
-        if (!Boolean.TRUE.equals(entidad.getEditorial().isAlta())) {
+        Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorialPreliminar);
+        if (editorial == null || !Boolean.TRUE.equals(editorial.isAlta())) {
             throw new MiExcepcion("No se puede reactivar: la editorial de este libro está dada de baja.");
         }
+
+        Libro entidad = libroRepo.buscarYBloquearPorId(id);
+        if (entidad == null) {
+            throw new MiExcepcion("Este libro no existe.");
+        }
+        String idAutorActual = entidad.getAutor() != null ? entidad.getAutor().getId() : null;
+        String idEditorialActual = entidad.getEditorial() != null ? entidad.getEditorial().getId() : null;
+        if (!idAutorPreliminar.equals(idAutorActual) || !idEditorialPreliminar.equals(idEditorialActual)) {
+            throw new MiExcepcion("El libro fue modificado durante la operación. Intente nuevamente.");
+        }
+
         entidad.setAlta(true);
         return libroRepo.save(entidad);
     }
@@ -293,16 +316,13 @@ public class ServiceLibro {
         if (autor == null) {
             throw new MiExcepcion("No se encontró a este Autor en la base de datos");
         }
-        // La lista preliminar solo identifica candidatos por id; nunca se
-        // muta directamente. Orden canónico de locks: AUTOR -> LIBROS
-        // (ascendente por id), para no invertir el orden ya usado por
+        // Ids únicamente (proyección no entity-typed), ordenados ascendente
+        // por la propia consulta: no cargan ningún Libro en el Persistence
+        // Context, así que cada buscarYBloquearPorId de más abajo es la
+        // primera carga real de esa entidad. Orden canónico de locks:
+        // AUTOR -> LIBROS, para no invertir el orden usado por
         // crearLibro()/modificarLibro() y evitar deadlocks.
-        List<Libro> candidatosxAutor = listaporAutor(autor.getNombre());
-        List<String> idsLibrosOrdenados = new ArrayList<>();
-        for (Libro candidato : candidatosxAutor) {
-            idsLibrosOrdenados.add(candidato.getId());
-        }
-        Collections.sort(idsLibrosOrdenados);
+        List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorAutorId(autor.getId());
 
         for (String idLibro : idsLibrosOrdenados) {
             Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
@@ -338,15 +358,10 @@ public class ServiceLibro {
         if (editorial == null) {
             throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
         }
-        // La lista preliminar solo identifica candidatos por id; nunca se
-        // muta directamente. Orden canónico de locks: EDITORIAL -> LIBROS
-        // (ascendente por id), simétrico a bajaxAutor().
-        List<Libro> candidatosxEdit = listaporEditorial(editorial.getNombre());
-        List<String> idsLibrosOrdenados = new ArrayList<>();
-        for (Libro candidato : candidatosxEdit) {
-            idsLibrosOrdenados.add(candidato.getId());
-        }
-        Collections.sort(idsLibrosOrdenados);
+        // Ids únicamente (proyección no entity-typed), ordenados ascendente
+        // por la propia consulta: mismo motivo y orden canónico que
+        // bajaxAutor() (EDITORIAL -> LIBROS).
+        List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorEditorialId(editorial.getId());
 
         for (String idLibro : idsLibrosOrdenados) {
             Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);

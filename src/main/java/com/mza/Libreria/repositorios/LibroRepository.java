@@ -16,6 +16,32 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LibroRepository  extends JpaRepository<Libro, String>{
 
+    // Proyección no entity-typed: al no devolver un Libro administrado,
+    // no entra al Persistence Context. Sirve para lecturas preliminares
+    // no autoritativas (descubrir ids de padres) sin dejar cacheada una
+    // instancia stale que interfiera con un buscarYBloquearPorId posterior
+    // sobre el mismo id (Hibernate reutilizaría esa instancia cacheada en
+    // vez de reflejar el estado recién bloqueado).
+    interface IdsPadresLibro {
+        String getLibroId();
+        String getAutorId();
+        String getEditorialId();
+    }
+
+    @Query("SELECT l.id AS libroId, a.id AS autorId, e.id AS editorialId "
+            + "FROM Libro l LEFT JOIN l.autor a LEFT JOIN l.editorial e "
+            + "WHERE l.id = :id")
+    IdsPadresLibro buscarIdsPadresPorId(@Param("id") String id);
+
+    // Ids únicamente, ordenados ascendente por la propia consulta: no
+    // devuelven entidades Libro, así que tampoco entran al Persistence
+    // Context antes del lock correspondiente en el loop que las consume.
+    @Query("SELECT l.id FROM Libro l WHERE l.autor.id = :idAutor ORDER BY l.id ASC")
+    List<String> buscarIdsPorAutorId(@Param("idAutor") String idAutor);
+
+    @Query("SELECT l.id FROM Libro l WHERE l.editorial.id = :idEditorial ORDER BY l.id ASC")
+    List<String> buscarIdsPorEditorialId(@Param("idEditorial") String idEditorial);
+
     @Query("SELECT l FROM Libro l WHERE l.id = :id")
     Libro buscarPorId(@Param("id")String id);
 
