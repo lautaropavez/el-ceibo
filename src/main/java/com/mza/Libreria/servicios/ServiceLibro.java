@@ -122,35 +122,74 @@ public class ServiceLibro {
             throw new MiExcepcion("Debe indicar la Editorial");
         }
 
+        // Lectura preliminar NO autoritativa: proyección escalar (no
+        // entity-typed), solo para el 404 temprano. No carga ningún Libro
+        // administrado en el Persistence Context. No decide "sin cambios":
+        // esa decisión es exclusivamente autoritativa, bajo los tres locks.
+        LibroRepository.EstadoLibroPreliminar estadoPreliminar = libroRepo.buscarEstadoPreliminarPorId(id);
+        if (estadoPreliminar == null) {
+            throw new MiExcepcion("No se encontró a este libro en la base de datos");
+        }
+        boolean hayArchivoNuevo = archivo != null && !archivo.isEmpty();
+
         try {
+            // Orden canónico de locks: AUTOR -> EDITORIAL -> LIBRO.
+            String nombreAutorMayus = nombreAutorNorm.toUpperCase();
+            Autor autorExistente;
+            String idAutorPreliminar = autorRepo.buscarIdPorNombre(nombreAutorMayus);
+            if (idAutorPreliminar != null) {
+                autorExistente = autorRepo.buscarYBloquearPorId(idAutorPreliminar);
+                if (autorExistente == null) {
+                    throw new MiExcepcion("El autor cambió durante la operación. Intente nuevamente.");
+                }
+                if (!Boolean.TRUE.equals(autorExistente.isAlta())) {
+                    throw new MiExcepcion("El autor '" + autorExistente.getNombre() + "' existe pero está dado de baja. Debe reactivarlo antes de asignarlo a este libro.");
+                }
+                validarDuplicado(tituloNorm, autorExistente.getId(), id);
+            } else {
+                autorExistente = null;
+            }
+
+            String nombreEditorialMayus = nombreEditorialNorm.toUpperCase();
+            Editorial editorialExistente;
+            String idEditorialPreliminar = editorialRepo.buscarIdPorNombre(nombreEditorialMayus);
+            if (idEditorialPreliminar != null) {
+                editorialExistente = editorialRepo.buscarYBloquearPorId(idEditorialPreliminar);
+                if (editorialExistente == null) {
+                    throw new MiExcepcion("La editorial cambió durante la operación. Intente nuevamente.");
+                }
+                if (!Boolean.TRUE.equals(editorialExistente.isAlta())) {
+                    throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
+                }
+            } else {
+                editorialExistente = null;
+            }
+
+            if (autorExistente == null) {
+                sAutor.crearAutor(nombreAutorNorm);
+                autorExistente = sAutor.buscarPorNombre(nombreAutorMayus);
+            }
+            if (editorialExistente == null) {
+                sEditorial.crearEditorial(nombreEditorialNorm);
+                editorialExistente = sEditorial.buscarporNombre(nombreEditorialMayus);
+            }
+
+            // Re-lock del Libro, al final, ya con Autor/Editorial bloqueados.
             Libro libro = libroRepo.buscarYBloquearPorId(id);
             if (libro == null) {
                 throw new MiExcepcion("No se encontró a este libro en la base de datos");
             }
 
+            // Única decisión de "sin cambios": autoritativa, contra el
+            // Libro ya bloqueado.
             String autorActualNombre = libro.getAutor() != null ? libro.getAutor().getNombre() : null;
             String editorialActualNombre = libro.getEditorial() != null ? libro.getEditorial().getNombre() : null;
-
-            boolean hayArchivoNuevo = archivo != null && !archivo.isEmpty();
             boolean sinCambios = equalsIgnoreCaseNullSafe(libro.getTitulo(), tituloNorm)
                     && Objects.equals(libro.getAnio(), anio)
                     && equalsIgnoreCaseNullSafe(autorActualNombre, nombreAutorNorm)
                     && equalsIgnoreCaseNullSafe(editorialActualNombre, nombreEditorialNorm);
             if (sinCambios && !hayArchivoNuevo) {
                 throw new MiExcepcion("No existen cambios para editar");
-            }
-
-            Autor autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
-            if (autorExistente != null) {
-                if (!Boolean.TRUE.equals(autorExistente.isAlta())) {
-                    throw new MiExcepcion("El autor '" + autorExistente.getNombre() + "' existe pero está dado de baja. Debe reactivarlo antes de asignarlo a este libro.");
-                }
-                validarDuplicado(tituloNorm, autorExistente.getId(), id);
-            }
-
-            Editorial editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
-            if (editorialExistente != null && !Boolean.TRUE.equals(editorialExistente.isAlta())) {
-                throw new MiExcepcion("La editorial '" + editorialExistente.getNombre() + "' existe pero está dada de baja. Debe reactivarla antes de asignarla a este libro.");
             }
 
             if (archivo != null && !archivo.isEmpty()) {
@@ -173,22 +212,16 @@ public class ServiceLibro {
                 libro.setPortada(portadaFinal);
             }
 
-            if (autorExistente == null) {
-                sAutor.crearAutor(nombreAutorNorm);
-                autorExistente = sAutor.buscarPorNombre(nombreAutorNorm.toUpperCase());
-            }
             libro.setAutor(autorExistente);
-
-            if (editorialExistente == null) {
-                sEditorial.crearEditorial(nombreEditorialNorm);
-                editorialExistente = sEditorial.buscarporNombre(nombreEditorialNorm.toUpperCase());
-            }
             libro.setEditorial(editorialExistente);
-
             libro.setTitulo(tituloNorm);
             libro.setAnio(anio);
 
-            libroRepo.save(libro);
+            try {
+                libroRepo.saveAndFlush(libro);
+            } catch (DataIntegrityViolationException ex) {
+                throw new MiExcepcion("Ya existe un libro con ese título y autor.");
+            }
         } catch (PessimisticLockingFailureException ex) {
             throw new MiExcepcion("El libro está siendo modificado por otra operación. Intente nuevamente.");
         }

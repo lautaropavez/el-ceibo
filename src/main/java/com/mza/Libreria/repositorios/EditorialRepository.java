@@ -25,6 +25,13 @@ public interface EditorialRepository  extends JpaRepository<Editorial, String>{
     @Query("SELECT e FROM Editorial e WHERE e.nombre = :nombre")
     Editorial buscarPorNombre(@Param("nombre")String nombre);
 
+    // Escalar (no entity-typed): misma semántica de normalización que
+    // buscarPorNombre (el caller ya normaliza antes de invocar). No entra
+    // al Persistence Context, para no interferir con un
+    // buscarYBloquearPorId posterior sobre el id descubierto acá.
+    @Query("SELECT e.id FROM Editorial e WHERE e.nombre = :nombre")
+    String buscarIdPorNombre(@Param("nombre") String nombre);
+
     @Query("SELECT e FROM Editorial e WHERE e.alta = true")
     List<Editorial> buscaActivas();
     

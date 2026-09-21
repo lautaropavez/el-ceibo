@@ -26,6 +26,13 @@ public interface AutorRepository extends JpaRepository<Autor, String>{
     @Query("SELECT a FROM Autor a WHERE a.nombre = :nombre")
     Autor buscarPorNombre(@Param("nombre")String nombre);
 
+    // Escalar (no entity-typed): misma semántica de normalización que
+    // buscarPorNombre (el caller ya normaliza antes de invocar). No entra
+    // al Persistence Context, para no interferir con un
+    // buscarYBloquearPorId posterior sobre el id descubierto acá.
+    @Query("SELECT a.id FROM Autor a WHERE a.nombre = :nombre")
+    String buscarIdPorNombre(@Param("nombre") String nombre);
+
     @Query("SELECT a FROM Autor a WHERE a.alta = true")
     List<Autor> buscaActivos();
     
