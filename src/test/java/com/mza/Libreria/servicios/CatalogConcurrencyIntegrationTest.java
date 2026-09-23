@@ -358,6 +358,12 @@ class CatalogConcurrencyIntegrationTest {
         CountDownLatch liberar = new CountDownLatch(1);
         AtomicLong conexionRetenedora = new AtomicLong(-1);
         AtomicReference<Throwable> errorRetenedor = new AtomicReference<>();
+        // Causa principal del caso (si el cuerpo del try falla). El finally
+        // nunca la reemplaza: la relanza tal cual y, si el propio cleanup
+        // tambien falla, adjunta esa segunda falla como suppressed. Solo
+        // lanza una falla propia cuando no hay causa principal (el cuerpo
+        // tuvo exito pero el cleanup no).
+        Throwable causaPrincipal = null;
         try {
             TransactionTemplate plantilla = new TransactionTemplate(txManager);
             plantilla.setIsolationLevel(aislamientoRetenedor);
@@ -420,14 +426,43 @@ class CatalogConcurrencyIntegrationTest {
             Throwable resultadoRetenedor = futuroRetenedor.get(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS);
             Throwable resultadoEsperador = futuroEsperador.get(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS);
             return new Resultado(resultadoRetenedor, resultadoEsperador);
+        } catch (Throwable t) {
+            // Rethrow preciso (Java 7+): t no se reasigna, solo se guarda
+            // aparte para que el finally sepa que ya hay una causa principal
+            // en curso y nunca la pise.
+            causaPrincipal = t;
+            throw t;
         } finally {
             liberar.countDown();
             for (Future<Throwable> futuro : futuros) {
                 futuro.cancel(true);
             }
             executor.shutdownNow();
-            boolean terminado = executor.awaitTermination(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS);
-            assertThat(terminado).as("los hilos del caso deben terminar (sin bloqueos vivos)").isTrue();
+
+            boolean terminado;
+            InterruptedException interrupcionLimpieza = null;
+            try {
+                terminado = executor.awaitTermination(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                interrupcionLimpieza = ex;
+                terminado = false;
+            }
+
+            if (!terminado) {
+                AssertionError fallaLimpieza = (interrupcionLimpieza != null)
+                        ? new AssertionError("los hilos del caso deben terminar (sin bloqueos vivos)",
+                                interrupcionLimpieza)
+                        : new AssertionError("los hilos del caso deben terminar (sin bloqueos vivos)");
+                if (causaPrincipal != null) {
+                    // Ya hay una falla real en curso (t, arriba): se adjunta
+                    // la falla de limpieza sin reemplazarla ni relanzarla.
+                    causaPrincipal.addSuppressed(fallaLimpieza);
+                } else {
+                    // El cuerpo tuvo exito: la unica falla real es esta.
+                    throw fallaLimpieza;
+                }
+            }
         }
     }
 

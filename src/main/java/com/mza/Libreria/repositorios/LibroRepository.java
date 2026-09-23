@@ -43,10 +43,12 @@ public interface LibroRepository  extends JpaRepository<Libro, String>{
     List<String> buscarIdsPorEditorialId(@Param("idEditorial") String idEditorial);
 
     // Proyección no entity-typed del estado actual de un Libro (título,
-    // año, nombre de autor/editorial vía LEFT JOIN). Sirve para la
-    // verificación preliminar no autoritativa de "sin cambios" y de
-    // existencia en modificarLibro(), sin cargar el Libro como entidad
-    // administrada antes de su buscarYBloquearPorId.
+    // año, nombre de autor/editorial vía LEFT JOIN). Sirve únicamente
+    // para el 404 preliminar no autoritativo de existencia en
+    // modificarLibro(), sin cargar el Libro como entidad administrada
+    // antes de su buscarYBloquearPorId. No decide "sin cambios": esa
+    // verificación es exclusivamente autoritativa, bajo los tres locks
+    // (ver el comentario en ServiceLibro.modificarLibro()).
     interface EstadoLibroPreliminar {
         String getTitulo();
         Integer getAnio();
