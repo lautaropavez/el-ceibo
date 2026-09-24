@@ -300,118 +300,151 @@ public class ServiceLibro {
             throw new MiExcepcion("No se puede reactivar: el libro no tiene editorial asignada.");
         }
 
-        Autor autor = autorRepo.buscarYBloquearPorId(idAutorPreliminar);
-        if (autor == null || !Boolean.TRUE.equals(autor.isAlta())) {
-            throw new MiExcepcion("No se puede reactivar: el autor de este libro está dado de baja.");
-        }
-        Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorialPreliminar);
-        if (editorial == null || !Boolean.TRUE.equals(editorial.isAlta())) {
-            throw new MiExcepcion("No se puede reactivar: la editorial de este libro está dada de baja.");
-        }
+        try {
+            Autor autor = autorRepo.buscarYBloquearPorId(idAutorPreliminar);
+            if (autor == null || !Boolean.TRUE.equals(autor.isAlta())) {
+                throw new MiExcepcion("No se puede reactivar: el autor de este libro está dado de baja.");
+            }
+            Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorialPreliminar);
+            if (editorial == null || !Boolean.TRUE.equals(editorial.isAlta())) {
+                throw new MiExcepcion("No se puede reactivar: la editorial de este libro está dada de baja.");
+            }
 
-        Libro entidad = libroRepo.buscarYBloquearPorId(id);
-        if (entidad == null) {
-            throw new MiExcepcion("Este libro no existe.");
-        }
-        String idAutorActual = entidad.getAutor() != null ? entidad.getAutor().getId() : null;
-        String idEditorialActual = entidad.getEditorial() != null ? entidad.getEditorial().getId() : null;
-        if (!idAutorPreliminar.equals(idAutorActual) || !idEditorialPreliminar.equals(idEditorialActual)) {
-            throw new MiExcepcion("El libro fue modificado durante la operación. Intente nuevamente.");
-        }
+            Libro entidad = libroRepo.buscarYBloquearPorId(id);
+            if (entidad == null) {
+                throw new MiExcepcion("Este libro no existe.");
+            }
+            String idAutorActual = entidad.getAutor() != null ? entidad.getAutor().getId() : null;
+            String idEditorialActual = entidad.getEditorial() != null ? entidad.getEditorial().getId() : null;
+            if (!idAutorPreliminar.equals(idAutorActual) || !idEditorialPreliminar.equals(idEditorialActual)) {
+                throw new MiExcepcion("El libro fue modificado durante la operación. Intente nuevamente.");
+            }
 
-        entidad.setAlta(true);
-        return libroRepo.save(entidad);
+            entidad.setAlta(true);
+            return libroRepo.saveAndFlush(entidad);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El libro está siendo modificado por otra operación. Intente nuevamente.");
+        }
     }
-    
+
     @Transactional(rollbackFor = MiExcepcion.class)
     public Libro baja(String id) throws MiExcepcion {
-        Libro entidad = libroRepo.buscarYBloquearPorId(id);
-        if (entidad == null) {
-            throw new MiExcepcion("Este libro no existe.");
+        try {
+            Libro entidad = libroRepo.buscarYBloquearPorId(id);
+            if (entidad == null) {
+                throw new MiExcepcion("Este libro no existe.");
+            }
+            entidad.setAlta(false);
+            return libroRepo.saveAndFlush(entidad);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El libro está siendo modificado por otra operación. Intente nuevamente.");
         }
-        entidad.setAlta(false);
-        return libroRepo.save(entidad);
     }
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente al autor; sus libros deben reactivarse por separado
     public Autor altaxAutor(String idAutor) throws MiExcepcion {
-        Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
-        if (autor == null) {
-            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
+        try {
+            Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
+            if (autor == null) {
+                throw new MiExcepcion("No se encontró a este Autor en la base de datos");
+            }
+            autor.setAlta(true);
+            return autorRepo.saveAndFlush(autor);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El autor está siendo modificado por otra operación. Intente nuevamente.");
         }
-        autor.setAlta(true);
-        return autorRepo.save(autor);
     }
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja al autor y todos sus libros
     public Autor bajaxAutor(String idAutor) throws MiExcepcion {
-        Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
-        if (autor == null) {
-            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
-        }
-        // Ids únicamente (proyección no entity-typed), ordenados ascendente
-        // por la propia consulta: no cargan ningún Libro en el Persistence
-        // Context, así que cada buscarYBloquearPorId de más abajo es la
-        // primera carga real de esa entidad. Orden canónico de locks:
-        // AUTOR -> LIBROS, para no invertir el orden usado por
-        // crearLibro()/modificarLibro() y evitar deadlocks.
-        List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorAutorId(autor.getId());
-
-        for (String idLibro : idsLibrosOrdenados) {
-            Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
-            if (libroBloqueado == null) {
-                throw new MiExcepcion("Este libro no existe.");
+        try {
+            Autor autor = autorRepo.buscarYBloquearPorId(idAutor);
+            if (autor == null) {
+                throw new MiExcepcion("No se encontró a este Autor en la base de datos");
             }
-            boolean sigueSiendoDelAutor = libroBloqueado.getAutor() != null
-                    && autor.getId().equals(libroBloqueado.getAutor().getId());
-            if (!sigueSiendoDelAutor) {
-                continue;
-            }
-            libroBloqueado.setAlta(false);
-            libroRepo.save(libroBloqueado);
-        }
+            // Ids únicamente (proyección no entity-typed), ordenados ascendente
+            // por la propia consulta: no cargan ningún Libro en el Persistence
+            // Context, así que cada buscarYBloquearPorId de más abajo es la
+            // primera carga real de esa entidad. Orden canónico de locks:
+            // AUTOR -> LIBROS, para no invertir el orden usado por
+            // crearLibro()/modificarLibro() y evitar deadlocks.
+            List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorAutorId(autor.getId());
 
-        autor.setAlta(false);
-        return autorRepo.save(autor);
+            for (String idLibro : idsLibrosOrdenados) {
+                Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
+                if (libroBloqueado == null) {
+                    throw new MiExcepcion("Este libro no existe.");
+                }
+                boolean sigueSiendoDelAutor = libroBloqueado.getAutor() != null
+                        && autor.getId().equals(libroBloqueado.getAutor().getId());
+                if (!sigueSiendoDelAutor) {
+                    continue;
+                }
+                libroBloqueado.setAlta(false);
+                libroRepo.save(libroBloqueado);
+            }
+
+            autor.setAlta(false);
+            // saveAndFlush() descarga el Persistence Context completo (el
+            // autor y los libros ya marcados arriba), no solo esta entidad:
+            // un único flush alcanza para toda la unidad de persistencia de
+            // este método. Prohibido un flush por cada libro del loop.
+            return autorRepo.saveAndFlush(autor);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El autor está siendo modificado por otra operación. Intente nuevamente.");
+        }
     }
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de alta unicamente la editorial; sus libros deben reactivarse por separado
     public Editorial altaxEditorial(String idEditorial) throws MiExcepcion {
-        Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorial);
-        if (editorial == null) {
-            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
+        try {
+            Editorial editorial = editorialRepo.buscarYBloquearPorId(idEditorial);
+            if (editorial == null) {
+                throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
+            }
+            editorial.setAlta(true);
+            return editorialRepo.saveAndFlush(editorial);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("La editorial está siendo modificada por otra operación. Intente nuevamente.");
         }
-        editorial.setAlta(true);
-        return editorialRepo.save(editorial);
     }
 
     @Transactional(rollbackFor = MiExcepcion.class) //Damos de baja la editorial y todos los libros
     public Editorial bajaxEditorial(String idAutor) throws MiExcepcion {
-        Editorial editorial = editorialRepo.buscarYBloquearPorId(idAutor);
-        if (editorial == null) {
-            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
-        }
-        // Ids únicamente (proyección no entity-typed), ordenados ascendente
-        // por la propia consulta: mismo motivo y orden canónico que
-        // bajaxAutor() (EDITORIAL -> LIBROS).
-        List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorEditorialId(editorial.getId());
-
-        for (String idLibro : idsLibrosOrdenados) {
-            Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
-            if (libroBloqueado == null) {
-                throw new MiExcepcion("Este libro no existe.");
+        try {
+            Editorial editorial = editorialRepo.buscarYBloquearPorId(idAutor);
+            if (editorial == null) {
+                throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
             }
-            boolean sigueSiendoDeLaEditorial = libroBloqueado.getEditorial() != null
-                    && editorial.getId().equals(libroBloqueado.getEditorial().getId());
-            if (!sigueSiendoDeLaEditorial) {
-                continue;
-            }
-            libroBloqueado.setAlta(false);
-            libroRepo.save(libroBloqueado);
-        }
+            // Ids únicamente (proyección no entity-typed), ordenados ascendente
+            // por la propia consulta: mismo motivo y orden canónico que
+            // bajaxAutor() (EDITORIAL -> LIBROS).
+            List<String> idsLibrosOrdenados = libroRepo.buscarIdsPorEditorialId(editorial.getId());
 
-        editorial.setAlta(false);
-        return editorialRepo.save(editorial);
+            for (String idLibro : idsLibrosOrdenados) {
+                Libro libroBloqueado = libroRepo.buscarYBloquearPorId(idLibro);
+                if (libroBloqueado == null) {
+                    throw new MiExcepcion("Este libro no existe.");
+                }
+                boolean sigueSiendoDeLaEditorial = libroBloqueado.getEditorial() != null
+                        && editorial.getId().equals(libroBloqueado.getEditorial().getId());
+                if (!sigueSiendoDeLaEditorial) {
+                    continue;
+                }
+                libroBloqueado.setAlta(false);
+                libroRepo.save(libroBloqueado);
+            }
+
+            editorial.setAlta(false);
+            // saveAndFlush() descarga el Persistence Context completo (la
+            // editorial y los libros ya marcados arriba), no solo esta
+            // entidad: un único flush alcanza para toda la unidad de
+            // persistencia de este método. Prohibido un flush por cada
+            // libro del loop.
+            return editorialRepo.saveAndFlush(editorial);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("La editorial está siendo modificada por otra operación. Intente nuevamente.");
+        }
     }
     
     @Transactional(
