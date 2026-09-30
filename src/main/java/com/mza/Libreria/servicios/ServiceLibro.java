@@ -79,26 +79,29 @@ public class ServiceLibro {
             throw new MiExcepcion("La cantidad de ejemplares no puede superar 999");
         }
 
-        Autor autor = resolverAutorActivoPorId(idAutorNorm);
-        Editorial editorial = resolverEditorialActivaPorId(idEditorialNorm);
-
-        validarDuplicado(tituloNorm, autor.getId(), null);
-
-        Libro lib = new Libro();
-        lib.setTitulo(tituloNorm);
-        lib.setAnio(anio);
-        lib.setAlta(Boolean.TRUE);
-        lib.setNroejemplares(nroEjemplares);
-        lib.setEjemplaresPrestados(0);
-        lib.setEjemplaresRestantes(nroEjemplares);
-        lib.setAutor(autor);
-        lib.setEditorial(editorial);
-
-        Portada portada = sPortada.guardar(archivo); //En el caso de que yo no mande un archivo adjunto, no hay problema pq está contemplado y el método guardar me va a devolver null entonces el usuario va a quedar sin foto.
-        lib.setPortada(portada);
-
         try {
+            // Orden canónico de locks: AUTOR -> EDITORIAL.
+            Autor autor = resolverAutorActivoPorId(idAutorNorm);
+            Editorial editorial = resolverEditorialActivaPorId(idEditorialNorm);
+
+            validarDuplicado(tituloNorm, autor.getId(), null);
+
+            Libro lib = new Libro();
+            lib.setTitulo(tituloNorm);
+            lib.setAnio(anio);
+            lib.setAlta(Boolean.TRUE);
+            lib.setNroejemplares(nroEjemplares);
+            lib.setEjemplaresPrestados(0);
+            lib.setEjemplaresRestantes(nroEjemplares);
+            lib.setAutor(autor);
+            lib.setEditorial(editorial);
+
+            Portada portada = sPortada.guardar(archivo); //En el caso de que yo no mande un archivo adjunto, no hay problema pq está contemplado y el método guardar me va a devolver null entonces el usuario va a quedar sin foto.
+            lib.setPortada(portada);
+
             libroRepo.saveAndFlush(lib);
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El catálogo está siendo modificado por otra operación. Intente nuevamente.");
         } catch (DataIntegrityViolationException ex) {
             throw new MiExcepcion("Ya existe un libro con ese título y autor.");
         }

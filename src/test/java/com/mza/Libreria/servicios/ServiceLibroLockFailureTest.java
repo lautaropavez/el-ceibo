@@ -18,6 +18,7 @@ import com.mza.Libreria.repositorios.AutorRepository;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,20 +28,22 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 
 /**
- * P16.2.E - unitario puro (JUnit 5 + Mockito, sin contexto Spring, sin
- * MySQL) que verifica que los seis metodos de ServiceLibro con
+ * P16.2.E/P16.2.F - unitario puro (JUnit 5 + Mockito, sin contexto Spring,
+ * sin MySQL) que verifica que los metodos de ServiceLibro con
  * PESSIMISTIC_WRITE (alta, baja, altaxAutor, altaxEditorial, bajaxAutor,
- * bajaxEditorial) traducen SIEMPRE una PessimisticLockingFailureException a
- * un MiExcepcion controlado, tanto si el fallo ocurre durante la
- * adquisicion del lock (buscarYBloquearPorId, via CannotAcquireLockException)
- * como durante el flush final (saveAndFlush, via
+ * bajaxEditorial, crearLibro) traducen SIEMPRE una
+ * PessimisticLockingFailureException a un MiExcepcion controlado, tanto si
+ * el fallo ocurre durante la adquisicion del lock (buscarYBloquearPorId, via
+ * CannotAcquireLockException) como durante el flush final (saveAndFlush, via
  * DeadlockLoserDataAccessException) - ambas subclases reales de
  * PessimisticLockingFailureException. Nunca debe escapar la excepcion cruda
  * de Spring, y ningun metodo debe continuar mutando estado despues del
- * fallo.
+ * fallo. Para crearLibro() se verifica ademas que DataIntegrityViolationException
+ * conserva exactamente su mensaje de duplicado previo (P16.2.F).
  */
 @ExtendWith(MockitoExtension.class)
 class ServiceLibroLockFailureTest {
@@ -51,6 +54,10 @@ class ServiceLibroLockFailureTest {
             "El autor está siendo modificado por otra operación. Intente nuevamente.";
     private static final String MENSAJE_EDITORIAL =
             "La editorial está siendo modificada por otra operación. Intente nuevamente.";
+    private static final String MENSAJE_CATALOGO =
+            "El catálogo está siendo modificado por otra operación. Intente nuevamente.";
+    private static final String MENSAJE_DUPLICADO =
+            "Ya existe un libro con ese título y autor.";
 
     @Mock
     private LibroRepository libroRepo;
@@ -60,6 +67,9 @@ class ServiceLibroLockFailureTest {
 
     @Mock
     private EditorialRepository editorialRepo;
+
+    @Mock
+    private ServicePortada sPortada;
 
     @InjectMocks
     private ServiceLibro service;
@@ -322,5 +332,78 @@ class ServiceLibroLockFailureTest {
         verify(libroRepo, times(1)).save(libro2);
         verify(libroRepo, never()).saveAndFlush(any());
         verify(editorialRepo, times(1)).saveAndFlush(editorial);
+    }
+
+    // ------------------------------------------------------------------
+    // crearLibro() - P16.2.F
+    // ------------------------------------------------------------------
+
+    @Test
+    void crearLibro_fallaAlAdquirirLockDeAutor_traduceAMiExcepcionSinContinuar() {
+        when(autorRepo.buscarYBloquearPorId("autor-1"))
+                .thenThrow(new CannotAcquireLockException("lock timeout simulado"));
+
+        assertThatThrownBy(() -> service.crearLibro(null, "Titulo", 2000, "autor-1", "editorial-1", 1))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_CATALOGO);
+
+        verify(editorialRepo, never()).buscarYBloquearPorId(any());
+        verify(libroRepo, never()).buscarPorTituloNormalizadoYAutor(any(), any());
+        verify(libroRepo, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void crearLibro_fallaAlAdquirirLockDeEditorial_traduceAMiExcepcionSinContinuar() {
+        Autor autor = autorActivo("autor-1");
+        when(autorRepo.buscarYBloquearPorId("autor-1")).thenReturn(autor);
+        when(editorialRepo.buscarYBloquearPorId("editorial-1"))
+                .thenThrow(new CannotAcquireLockException("lock timeout simulado"));
+
+        assertThatThrownBy(() -> service.crearLibro(null, "Titulo", 2000, "autor-1", "editorial-1", 1))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_CATALOGO);
+
+        InOrder orden = Mockito.inOrder(autorRepo, editorialRepo);
+        orden.verify(autorRepo).buscarYBloquearPorId("autor-1");
+        orden.verify(editorialRepo).buscarYBloquearPorId("editorial-1");
+        verify(libroRepo, never()).buscarPorTituloNormalizadoYAutor(any(), any());
+        verify(libroRepo, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void crearLibro_fallaEnFlushConDeadlock_traduceAMiExcepcionYRespetaOrdenDeLocks() {
+        Autor autor = autorActivo("autor-1");
+        Editorial editorial = editorialActiva("editorial-1");
+        when(autorRepo.buscarYBloquearPorId("autor-1")).thenReturn(autor);
+        when(editorialRepo.buscarYBloquearPorId("editorial-1")).thenReturn(editorial);
+        when(libroRepo.buscarPorTituloNormalizadoYAutor(any(), eq("autor-1")))
+                .thenReturn(Collections.emptyList());
+        when(libroRepo.saveAndFlush(any()))
+                .thenThrow(new DeadlockLoserDataAccessException("deadlock simulado", null));
+
+        assertThatThrownBy(() -> service.crearLibro(null, "Titulo", 2000, "autor-1", "editorial-1", 1))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_CATALOGO);
+
+        InOrder orden = Mockito.inOrder(autorRepo, editorialRepo, libroRepo);
+        orden.verify(autorRepo).buscarYBloquearPorId("autor-1");
+        orden.verify(editorialRepo).buscarYBloquearPorId("editorial-1");
+        orden.verify(libroRepo).saveAndFlush(any());
+    }
+
+    @Test
+    void crearLibro_fallaEnFlushConDuplicado_conservaElMensajeExistente() {
+        Autor autor = autorActivo("autor-1");
+        Editorial editorial = editorialActiva("editorial-1");
+        when(autorRepo.buscarYBloquearPorId("autor-1")).thenReturn(autor);
+        when(editorialRepo.buscarYBloquearPorId("editorial-1")).thenReturn(editorial);
+        when(libroRepo.buscarPorTituloNormalizadoYAutor(any(), eq("autor-1")))
+                .thenReturn(Collections.emptyList());
+        when(libroRepo.saveAndFlush(any()))
+                .thenThrow(new DataIntegrityViolationException("duplicado simulado"));
+
+        assertThatThrownBy(() -> service.crearLibro(null, "Titulo", 2000, "autor-1", "editorial-1", 1))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_DUPLICADO);
     }
 }
