@@ -58,6 +58,10 @@ class ServiceLibroLockFailureTest {
             "El catálogo está siendo modificado por otra operación. Intente nuevamente.";
     private static final String MENSAJE_DUPLICADO =
             "Ya existe un libro con ese título y autor.";
+    private static final String MENSAJE_AUTOR_CON_LIBROS =
+            "No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros";
+    private static final String MENSAJE_EDITORIAL_CON_LIBROS =
+            "No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros";
 
     @Mock
     private LibroRepository libroRepo;
@@ -405,5 +409,115 @@ class ServiceLibroLockFailureTest {
         assertThatThrownBy(() -> service.crearLibro(null, "Titulo", 2000, "autor-1", "editorial-1", 1))
                 .isInstanceOf(MiExcepcion.class)
                 .hasMessage(MENSAJE_DUPLICADO);
+    }
+
+    // ------------------------------------------------------------------
+    // eliminarAutor() - P16.2.G
+    // ------------------------------------------------------------------
+
+    @Test
+    void eliminarAutor_fallaAlAdquirirLock_traduceAMiExcepcionSinContinuar() {
+        when(autorRepo.buscarYBloquearPorId("autor-1"))
+                .thenThrow(new CannotAcquireLockException("lock timeout simulado"));
+
+        assertThatThrownBy(() -> service.eliminarAutor("autor-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_AUTOR);
+
+        verify(libroRepo, never()).listarPorAutor(any());
+        verify(autorRepo, never()).delete(any());
+        verify(autorRepo, never()).flush();
+    }
+
+    @Test
+    void eliminarAutor_fallaEnFlushConDeadlock_traduceAMiExcepcionYRespetaOrden() {
+        Autor autor = autorActivo("autor-1");
+        when(autorRepo.buscarYBloquearPorId("autor-1")).thenReturn(autor);
+        when(libroRepo.listarPorAutor(any())).thenReturn(Collections.emptyList());
+        Mockito.doThrow(new DeadlockLoserDataAccessException("deadlock simulado", null))
+                .when(autorRepo).flush();
+
+        assertThatThrownBy(() -> service.eliminarAutor("autor-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_AUTOR);
+
+        InOrder orden = Mockito.inOrder(autorRepo, libroRepo);
+        orden.verify(autorRepo).buscarYBloquearPorId("autor-1");
+        orden.verify(libroRepo).listarPorAutor(any());
+        orden.verify(autorRepo).delete(autor);
+        orden.verify(autorRepo).flush();
+        verify(autorRepo, times(1)).delete(any());
+        verify(autorRepo, times(1)).flush();
+    }
+
+    @Test
+    void eliminarAutor_fallaEnFlushConDuplicado_conservaElMensajeExistente() {
+        Autor autor = autorActivo("autor-1");
+        when(autorRepo.buscarYBloquearPorId("autor-1")).thenReturn(autor);
+        when(libroRepo.listarPorAutor(any())).thenReturn(Collections.emptyList());
+        Mockito.doThrow(new DataIntegrityViolationException("duplicado simulado"))
+                .when(autorRepo).flush();
+
+        assertThatThrownBy(() -> service.eliminarAutor("autor-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_AUTOR_CON_LIBROS);
+
+        verify(autorRepo, times(1)).delete(autor);
+        verify(autorRepo, times(1)).flush();
+    }
+
+    // ------------------------------------------------------------------
+    // eliminarEditorial() - P16.2.G
+    // ------------------------------------------------------------------
+
+    @Test
+    void eliminarEditorial_fallaAlAdquirirLock_traduceAMiExcepcionSinContinuar() {
+        when(editorialRepo.buscarYBloquearPorId("editorial-1"))
+                .thenThrow(new CannotAcquireLockException("lock timeout simulado"));
+
+        assertThatThrownBy(() -> service.eliminarEditorial("editorial-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_EDITORIAL);
+
+        verify(libroRepo, never()).listarPorEditorial(any());
+        verify(editorialRepo, never()).delete(any());
+        verify(editorialRepo, never()).flush();
+    }
+
+    @Test
+    void eliminarEditorial_fallaEnFlushConDeadlock_traduceAMiExcepcionYRespetaOrden() {
+        Editorial editorial = editorialActiva("editorial-1");
+        when(editorialRepo.buscarYBloquearPorId("editorial-1")).thenReturn(editorial);
+        when(libroRepo.listarPorEditorial(any())).thenReturn(Collections.emptyList());
+        Mockito.doThrow(new DeadlockLoserDataAccessException("deadlock simulado", null))
+                .when(editorialRepo).flush();
+
+        assertThatThrownBy(() -> service.eliminarEditorial("editorial-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_EDITORIAL);
+
+        InOrder orden = Mockito.inOrder(editorialRepo, libroRepo);
+        orden.verify(editorialRepo).buscarYBloquearPorId("editorial-1");
+        orden.verify(libroRepo).listarPorEditorial(any());
+        orden.verify(editorialRepo).delete(editorial);
+        orden.verify(editorialRepo).flush();
+        verify(editorialRepo, times(1)).delete(any());
+        verify(editorialRepo, times(1)).flush();
+    }
+
+    @Test
+    void eliminarEditorial_fallaEnFlushConDuplicado_conservaElMensajeExistente() {
+        Editorial editorial = editorialActiva("editorial-1");
+        when(editorialRepo.buscarYBloquearPorId("editorial-1")).thenReturn(editorial);
+        when(libroRepo.listarPorEditorial(any())).thenReturn(Collections.emptyList());
+        Mockito.doThrow(new DataIntegrityViolationException("duplicado simulado"))
+                .when(editorialRepo).flush();
+
+        assertThatThrownBy(() -> service.eliminarEditorial("editorial-1"))
+                .isInstanceOf(MiExcepcion.class)
+                .hasMessage(MENSAJE_EDITORIAL_CON_LIBROS);
+
+        verify(editorialRepo, times(1)).delete(editorial);
+        verify(editorialRepo, times(1)).flush();
     }
 }

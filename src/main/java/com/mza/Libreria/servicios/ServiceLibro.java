@@ -487,34 +487,38 @@ public class ServiceLibro {
     
     @Transactional(rollbackFor = MiExcepcion.class)
     public void eliminarAutor(String id) throws MiExcepcion {
-        Autor a = autorRepo.buscarYBloquearPorId(id);
-        if (a == null) {
-            throw new MiExcepcion("No se encontró a este Autor en la base de datos");
-        }
-        List<Libro> librosxAutor = listaporAutor(a.getNombre());
-        if (!librosxAutor.isEmpty()) {
-            throw new MiExcepcion("No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros");
-        }
         try {
+            Autor a = autorRepo.buscarYBloquearPorId(id);
+            if (a == null) {
+                throw new MiExcepcion("No se encontró a este Autor en la base de datos");
+            }
+            List<Libro> librosxAutor = listaporAutor(a.getNombre());
+            if (!librosxAutor.isEmpty()) {
+                throw new MiExcepcion("No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros");
+            }
             autorRepo.delete(a);
             autorRepo.flush();
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("El autor está siendo modificado por otra operación. Intente nuevamente.");
         } catch (DataIntegrityViolationException ex) {
             throw new MiExcepcion("No se puede eliminar este Autor porque tiene libros a su nombre, primero deberás eliminar los libros");
         }
     }
     @Transactional(rollbackFor = MiExcepcion.class)
     public void eliminarEditorial(String id) throws MiExcepcion {
-        Editorial e = editorialRepo.buscarYBloquearPorId(id);
-        if (e == null) {
-            throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
-        }
-        List<Libro> librosxEdit = listaporEditorial(e.getNombre());
-        if (!librosxEdit.isEmpty()) {
-            throw new MiExcepcion("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
-        }
         try {
+            Editorial e = editorialRepo.buscarYBloquearPorId(id);
+            if (e == null) {
+                throw new MiExcepcion("No se encontró a esta Editorial en la base de datos");
+            }
+            List<Libro> librosxEdit = listaporEditorial(e.getNombre());
+            if (!librosxEdit.isEmpty()) {
+                throw new MiExcepcion("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
+            }
             editorialRepo.delete(e);
             editorialRepo.flush();
+        } catch (PessimisticLockingFailureException ex) {
+            throw new MiExcepcion("La editorial está siendo modificada por otra operación. Intente nuevamente.");
         } catch (DataIntegrityViolationException ex) {
             throw new MiExcepcion("No se puede eliminar esta Editorial porque tiene libros a su nombre, primero deberas eliminar los libros");
         }
