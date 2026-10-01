@@ -64,8 +64,10 @@ Válidos durante toda la fase, sin excepción:
 
 ## 4. Findings funcionales pendientes
 
-Los tres findings MEDIUM que surgieron de la auditoría P16.0. Ninguno está
-corregido todavía; su corrección es el objeto de P16.2.
+Los tres findings MEDIUM que surgieron de la auditoría P16.0. **Los tres
+quedaron corregidos en P16.2, cerrada técnicamente el 30/09/2026 (ver
+sección 6)** — las descripciones A/B/C siguientes se conservan como
+registro histórico de la auditoría original, no como findings abiertos.
 
 ### A. `alta()`/`baja()` de Libro vs préstamo/devolución
 
@@ -185,7 +187,7 @@ revisión independiente.
 **STOP conditions:** la SCA revela un CVE explotable que exija un upgrade
 mayor; aparece un secreto real en el historial.
 
-### P16.2 — Concurrencia, integridad y robustez
+### P16.2 — Concurrencia, integridad y robustez ✅ CERRADA TÉCNICAMENTE (30/09/2026)
 
 **Objetivo:** corregir los tres findings MEDIUM de la sección 4.
 **Scope conceptual:** `AutorRepository`, `EditorialRepository`,
@@ -197,7 +199,50 @@ real contra `libreriaweb_testsuite`.
 **Fuera de scope:** refactors del dominio sin finding; tocar `ServicePrestamo`
 más allá de lo que exija la corrección.
 **STOP conditions:** aparece un deadlock reproducible; la corrección exige
-cambiar migraciones o entidades.
+cambiar migraciones o entidades. Ninguna condición se disparó durante la
+implementación real.
+
+**Resultado final (12 commits, HEAD técnico
+`8de0cbc63432d1569c0afe0a2621cebd72136bf6`):**
+
+* BCrypt: `encode()`/`matches()` fail closed sobre 72 bytes UTF-8, sin
+  delegar al encoder real cuando se excede el límite (ver Delta A);
+* orden canónico `AUTOR → EDITORIAL → LIBRO(S)` implementado sin inversión
+  vigente; libros múltiples siempre bloqueados por id ascendente;
+* frescura Hibernate: toda lectura preliminar no autoritativa quedó como
+  proyección escalar, nunca entity-typed, antes de su propio
+  `buscarYBloquearPorId`;
+* revalidaciones autoritativas bajo lock en `alta()`, `modificarLibro()`
+  (decisión de "sin cambios" única, después de los tres locks) y en las
+  bajas masivas de Autor/Editorial;
+* matriz real de concurrencia: 11 casos con hilos reales, sin `sleep`,
+  detección determinista de `LOCK WAIT` vía `INNODB_LOCK_WAITS`/
+  `INNODB_TRX`, lectura final por JDBC directo, limpieza sin enmascarar la
+  causa original (`causaPrincipal`/`addSuppressed`);
+* `spring.jpa.open-in-view=false` efectivo (ausencia confirmada del bean
+  `OpenEntityManagerInViewInterceptor`), con smoke de las seis rutas web
+  afectadas;
+* **criterio cumplido:** los **11 métodos públicos** de `ServiceLibro` que
+  adquieren `PESSIMISTIC_WRITE` (`crearLibro`, `modificarLibro`, `alta`,
+  `baja`, `altaxAutor`, `bajaxAutor`, `altaxEditorial`, `bajaxEditorial`,
+  `eliminarLibro`, `eliminarAutor`, `eliminarEditorial`) traducen
+  `PessimisticLockingFailureException` a `MiExcepcion` controlada — ninguno
+  deja escapar la excepción cruda de Spring, y el flush/`saveAndFlush`/
+  `delete`+`flush` de cada uno ocurre dentro del mismo `try` que cubre el
+  lock.
+
+**Evidencia:** review acumulado principal PASS; `code-reviewer` independiente
+PASS; baseline fresco **126 tests, 0 failures, 0 errors, 0 skipped, en 11
+clases** Surefire; Flyway V1→V4 con `success = 1` exclusivamente en
+`libreriaweb_testsuite`; `libreriaweb` normal no fue objetivo de ninguna
+conexión ni operación. No se ejecutó `clean package`, generación de JAR ni
+clon limpio en esta posta — esas comprobaciones corresponden a P16.7.
+
+**Deudas diferidas, no reabiertas:** reset administrativo de claves legacy
+>72 bytes (ver Delta A); dialecto Hibernate conservado por decisión humana;
+`spring.jpa.show-sql=true` (P16.6); carga EAGER de `Portada.contenido`
+(P16.4); observaciones preexistentes de `ServicePrestamo` (P13) y de la
+protección del último ADMIN en `ServiceUsuario`, fuera de este scope.
 
 **Delta A — control compensatorio BCrypt (CVE-2025-22228):** política
 fail closed. Toda contraseña que supere 72 bytes UTF-8 se rechaza,
@@ -207,6 +252,8 @@ recuperación; una cuenta legacy afectada requerirá un restablecimiento
 administrativo controlado, autorizado por separado, antes de publicar.
 No se intenta detectar cuentas afectadas inspeccionando hashes (BCrypt no
 conserva la longitud original). Decisión humana, 2026-09-11.
+
+**Siguiente posta:** P16.3 — Base y datos demo seguros.
 
 ### P16.3 — Base y datos demo seguros
 

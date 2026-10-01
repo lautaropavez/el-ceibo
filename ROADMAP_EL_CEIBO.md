@@ -1,6 +1,6 @@
 # ROADMAP EL CEIBO — ESTADO CANÓNICO Y CIERRE
 
-**Actualizado:** 11 de septiembre de 2026
+**Actualizado:** 30 de septiembre de 2026
 
 **Objetivo:** terminar El Ceibo como un proyecto Java/Spring Boot funcional, seguro, probado, reproducible y defendible en entrevistas técnicas.
 
@@ -25,18 +25,18 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 11/09/2026 |
+| Fecha del checkpoint | 30/09/2026 |
 | Rama activa | `feature/portfolio-publication` |
-| Último commit validado | `9854b3f12b4c138b93aba65350c87ced55c92c94` — "Add Codex CLI integration and shared agent contract" |
+| Último commit validado | `8de0cbc63432d1569c0afe0a2621cebd72136bf6` — "Handle lock failures during catalog deletion" |
 | Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
 | Working tree / índice | limpios al iniciar este checkpoint; sin push ni merge |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); P16.2–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
-| Base normal `libreriaweb` | Flyway V3; protegida |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (12 commits, HEAD técnico `8de0cbc`); P16.3–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
+| Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16.2 |
 | Base de tests | `libreriaweb_testsuite`; descartable; Flyway V1→V4 |
-| Baseline de tests vigente | 77 tests en 7 clases |
+| Baseline de tests vigente | 126 tests en 11 clases |
 
 ---
 
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
 
 Secuencia restante:
 
@@ -76,19 +76,35 @@ migraciones.
 | 4–6 sep | ✅ P15.6 — build final PASS y merge fast-forward a `master` (cerrada 30 ago, antes de lo previsto) |
 | 1 sep | ✅ P16.0 — baseline canónico y SPEC |
 | 2–3 sep | ✅ P16.1 — dependencias, wrapper y build tooling; cerrada con alcance reubicado (commit `5386f06`, 3 sep) |
-| 4–6 sep | *(estimación vencida)* P16.2 — concurrencia, integridad y robustez; diseño preliminar cerrado, implementación no iniciada |
-| 7 sep | *(estimación vencida)* P16.3 — base y datos demo seguros; diseño preliminar cerrado, implementación no iniciada |
-| 8–9 sep | *(estimación vencida)* P16.4 — navegación, UX, accesibilidad y assets; diseño preliminar cerrado, implementación no iniciada |
-| 10 sep | *(estimación vencida)* P16.5 — smoke funcional y visual; solo definida en la SPEC, Gate A propio no iniciado |
-| 11–12 sep | *(estimación vencida)* P16.6 — README, diagramas, capturas y defensa técnica; solo definida en la SPEC, Gate A propio no iniciado |
-| 13 sep | *(estimación vencida)* P16.7 — clon limpio, package, `java -jar` y publicación; solo definida en la SPEC, Gate A propio no iniciado |
-| 14–20 sep | Margen para findings reales, modernización si la SCA la exige, o deudas imprevistas — fechas de P16.2–P16.7 a replanificar, sin fecha nueva asignada todavía |
+| 4–6 sep | ✅ P16.2 — concurrencia, integridad y robustez; cerrada técnicamente el 30/09/2026 (ver sección 5) |
+| 30 sep–01 oct | Cierre documental/checkpoint de P16.2 (esta actualización de roadmap/SPEC) |
+| 02 oct | Gate A comparativo P16.3/P16.4 — determina si el paralelismo es seguro |
+| 03–08 oct | P16.3 y P16.4 — en paralelo **solo si** el Gate A comparativo determina `PARALLEL SAFE` o `PARALLEL WITH EXPLICIT SHARED CONTRACTS`; si no lo determina, se ejecutan de forma secuencial dentro de la misma ventana |
+| 09–10 oct | Integración secuencial de P16.3/P16.4 |
+| 11–12 oct | P16.5 — smoke funcional y visual |
+| 13–16 oct | P16.6 — portfolio y documentación |
+| 17–19 oct | P16.7 — cierre reproducible y publicación (completamente secuencial) |
+| 20–21 oct | Margen para findings reales |
+
+Aclaraciones sobre este cronograma:
+
+- son ventanas estimadas, no compromisos rígidos;
+- un BLOCKER/HIGH puede replanificar el cronograma;
+- el paralelismo de P16.3/P16.4 todavía **no está autorizado**: depende
+  exclusivamente del resultado del Gate A comparativo del 02 oct;
+- P16.7 permanece completamente secuencial, sin excepción;
+- P16 sigue **abierta** hasta terminar P16.7;
+- P16.3 es la próxima posta, después de congelar este checkpoint documental
+  de P16.2;
+- el objetivo del paralelismo evaluado en el Gate A es reducir tiempo
+  calendario sin aumentar la coordinación necesaria.
 
 Objetivos orientativos:
 
 - P15 mergeada: **30 de agosto** (real, ya cerrada);
-- proyecto publicable: alrededor del **13 de septiembre**;
-- margen prudente de cierre: hasta el **20 de septiembre**.
+- P16.2 cerrada técnicamente: **30 de septiembre** (real, ya cerrada);
+- proyecto publicable: alrededor del **19 de octubre**;
+- margen prudente de cierre: hasta el **21 de octubre**.
 
 **Estimación base:** 22–36 horas efectivas, más margen si aparece un finding
 real. No sumar tiempo artificial repitiendo matrices que ya tienen evidencia
@@ -309,27 +325,78 @@ Lo efectivamente implementado y cerrado en `5386f06`:
 - SCA de dependencias y análisis de alcanzabilidad (OSV-Scanner, con
   triage completo por advisory).
 
-## P16.2 — Concurrencia, integridad y robustez ⏳
+## P16.2 — Concurrencia, integridad y robustez ✅ CERRADA TÉCNICAMENTE
 
-Diseño preliminar cerrado (Gate A); implementación no iniciada.
+**Fecha de cierre técnico:** 30/09/2026.
+**Commit técnico final:** `8de0cbc63432d1569c0afe0a2621cebd72136bf6`.
 
-- **delta A — control compensatorio pendiente para evitar autenticación
-  por el truncamiento BCrypt después de 72 bytes UTF-8** (CVE-2025-22228,
-  detectado durante la auditoría de P16.1). No es una vulnerabilidad de
-  denegación de servicio; tampoco está corregido todavía — próxima
-  implementación propuesta.
+Alcance completado:
 
-Implementar el diseño de locks cerrado en P16.0:
+- control BCrypt de 72 bytes UTF-8, fail-closed (CVE-2025-22228): `encode()`
+  y `matches()` rechazan sin delegar al encoder real cuando se excede el
+  límite; `ServiceUsuario.registrar()`/`.modificar()` validan antes de
+  llegar al encoder;
+- orden canónico `AUTOR → EDITORIAL → LIBRO(S)` implementado sin ninguna
+  inversión vigente; libros múltiples siempre bloqueados por id ascendente;
+- corrección de frescura frente al Persistence Context de Hibernate: toda
+  lectura preliminar no autoritativa quedó como proyección escalar, nunca
+  entity-typed, antes del `buscarYBloquearPorId` correspondiente;
+- revalidaciones autoritativas bajo lock en `alta()`, `modificarLibro()`
+  ("sin cambios" decidido una sola vez, después de los tres locks) y en las
+  bajas masivas de Autor/Editorial;
+- matriz real de concurrencia: 11 casos con hilos reales, sin `sleep`,
+  detector determinista de `LOCK WAIT` (`INNODB_LOCK_WAITS`/`INNODB_TRX`),
+  estado final leído por JDBC directo y limpieza sin enmascarar la causa
+  original;
+- `spring.jpa.open-in-view=false` efectivo (ausencia confirmada del bean
+  `OpenEntityManagerInViewInterceptor`) y smoke de las seis rutas web
+  afectadas;
+- traducción controlada de fallos pesimistas en los **11 métodos públicos**
+  de `ServiceLibro` que adquieren locks (`crearLibro`, `modificarLibro`,
+  `alta`, `baja`, `altaxAutor`, `bajaxAutor`, `altaxEditorial`,
+  `bajaxEditorial`, `eliminarLibro`, `eliminarAutor`, `eliminarEditorial`):
+  ninguno deja escapar `PessimisticLockingFailureException` cruda, y el
+  flush de cada uno ocurre dentro del mismo `try` que cubre el lock;
+- preservación del diagnóstico original del harness de concurrencia
+  (`causaPrincipal`/`addSuppressed` en el `finally` de `correrCarrera`).
 
-- métodos `buscarYBloquearPorId` nuevos en `AutorRepository` y
-  `EditorialRepository`, mismo patrón que los repositorios existentes;
-- adoptar el lock, en el orden canónico, en `ServiceLibro.alta()`,
-  `bajaxAutor()`, `altaxAutor()`, `bajaxEditorial()`, `altaxEditorial()`,
-  `crearLibro()` y `modificarLibro()`;
-- corregir `modificarLibro()` para capturar `DataIntegrityViolationException`
-  vía `saveAndFlush()` dentro del `try`;
-- matriz adversarial dedicada con hilos reales — requiere Gate B propio,
-  autorizado por separado, contra `libreriaweb_testsuite`.
+Evidencia:
+
+- 12 commits funcionales: `0fb3b62`, `aab547b`, `9dd2c23`, `521c52f`,
+  `c4368a5`, `ce8174c`, `77db113`, `c542b95`, `cbe6ac1`, `0728cb0`,
+  `eb2b18f`, `8de0cbc`;
+- review acumulado principal: PASS;
+- `code-reviewer` independiente: PASS;
+- baseline fresco: **126 tests, 0 failures, 0 errors, 0 skipped, en 11
+  clases** Surefire;
+- Flyway V1→V4 con `success = 1` exclusivamente en `libreriaweb_testsuite`;
+- `libreriaweb` normal no fue objetivo de ninguna conexión ni operación.
+
+No se ejecutó `clean package`, generación de JAR ni clon limpio en esta
+posta — esas comprobaciones corresponden a P16.7.
+
+Deudas diferidas, explícitamente no resueltas ni reabiertas en P16.2 (ver
+también sección 6):
+
+- recuperación/reset administrativo para cuentas legacy con claves >72
+  bytes (ver Delta A);
+- dialecto Hibernate conservado por decisión humana, sin cambio de código;
+- `spring.jpa.show-sql=true` → P16.6;
+- carga EAGER de `Portada.contenido` → P16.4;
+- observaciones preexistentes de `ServicePrestamo` (P13) y de la protección
+  del último ADMIN en `ServiceUsuario`, fuera del scope de P16.2.
+
+**Delta A — control compensatorio BCrypt (CVE-2025-22228):** política
+fail closed. Toda contraseña que supere 72 bytes UTF-8 se rechaza,
+incluida cualquier contraseña legacy — sin fallback al BCrypt vulnerable,
+sin truncar ni prehashear. No se implementó un flujo nuevo de recuperación;
+una cuenta legacy afectada requerirá un restablecimiento administrativo
+controlado, autorizado por separado, antes de publicar. Decisión humana,
+2026-09-11.
+
+**Siguiente posta:** P16.3 — Base y datos demo seguros (diseño preliminar
+cerrado, implementación no iniciada). P16 sigue en curso: esta sección
+cierra únicamente P16.2.
 
 ## P16.3 — Base y datos demo seguros ⏳
 
@@ -716,5 +783,7 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**P16.0 — cerrar la SPEC de portfolio/publicación y diseñar exactamente la
-corrección de los findings de concurrencia. Sin implementación todavía.**
+**P16.3 — Base y datos demo seguros: Gate A read-only primero (auditoría de
+`DemoDataSeeder`, configuración del profile demo y diseño de la guarda de
+schema). Sin implementación todavía. P16.2 ya cerró técnicamente (ver
+sección 5); P16 sigue en curso.**
