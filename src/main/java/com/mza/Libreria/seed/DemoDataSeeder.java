@@ -4,24 +4,43 @@ import com.mza.Libreria.entidades.Autor;
 import com.mza.Libreria.entidades.Editorial;
 import com.mza.Libreria.entidades.Libro;
 import com.mza.Libreria.entidades.Portada;
+import com.mza.Libreria.entidades.Usuario;
+import com.mza.Libreria.excepciones.MiExcepcion;
 import com.mza.Libreria.repositorios.AutorRepository;
 import com.mza.Libreria.repositorios.EditorialRepository;
 import com.mza.Libreria.repositorios.LibroRepository;
 import com.mza.Libreria.repositorios.PortadaRepository;
+import com.mza.Libreria.repositorios.PrestamoRepository;
+import com.mza.Libreria.repositorios.UsuarioRepository;
+import com.mza.Libreria.servicios.ServicePrestamo;
+import com.mza.Libreria.servicios.ServiceUsuario;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
 /**
- * Carga el catalogo demo (autores, editoriales, libros y portadas) usado
+ * Carga los datos demo (catalogo, usuarios demo y un prestamo real) usados
  * para la presentacion del proyecto. Solo corre con el profile "demo"
  * (SPRING_PROFILES_ACTIVE=local,demo) y es idempotente: si un autor,
- * editorial o libro ya existe por nombre/titulo, no lo vuelve a crear.
+ * editorial, libro, usuario o prestamo (en cualquier estado) ya existe, no
+ * lo vuelve a crear.
+ *
+ * Lo primero que hace run() es una guarda autoritativa: lee el catalogo
+ * real de la conexion y aborta, antes de tocar cualquier repositorio o
+ * service, si no es la base demo que corresponde a los perfiles activos.
+ * Las credenciales de los usuarios demo vienen del entorno (sin default).
  */
 @Component
 @Profile("demo")
@@ -39,9 +58,40 @@ public class DemoDataSeeder implements CommandLineRunner {
     @Autowired
     private PortadaRepository portadaRepo;
 
+    @Autowired
+    private UsuarioRepository usuarioRepo;
+
+    @Autowired
+    private PrestamoRepository prestamoRepo;
+
+    @Autowired
+    private ServiceUsuario serviceUsuario;
+
+    @Autowired
+    private ServicePrestamo servicePrestamo;
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private Environment environment;
+
+    @Value("${app.demo.admin.mail}")
+    private String adminMail;
+
+    @Value("${app.demo.admin.password}")
+    private String adminPassword;
+
+    @Value("${app.demo.usuario.mail}")
+    private String usuarioMail;
+
+    @Value("${app.demo.usuario.password}")
+    private String usuarioPassword;
+
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void run(String... args) throws IOException {
+        validarBaseDemo();
         System.out.println("=== DemoDataSeeder: iniciando carga de datos demo ===");
 
         Autor garciaMarquez = obtenerOCrearAutor("Gabriel García Márquez");
@@ -74,7 +124,7 @@ public class DemoDataSeeder implements CommandLineRunner {
 
         crearLibroSiNoExiste("Cien años de soledad", 1967, garciaMarquez, sudamericana, 5, "portada_cien_anios.jpg");
         crearLibroSiNoExiste("El Hobbit", 1937, tolkien, minotauro, 3, null);
-        crearLibroConStockCero("El Señor de los Anillos", 1954, tolkien, minotauro, 1, null);
+        Libro senorDeLosAnillos = crearLibroSiNoExiste("El Señor de los Anillos", 1954, tolkien, minotauro, 1, null);
         crearLibroSiNoExiste("El amor en los tiempos del cólera", 1985, garciaMarquez, sudamericana, 4, null);
         crearLibroSiNoExiste("Ficciones", 1944, borges, emece, 6, null);
         crearLibroSiNoExiste("Rayuela", 1963, cortazar, alfaguara, 3, "portada_rayuela.jpg");
@@ -90,7 +140,70 @@ public class DemoDataSeeder implements CommandLineRunner {
         crearLibroSiNoExiste("La Odisea", 1982, homero, gredos, 4, "portada_odisea.jpg");
         crearLibroSiNoExiste("Deja de ser tú", 2012, dispenza, urano, 7, "portada_deja_de_ser_tu.jpg");
 
+        crearUsuarioDemo(adminMail, adminPassword, "Admin", "Demo", true);
+        Usuario usuarioDemo = crearUsuarioDemo(usuarioMail, usuarioPassword, "Usuario", "Demo", false);
+
+        crearPrestamoSiNoExiste(usuarioDemo, senorDeLosAnillos);
+
         System.out.println("=== DemoDataSeeder: finalizado ===");
+    }
+
+    // Guarda autoritativa: independiente de los initializers, verifica el
+    // catalogo realmente conectado antes de cualquier repo/service.
+    private void validarBaseDemo() {
+        String catalogo;
+        try (Connection conexion = dataSource.getConnection()) {
+            catalogo = conexion.getCatalog();
+        } catch (SQLException ex) {
+            throw new IllegalStateException(
+                "No se pudo verificar la base conectada. Abortando el seeder demo.", ex);
+        }
+        DemoDatabaseEarlyGuardInitializer.validarCatalogo(
+                catalogo, Arrays.asList(environment.getActiveProfiles()));
+    }
+
+    // cambiarRol() es un toggle: solo se invoca en la creacion inicial del
+    // admin, nunca si el usuario ya existia.
+    private Usuario crearUsuarioDemo(String mail, String clave, String nombre, String apellido,
+            boolean admin) {
+        if (mail == null || mail.trim().isEmpty() || clave == null || clave.trim().isEmpty()) {
+            throw new IllegalStateException(
+                "Faltan credenciales del usuario demo '" + nombre + "'. Abortando.");
+        }
+        String mailTrim = mail.trim();
+        Usuario existente = usuarioRepo.buscarPorMail(mailTrim);
+        if (existente != null) {
+            return existente;
+        }
+        try {
+            serviceUsuario.registrar(nombre, apellido, mailTrim, clave, clave);
+            Usuario creado = usuarioRepo.buscarPorMail(mailTrim);
+            if (creado == null) {
+                throw new IllegalStateException(
+                    "No se encontro el usuario demo '" + nombre + "' tras registrarlo.");
+            }
+            if (admin) {
+                serviceUsuario.cambiarRol(creado.getId());
+            }
+            return creado;
+        } catch (MiExcepcion ex) {
+            throw new IllegalStateException(
+                "No se pudo crear el usuario demo '" + nombre + "': " + ex.getMessage(), ex);
+        }
+    }
+
+    // Idempotencia any-state: si ya hubo un prestamo (activo o devuelto)
+    // de este usuario sobre este libro, no se solicita otro.
+    private void crearPrestamoSiNoExiste(Usuario usuario, Libro libro) {
+        if (prestamoRepo.existsByUsuario_IdAndLibro_Id(usuario.getId(), libro.getId())) {
+            return;
+        }
+        try {
+            servicePrestamo.solicitar(usuario.getMail(), libro.getId());
+        } catch (MiExcepcion ex) {
+            throw new IllegalStateException(
+                "No se pudo crear el prestamo demo: " + ex.getMessage(), ex);
+        }
     }
 
     private Autor obtenerOCrearAutor(String nombre) {
@@ -115,26 +228,16 @@ public class DemoDataSeeder implements CommandLineRunner {
         return editorialRepo.save(nueva);
     }
 
-    private void crearLibroSiNoExiste(String titulo, int anio, Autor autor, Editorial editorial,
+    private Libro crearLibroSiNoExiste(String titulo, int anio, Autor autor, Editorial editorial,
             int nroEjemplares, String archivoPortada) throws IOException {
-        if (!libroRepo.buscarPorTituloNormalizadoYAutor(titulo, autor.getId()).isEmpty()) {
-            return;
+        List<Libro> existentes = libroRepo.buscarPorTituloNormalizadoYAutor(titulo, autor.getId());
+        if (!existentes.isEmpty()) {
+            return existentes.get(0);
         }
         Libro libro = construirLibroBase(titulo, anio, autor, editorial, nroEjemplares, archivoPortada);
         libro.setEjemplaresPrestados(0);
         libro.setEjemplaresRestantes(nroEjemplares);
-        libroRepo.save(libro);
-    }
-
-    private void crearLibroConStockCero(String titulo, int anio, Autor autor, Editorial editorial,
-            int nroEjemplares, String archivoPortada) throws IOException {
-        if (!libroRepo.buscarPorTituloNormalizadoYAutor(titulo, autor.getId()).isEmpty()) {
-            return;
-        }
-        Libro libro = construirLibroBase(titulo, anio, autor, editorial, nroEjemplares, archivoPortada);
-        libro.setEjemplaresPrestados(nroEjemplares);
-        libro.setEjemplaresRestantes(0);
-        libroRepo.save(libro);
+        return libroRepo.save(libro);
     }
 
     private Libro construirLibroBase(String titulo, int anio, Autor autor, Editorial editorial,
