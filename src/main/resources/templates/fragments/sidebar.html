@@ -20,36 +20,35 @@
                     <h4>Libros</h4>
                 </div>
             </a>
-            <a href="#">
+            <a href="/autor/lista">
                 <div class="option">
                     <i class="fa-solid fa-feather-pointed" title="Autores"></i>
                     <h4>Autores</h4>
                 </div>
             </a>
-            <a href="#">
+            <a href="/editorial/lista">
                 <div class="option">
                     <i class="fa-solid fa-landmark" title="Editoriales"></i>
                     <h4>Editoriales</h4>
                 </div>
             </a>
-            <!-- Hacer que solo pueda entrar el Admin -->
             <a href="/usuario/lista">
                 <div class="option">
                     <i class="fa-solid fa-users" title="Usuarios"></i>
                     <h4>Usuarios</h4>
                 </div>
             </a>
-            </th:block>
-            <a href="#">
+            <a href="/prestamo/lista">
                 <div class="option">
-            <i class="fa-solid fa-arrow-right-arrow-left" title="Préstamos"></i>
+                    <i class="fa-solid fa-arrow-right-arrow-left" title="Préstamos"></i>
                     <h4>Préstamos</h4>
                 </div>
             </a>
-            <a href="#">
+            </th:block>
+            <a href="/prestamo/mis-prestamos" sec:authorize="hasRole('USUARIO')">
                 <div class="option">
-                    <i class="far fa-address-card" title="Nosotros"></i>
-                    <h4>Nosotros</h4>
+                    <i class="fa-solid fa-arrow-right-arrow-left" title="Mis préstamos"></i>
+                    <h4>Mis préstamos</h4>
                 </div>
             </a>
             <form method="post" th:action="@{/logout}">

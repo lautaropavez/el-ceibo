@@ -7,7 +7,7 @@
         <meta name="author" content="Lautaro Pavez">
         <title>Libreria El Ceibo</title>
         <!-- Icono página -->
-        <link rel="icon" type="image/x-icon" href="/img/ceibo.svg">
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
         <!-- Font Awesome icons (free version)-->
         <script th:src="@{https://use.fontawesome.com/releases/v6.1.0/js/all.js}" crossorigin="anonymous"></script>
         <!-- Google fonts -->
@@ -33,6 +33,12 @@
                         <li class="nav-item" sec:authorize="isAnonymous()">
                             <a href="/login" class="nav-link" >Log In</a>
                         </li>
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                            <a href="/libro/lista" class="nav-link">Panel de administración</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="hasRole('USUARIO')">
+                            <a href="/libro/biblioteca" class="nav-link">Biblioteca</a>
+                        </li>
                         <li class="nav-item" sec:authorize="isAuthenticated()">
                             <span class="nav-link" sec:authentication="name"></span>
                         </li>
@@ -47,10 +53,10 @@
         <header class="masthead text-center text-white">
             <div class="masthead-content">
                 <div class="container px-5">
-                    <h1 class="masthead-heading mb-0">Una Libreria</h1>
-                    <h2 class="masthead-subheading mb-0">que cambia tu vida</h2>
+                    <h1 class="masthead-heading mb-0">Tu próxima lectura empieza acá</h1>
+                    <h2 class="masthead-subheading mb-0">Explorá el catálogo de El Ceibo y encontrá una historia para vos.</h2>
                     <!-- <a class="btn btn-primary btn-xl rounded-pill mt-5" href="#scroll">Learn More</a> -->
-                    <a href="/registro " class="btn btn-primary btn-xl rounded-pill mt-5" >¡Registrate!</a>
+                    <a href="/libro/biblioteca" class="btn btn-primary btn-xl rounded-pill mt-5">Explorar catálogo</a>
                 </div>
             </div>
             <div class="bg-circle-1 bg-circle"></div>
@@ -64,12 +70,12 @@
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6 order-lg-2">
                         <!-- <div class="p-5"><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." /></div> -->
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="img/mujer_festejando1.jpg" alt="..." /></div>
+                        <div class="p-5"><img class="img-fluid rounded" src="img/mujer_festejando1.jpg" alt="Persona eligiendo un libro entre estantes" /></div>
                     </div>
                     <div class="col-lg-6 order-lg-1">
                         <div class="p-5">
-                            <h2 class="display-4">¡Las Mejores Promos!</h2>
-                            <p>Tenemos las promociones más locas que te puedas imaginar, Black Friday? no existe comparado con nuestros descuentos.lor sit amet consectetur adipisicing elit. Officia saepe quidem aut voluptatem rem quisquam eaque ex dolores, harum veritatis quod at id iusto voluptate, vero expedita ducimus cumque vel!</p>
+                            <h2 class="display-4">Encontrá tu próxima lectura</h2>
+                            <p>Recorré el catálogo, descubrí autores y elegí el libro que más te gustaría leer.</p>
                         </div>
                     </div>
                 </div>
@@ -81,12 +87,12 @@
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6">
                         <!-- <div class="p-5"><img class="img-fluid rounded-circle" src="assets/img/02.jpg" alt="..." /></div> -->
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="img/books-assortment-with-white-background.jpg" alt="..." /></div>
+                        <div class="p-5"><img class="img-fluid rounded" src="img/books-assortment-with-white-background.jpg" alt="Entrega de un libro en préstamo" /></div>
                     </div>
                     <div class="col-lg-6">
                         <div class="p-5">
-                            <h2 class="display-4">Los libros que buscas...</h2>
-                            <p>Tenemos un catálogo de más de 5000 libros de diversos autores de renombre mundial. En varios idiomas, recientemente hemos agregado libros de autores asiáticos para nuestro público que quiera diversificar su lectura un poco más. adipisicing elit. Quod aliquid, mollitia odio veniam sit iste esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae adipisci, beatae obcaecati.</p>
+                            <h2 class="display-4">Pedilo prestado</h2>
+                            <p>Iniciá sesión para solicitar libros disponibles. Cada préstamo tiene su fecha de vencimiento para que puedas organizar tu lectura.</p>
                         </div>
                     </div>
                 </div>
@@ -97,12 +103,12 @@
             <div class="container px-5">
                 <div class="row gx-5 align-items-center">
                     <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="img/librosmano.jpg" alt="..." /></div>
+                        <div class="p-5"><img class="img-fluid rounded" src="img/librosmano.jpg" alt="Persona leyendo junto a una ventana con un jardín y un ceibo al fondo" /></div>
                     </div>
                     <div class="col-lg-6 order-lg-1">
                         <div class="p-5">
-                            <h2 class="display-4">En un solo lugar!</h2>
-                            <p>Somos la libreria mas visitada en el país, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae adipisci, beatae obcaecati.</p>
+                            <h2 class="display-4">Tus lecturas, en un solo lugar</h2>
+                            <p>Consultá tus préstamos y sus fechas de devolución desde tu cuenta en un solo lugar.</p>
                         </div>
                     </div>
                 </div>
