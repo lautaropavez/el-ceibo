@@ -23,10 +23,10 @@ archivos CSS.
 
 No están en el código fuente del repositorio: Maven las resuelve desde
 `pom.xml`. Sí quedan **empaquetadas dentro del JAR ejecutable** que genera
-`spring-boot-maven-plugin`, y se redistribuyen con él. Las versiones son las
-gestionadas por Spring Boot 2.7.18 (BOM del parent) y coinciden con los
-artefactos presentes en el repositorio Maven local; la licencia se tomó del
-`.pom` de cada artefacto.
+`spring-boot-maven-plugin`, y se redistribuyen con él. Las versiones
+corresponden a las gestionadas por Spring Boot 2.7.18, salvo los overrides
+explícitos de `pom.xml`: MySQL Connector/J 8.4.0 y Apache Tomcat 9.0.121. La
+licencia se tomó del `.pom` de cada artefacto.
 
 | Dependencia | Versión | Licencia |
 |---|---|---|
@@ -35,9 +35,9 @@ artefactos presentes en el repositorio Maven local; la licencia se tomó del
 | Thymeleaf | 3.0.15.RELEASE | Apache-2.0 |
 | Thymeleaf Extras Spring Security 5 | 3.0.5.RELEASE | Apache-2.0 |
 | Hibernate ORM (`hibernate-core`) | 5.6.15.Final | LGPL-2.1-or-later |
-| Apache Tomcat embebido (`tomcat-embed-core`) | 9.0.83 | Apache-2.0 |
+| Apache Tomcat embebido (`tomcat-embed-core`) | 9.0.121 | Apache-2.0 |
 | Flyway Community (`flyway-core`, `flyway-mysql`) | 8.5.13 | Apache-2.0 (verificado en `META-INF/LICENSE.txt` del jar `flyway-core` 8.5.13; el `.pom` no declara el campo `license`) |
-| MySQL Connector/J (`mysql-connector-j`, scope `runtime`) | 8.0.33 | GPL-2.0 con Universal FOSS Exception 1.0 |
+| MySQL Connector/J (`mysql-connector-j`, scope `runtime`) | 8.4.0 | GPL-2.0 con Universal FOSS Exception 1.0 |
 | Logback Classic | 1.2.12 | EPL-1.0 / LGPL-2.1 (doble licencia; el `.pom` local no declara el campo `license`) |
 
 `spring-boot-devtools` está marcado `optional` y se excluye del JAR
