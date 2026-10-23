@@ -25,18 +25,18 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 30/09/2026 |
+| Fecha del checkpoint | 23/10/2026 |
 | Rama activa | `feature/portfolio-publication` |
-| Último commit validado | `8de0cbc63432d1569c0afe0a2621cebd72136bf6` — "Handle lock failures during catalog deletion" |
+| Último commit | `d28dbbd2cc9cf1450ba402372e7d81c4495dfda8` — "Refine dark UI, harden route authorization and document Windows scope" |
 | Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
-| Working tree / índice | limpios al iniciar este checkpoint; sin push ni merge |
+| Working tree / índice | documentación de P16.6 y actualización del ROADMAP sin commit; sin push ni merge |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (12 commits, HEAD técnico `8de0cbc`); P16.3–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
-| Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16.2 |
-| Base de tests | `libreriaweb_testsuite`; descartable; Flyway V1→V4 |
-| Baseline de tests vigente | 126 tests en 11 clases |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas pendientes; recorrido completo por teclado diferido); P16.6 con documentación incorporada al árbol de trabajo; P16.7 no iniciada |
+| Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16 |
+| Base de tests | `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`; descartables; Flyway V1→V4 |
+| Baseline de tests vigente | **221 tests en 15 clases** (suite completa, ejecutada antes de agregar una regresión de login). Aparte, corrida focalizada de `CsrfProtectionMockMvcTest`: 17 tests, que incluyen esa regresión nueva y 16 ya contados en los 221; no se suman. La suite completa no se repitió sobre `d28dbbd` |
 
 ---
 
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3–P16.4 con diseño preliminar cerrado, implementación no iniciada; P16.5–P16.7 definidas únicamente en la SPEC, Gate A propio no iniciado |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas pendientes, teclado completo diferido); P16.6 en curso (documentación en el árbol de trabajo); P16.7 no iniciada |
 
 Secuencia restante:
 
@@ -398,9 +398,10 @@ controlado, autorizado por separado, antes de publicar. Decisión humana,
 cerrado, implementación no iniciada). P16 sigue en curso: esta sección
 cierra únicamente P16.2.
 
-## P16.3 — Base y datos demo seguros ⏳
+## P16.3 — Base y datos demo seguros ✅ INTEGRADA
 
-Diseño preliminar cerrado (Gate A); implementación no iniciada.
+Integrada en `feature/portfolio-publication` (`f9ad152`, `--ff-only`; sin push
+ni merge a `master`). Diseño original:
 
 - crear `libreriaweb_demo` como schema descartable y fijo, con una guarda
   equivalente a `TestDatabaseInitializer` que impida ejecutar el seeder
@@ -415,9 +416,13 @@ La migración de `libreriaweb` histórica a V4 queda como **mantenimiento
 opcional**, con backup y autorización separada — no bloquea la demo ni la
 publicación del proyecto (ver sección 6).
 
-## P16.4 — Navegación, UX, accesibilidad y assets ⏳
+## P16.4 — Navegación, UX, accesibilidad y assets ✅ INTEGRADA
 
-Diseño preliminar cerrado (Gate A); implementación no iniciada.
+Integrada en `feature/portfolio-publication` (`97567c7`, `--ff-only`; sin push
+ni merge a `master`). Los cambios posteriores de interfaz (tema oscuro,
+sidebar, listas de gestión) y de seguridad (reglas de ruta con `mvcMatchers`
+frente a la barra final, regresión de login con 72 bytes) están guardados en
+`d28dbbd`. Alcance original:
 
 Corregir únicamente defectos observables:
 
@@ -432,9 +437,16 @@ Corregir únicamente defectos observables:
 
 No realizar un rediseño completo ni cambiar la arquitectura visual.
 
-## P16.5 — Smoke funcional y visual ⏳
+## P16.5 — Smoke funcional y visual 🟡 VALIDACIÓN FUNCIONAL CONSOLIDADA
 
-Solo definida en la SPEC; Gate A propio todavía no iniciado.
+Validación funcional consolidada con evidencia separada por tipo: suite
+completa (221 tests), comprobaciones HTTP sobre la demo y pruebas manuales del
+autor (flujo principal, permisos, sidebar, listas de gestión, «Saltar al
+contenido» y móvil 390 × 844 en las vistas confirmadas). Pendientes
+explícitos: **capturas públicas** (se rehacen al final, antes de publicar, con
+datos ficticios) y **recorrido completo por teclado** (diferido por decisión
+del autor; no se declara cumplimiento de WCAG). No se confirmó ningún defecto
+en lo diferido. Definición original:
 
 Recorrer con navegador real:
 
@@ -453,10 +465,13 @@ Recorrer con navegador real:
 El smoke valida integración y experiencia. No reemplaza ni repite toda la
 matriz automatizada.
 
-## P16.6 — README, diagramas, capturas y defensa técnica ⏳
+## P16.6 — README, diagramas, capturas y defensa técnica 🟡 EN CURSO
 
-Solo definida en la SPEC; Gate A propio todavía no iniciado. Incluye el
-README y la documentación de portfolio reubicados desde P16.1.
+README, `docs/diagramas.md` y `docs/DEFENSA_TECNICA.md` (con guiones de
+presentación y demo) incorporados al árbol de trabajo, pendientes de commit.
+Pendientes: capturas (al final, sin reutilizar las anteriores por contener datos
+personales) y renderizado de Mermaid (hoy revisado solo por lectura). Incluye
+el README y la documentación de portfolio reubicados desde P16.1.
 
 El README debe explicar:
 
@@ -785,7 +800,8 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**P16.3 — Base y datos demo seguros: Gate A read-only primero (auditoría de
-`DemoDataSeeder`, configuración del profile demo y diseño de la guarda de
-schema). Sin implementación todavía. P16.2 ya cerró técnicamente (ver
-sección 5); P16 sigue en curso.**
+**Guardar la documentación de P16.6 y entrar a P16.7 (Windows): empaquetado,
+clon limpio, Flyway desde cero en entorno aislado, `java -jar` contra el
+entorno demo y escaneos de dependencias y secretos. Pendientes transversales:
+capturas públicas, renderizado de Mermaid y recorrido completo por teclado.
+P16 sigue abierta; sin push ni merge a `master`.**
