@@ -1,180 +1,171 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
+/*
+ * Menú lateral de gestión (ADMIN) y de "Mis préstamos".
+ * Escritorio: riel de 80 px que se expande a 250 px.
+ * Móvil (<768 px): panel superpuesto que se abre desde un botón flotante.
+ * El tema general (tipografía, colores base, foco) viene de ceibo-theme.css.
+ */
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    text-decoration: none;
-    font-family: 'Open Sans', sans-serif;
+:root {
+    --sidebar-bg: #181b1f;
+    --sidebar-border: #505963;
+    --sidebar-text: #b8c0ca;
+    --sidebar-text-strong: #f1f3f5;
+    --sidebar-hover: #2c3239;
+    --sidebar-focus: #8ab4f8;
+    --sidebar-ease: 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body{
     margin-left: 80px;
-    transition: margin-left 300ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition: margin-left var(--sidebar-ease);
 }
 
 main{
-    padding: 20px;
-}
-
-/*
-.footer{
-width: 100%;
-position: absolute;
-bottom: 0;
-}
-*/
-
-.img_tree{
-    margin: 10px;
-}
-
-.icon__menu{
-    width: 60px; /* width: 50px; */
-    height: 12%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: translateX(10px);
-}
-
-.icon__menu i{
-    font-size: 20px;
-    cursor: pointer;
-    position: absolute;
+    padding: 1.5rem 1rem;
+    max-width: 1120px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .menu__side{
     width: 80px;
     height: 100%;
-    /* background: #1783db; celeste/azul
-    background: #222222; gris oscuro */
-    background: #212529;
+    background: var(--sidebar-bg);
     position: fixed;
     top: 0;
     left: 0;
-    color: white;
-    font-size: 18px;
+    color: var(--sidebar-text-strong);
+    font-size: 1rem;
     z-index: 300;
-    overflow: hidden;  /* Tapa los textos cuando oculta la barra izquierda */
-    overflow-y: scroll;
-    border-right: 20px solid #212529; /* Tapa lo que queda de los textos cuando oculta la barra izquierda */
-    transition: all 300ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
-}
-
-/*Ocultar scroll para chrome, safari y opera*/
-.menu__side::-webkit-scrollbar{
-    display: none;
-}
-
-/*Ocultar scroll para IE, Edge y Firefox*/
-.menu__side{
+    border-right: 1px solid var(--sidebar-border);
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width var(--sidebar-ease), left var(--sidebar-ease), visibility 0s;
+    /* Oculta la barra de desplazamiento sin quitar el desplazamiento. */
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-
-.name__page{
-    padding: 20px 30px;
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
+.menu__side::-webkit-scrollbar{
+    display: none;
 }
 
-/* .name__page i{
-    width: 20px;
-    margin-right: 20px;
-} */
-
-.img_tree{
-    width: 20px;
-    margin-right: 20px;
+.menu__side :focus-visible{
+    outline: 3px solid var(--sidebar-focus);
+    outline-offset: -3px;
 }
 
-.options__menu{
-    padding: 20px 30px;
+/* ---------- Botón de apertura ---------- */
+.icon__menu{
     position: absolute;
-    top: 80px;
+    top: 0.75rem;
+    left: 0;
+    width: 80px;
+    display: flex;
+    justify-content: center;
 }
 
-.options__menu a{
-    color: #ffffffb2;
-    cursor: default;
+.sidebar-toggle{
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sidebar-text-strong);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background-color 160ms ease;
+}
+
+.sidebar-toggle:hover{
+    background: var(--sidebar-hover);
+}
+
+/* ---------- Opciones ---------- */
+.options__menu{
+    position: absolute;
+    top: 4.5rem;
+    left: 0;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+}
+
+.options__menu a,
+.options__menu .option-logout{
     display: block;
     position: relative;
-    transition: color 300ms;
+    color: var(--sidebar-text);
+    border-radius: 8px;
+    transition: color 160ms ease, background-color 160ms ease;
 }
 
-.options__menu a:hover{
-    color: white;
+.options__menu a:hover,
+.options__menu .option-logout:hover{
+    color: var(--sidebar-text-strong);
+    background: var(--sidebar-hover);
 }
 
 .options__menu .option{
-    padding: 20px 0px;
     display: flex;
     align-items: center;
     position: relative;
+    padding: 0.85rem 0.5rem;
+    white-space: nowrap;
 }
 
 .options__menu .option i{
-    width: 20px;
-    margin-right: 20px;
-    cursor: pointer;
+    flex: 0 0 1.5rem;
+    width: 1.5rem;
+    margin-right: 1rem;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
-.options__menu .option h4{
-    font-weight: 300;
-    cursor: pointer;
+.options__menu .option h4,
+.options__menu .option .h4{
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: inherit;
 }
 
-/* Botón de logout: mismo aspecto que los demás <a> de .options__menu,
-   pero es un <button> dentro de un <form method="post"> (POST real,
-   requerido para que CSRF lo proteja en P15.4). Reutiliza color/hover/
-   transition de ".options__menu a" y solo resetea lo propio de <button>
-   (fondo, borde, ancho, fuente, alineación) que ".option" no cubre. */
+/* Botón de logout: mismo aspecto que los demás enlaces, pero es un <button>
+   dentro de un <form method="post"> (POST real, protegido por CSRF). */
+.options__menu form{
+    margin: 0;
+}
+
 .options__menu .option-logout{
     background: none;
     border: none;
     width: 100%;
     font: inherit;
     text-align: left;
-    color: #ffffffb2;
-    cursor: default;
-    transition: color 300ms;
-}
-
-.options__menu .option-logout:hover{
-    color: white;
-}
-
-.options__menu .option-logout:focus-visible{
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-}
-
-.options__menu .option-logout span{
-    font-weight: 300;
     cursor: pointer;
 }
 
-/* Es para marcar la clase(el ícono) seleccionada en blanco min34*/
+/* Opción de la página actual. */
 a.selected{
-    color: #fff;
+    color: var(--sidebar-text-strong);
 }
 
-/* Es para marcar la clase(el ícono) seleccionada en blanco */
 .selected:before{
     content: '';
     width: 3px;
-    height: 80%;
-    background: white;
+    height: 60%;
+    background: var(--sidebar-text-strong);
+    border-radius: 2px;
     position: absolute;
-    top: 10%;
-    left: -30px;
+    top: 20%;
+    left: -0.5rem;
 }
 
-/*Clases para usar en JavaScript*/
-
+/* ---------- Estado expandido (clases que activa sidebar.js) ---------- */
 .body_move{
     margin-left: 250px;
 }
@@ -183,14 +174,113 @@ a.selected{
     width: 250px;
 }
 
+.ceibo-sidebar-backdrop{
+    display: none;
+}
 
-@media screen and (max-width: 760px){
+/* ---------- Escritorio contraído: solo íconos centrados ----------
+   Las etiquetas siguen en el DOM (nombre accesible de cada enlace/botón),
+   pero se ocultan visualmente para que no queden cortadas en el riel de 80 px. */
+@media screen and (min-width: 768px){
+    .menu__side:not(.menu__side_move) .options__menu .option{
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .menu__side:not(.menu__side_move) .options__menu .option i{
+        margin-right: 0;
+    }
+
+    .menu__side:not(.menu__side_move) .options__menu .option h4,
+    .menu__side:not(.menu__side_move) .options__menu .option .h4{
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* ---------- Móvil: panel superpuesto ---------- */
+@media screen and (max-width: 767.98px){
+    body,
     .body_move{
-        margin-left: 0px;
+        margin-left: 0;
+    }
+
+    .menu__side{
+        width: 270px;
+        left: -280px;
+        visibility: hidden;
+        transition: left var(--sidebar-ease), visibility 0s linear 260ms;
     }
 
     .menu__side_move{
-        width: 80px;
-        left: -80px;
+        width: 270px;
+        left: 0;
+        visibility: visible;
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.35);
+        transition: left var(--sidebar-ease), visibility 0s;
+    }
+
+    /* Botón flotante: siempre visible aunque el panel esté cerrado. */
+    .icon__menu{
+        position: static;
+        width: auto;
+    }
+
+    .sidebar-toggle{
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 400;
+        visibility: visible;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--sidebar-bg);
+        border: 1px solid var(--sidebar-border);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-toggle:focus-visible{
+        outline: 3px solid var(--sidebar-focus);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 6px var(--sidebar-bg);
+    }
+
+    .ceibo-sidebar-backdrop{
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 250;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--sidebar-ease), visibility 0s linear 260ms;
+    }
+
+    .ceibo-sidebar-backdrop.is-visible{
+        opacity: 1;
+        visibility: visible;
+        transition: opacity var(--sidebar-ease), visibility 0s;
+    }
+
+    .options__menu .option{
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    body,
+    .menu__side,
+    .ceibo-sidebar-backdrop{
+        transition: none !important;
     }
 }

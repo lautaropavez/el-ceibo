@@ -3,10 +3,13 @@ package com.mza.Libreria.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.mza.Libreria.entidades.Autor;
@@ -204,6 +207,42 @@ class CsrfProtectionMockMvcTest {
 
         mockMvc.perform(get("/prestamo/mis-prestamos").session(session))
                 .andExpect(status().is3xxRedirection());
+    }
+
+    // Regresión del control de 72 bytes por la cadena completa de /logincheck (Spring Security real,
+    // UsuarioDetailsService y el encoder de la aplicación). La clave del usuario es la propia de 72 bytes,
+    // de modo que el rechazo del segundo intento se debe solo al byte adicional. CSRF válido y
+    // sesiones independientes en cada intento.
+    @Test
+    void logincheck_conPasswordDe72Bytes_autenticaYConElMismoPrefijoMasUnCaracter_rechazaSinSesion() throws Exception {
+        String mail = "p165-logincheck-72bytes@test.com";
+        String password72 = repetir('a', 72);
+        crearUsuarioConClave(mail, password72);
+
+        MockHttpSession sesionValida = new MockHttpSession();
+        mockMvc.perform(post("/logincheck")
+                        .param("username", mail)
+                        .param("password", password72)
+                        .session(sesionValida)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/libro/biblioteca"))
+                .andExpect(authenticated().withUsername(mail));
+        mockMvc.perform(get("/prestamo/mis-prestamos").session(sesionValida))
+                .andExpect(status().isOk());
+
+        MockHttpSession sesionRechazada = new MockHttpSession();
+        mockMvc.perform(post("/logincheck")
+                        .param("username", mail)
+                        .param("password", password72 + "b")
+                        .session(sesionRechazada)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?error"))
+                .andExpect(unauthenticated());
+        mockMvc.perform(get("/prestamo/mis-prestamos").session(sesionRechazada))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
     }
 
     // ---- 4. /logout ----

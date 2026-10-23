@@ -1,51 +1,72 @@
-<!--body id="body" oara que funcione el sidebar-->   
+<!--body id="body" oara que funcione el sidebar-->
     <div class="menu__side" id="menu_side" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
         <div class="icon__menu">
-            <i class="fas fa-bars" id="btn_open"></i>
+            <button type="button" id="btn_open" class="sidebar-toggle" aria-label="Abrir el menú de gestión" aria-expanded="false" aria-controls="menu_side">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
         </div>
 
-        <div class="options__menu">
-            <!-- Modificar luego que vaya a otra página -->
-            <a href="/login" class="selected">
+        <!-- La opción activa se deduce de la ruta actual. Solo rutas de gestión:
+             /libro/biblioteca (catálogo público) no marca "Libros". -->
+        <div class="options__menu" th:with="uri=${#httpServletRequest.requestURI}">
+            <a th:href="@{/}">
                 <div class="option">
                     <i class="fas fa-home" title="Inicio"></i>
                     <h4>Inicio</h4>
                 </div>
             </a>
             <th:block sec:authorize="hasRole('ADMIN')">
-            <a href="/libro/lista">
+            <a href="/libro/lista"
+               th:with="actual=${uri == '/libro/lista' or #strings.startsWith(uri, '/libro/registr') or #strings.startsWith(uri, '/libro/modificar/')}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-book-open" title="Libros"></i>
                     <h4>Libros</h4>
                 </div>
             </a>
-            <a href="/autor/lista">
+            <a href="/autor/lista"
+               th:with="actual=${#strings.startsWith(uri, '/autor/')}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-feather-pointed" title="Autores"></i>
                     <h4>Autores</h4>
                 </div>
             </a>
-            <a href="/editorial/lista">
+            <a href="/editorial/lista"
+               th:with="actual=${#strings.startsWith(uri, '/editorial/')}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-landmark" title="Editoriales"></i>
                     <h4>Editoriales</h4>
                 </div>
             </a>
-            <a href="/usuario/lista">
+            <a href="/usuario/lista"
+               th:with="actual=${#strings.startsWith(uri, '/usuario/')}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-users" title="Usuarios"></i>
                     <h4>Usuarios</h4>
                 </div>
             </a>
-            <a href="/prestamo/lista">
+            <a href="/prestamo/lista"
+               th:with="actual=${uri == '/prestamo/lista'}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-arrow-right-arrow-left" title="Préstamos"></i>
                     <h4>Préstamos</h4>
                 </div>
             </a>
             </th:block>
-            <a href="/prestamo/mis-prestamos" sec:authorize="hasRole('USUARIO')">
+            <a href="/prestamo/mis-prestamos" sec:authorize="hasRole('USUARIO')"
+               th:with="actual=${uri == '/prestamo/mis-prestamos'}"
+               th:classappend="${actual} ? 'selected'"
+               th:attr="aria-current=${actual} ? 'page' : null">
                 <div class="option">
                     <i class="fa-solid fa-arrow-right-arrow-left" title="Mis préstamos"></i>
                     <h4>Mis préstamos</h4>

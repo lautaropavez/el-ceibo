@@ -12,73 +12,54 @@
         <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css}" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link th:href="@{/css/biblioteca.css}" rel="stylesheet" />
+        <!-- Tema visual -->
+        <link th:href="@{/css/ceibo-theme.css}" rel="stylesheet" />
     </head>
     <body>
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
-            <div class="container px-4 px-lg-5">
-                <a class="navbar-brand" href="/">
-                    <img src="/img/ceibo.svg" alt="Logo El Ceibo" width="30" height="24" class="d-inline-block align-text-top">
-                    EL CEIBO
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                        <li class="nav-item"><a class="nav-link" href="/libro/biblioteca">Biblioteca</a></li>
-                    </ul>
-                    <ul class="navbar-nav ms-3">
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
-                            <span class="nav-link" sec:authentication="name"></span>
-                        </li>
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
-                            <form method="post" th:action="@{/logout}"><button type="submit" class="nav-link logout-nav-button">Cerrar sesión</button></form>
-                        </li>
-                    </ul>
+        <nav th:replace="/fragments/nav :: nav"></nav>
+        <main id="contenido">
+            <!-- Header-->
+            <header class="ceibo-page-header">
+                <div class="ceibo-container">
+                    <h1>Mis préstamos</h1>
+                    <p>Historial de préstamos activos y devueltos</p>
                 </div>
-            </div>
-        </nav>
-        <!-- Header-->
-        <header class="bg-dark py-5">
-            <div class="container px-4 px-lg-5 my-5">
-                <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Mis préstamos</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">Historial de préstamos activos y devueltos</p>
+            </header>
+            <!-- Section-->
+            <section class="ceibo-section">
+                <div class="ceibo-container">
+                    <div th:replace="/fragments/message :: div"></div>
+                    <p th:if="${#lists.isEmpty(prestamos)}" class="text-center">Todavía no solicitaste ningún préstamo.</p>
+                    <div th:if="${!#lists.isEmpty(prestamos)}" class="ceibo-table-wrap">
+                        <table class="table table-striped ceibo-stack-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Libro</th>
+                                    <th scope="col">Fecha de préstamo</th>
+                                    <th scope="col">Fecha de vencimiento</th>
+                                    <th scope="col">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="prestamo : ${prestamos}">
+                                    <td data-label="Libro" th:text="${prestamo.libro.titulo}"></td>
+                                    <td data-label="Fecha de préstamo" th:text="${#dates.format(prestamo.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+                                    <td data-label="Fecha de vencimiento" th:text="${#dates.format(prestamo.fechaVencimiento, 'dd-MM-yyyy')}"></td>
+                                    <td data-label="Estado">
+                                        <span th:if="${prestamo.fechaDevolucion == null}" class="badge bg-success">Activo</span>
+                                        <span th:if="${prestamo.fechaDevolucion != null}" class="badge bg-secondary"
+                                              th:text="|Devuelto (${#dates.format(prestamo.fechaDevolucion, 'dd-MM-yyyy')})|"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </header>
-        <!-- Section-->
-        <section class="py-5">
-            <div class="container px-4 px-lg-5 mt-5">
-                <div th:replace="/fragments/message :: div"></div>
-                <p th:if="${#lists.isEmpty(prestamos)}" class="text-center">Todavía no solicitaste ningún préstamo.</p>
-                <table th:if="${!#lists.isEmpty(prestamos)}" class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Libro</th>
-                            <th>Fecha de préstamo</th>
-                            <th>Fecha de vencimiento</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="prestamo : ${prestamos}">
-                            <td th:text="${prestamo.libro.titulo}"></td>
-                            <td th:text="${#dates.format(prestamo.fechaPrestamo, 'dd-MM-yyyy')}"></td>
-                            <td th:text="${#dates.format(prestamo.fechaVencimiento, 'dd-MM-yyyy')}"></td>
-                            <td>
-                                <span th:if="${prestamo.fechaDevolucion == null}" class="badge bg-success">Activo</span>
-                                <span th:if="${prestamo.fechaDevolucion != null}" class="badge bg-secondary"
-                                      th:text="|Devuelto (${#dates.format(prestamo.fechaDevolucion, 'dd-MM-yyyy')})|"></span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            </section>
+        </main>
         <!-- Footer-->
-        <footer class="py-5 bg-dark">
-            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; El Ceibo 2026</p></div>
-        </footer>
+        <footer th:replace="/fragments/footer :: footer"></footer>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>

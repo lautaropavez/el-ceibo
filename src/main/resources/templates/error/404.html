@@ -6,21 +6,16 @@
         <title>Libreria El Ceibo - Página no encontrada</title>
         <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
         <link href="/css/login-style.css" rel="stylesheet" />
+        <link href="/css/ceibo-theme.css" rel="stylesheet" />
     </head>
     <body id="page-top">
-        <header class="masthead text-center text-white">
-            <div class="masthead-content">
-                <div class="container px-5">
-                    <h1 class="masthead-heading mb-0">404</h1>
-                    <h2 class="masthead-subheading mb-0">La página que buscás no existe</h2>
-                    <a href="/" class="btn btn-primary btn-xl rounded-pill mt-5">Volver al inicio</a>
-                </div>
+        <main class="ceibo-error">
+            <div class="ceibo-container">
+                <div class="ceibo-error__code" aria-hidden="true">404</div>
+                <h1>La página que buscás no existe</h1>
+                <a href="/" class="btn btn-primary btn-lg">Volver al inicio</a>
             </div>
-            <div class="bg-circle-1 bg-circle"></div>
-            <div class="bg-circle-2 bg-circle"></div>
-            <div class="bg-circle-3 bg-circle"></div>
-            <div class="bg-circle-4 bg-circle"></div>
-        </header>
+        </main>
         <footer th:replace="/fragments/footer :: footer"></footer>
     </body>
 </html>

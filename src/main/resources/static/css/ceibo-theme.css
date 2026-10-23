@@ -1,0 +1,792 @@
+/*
+ * Tema visual de Librería El Ceibo.
+ * Se carga después de Bootstrap y de las hojas propias. Usa clases acotadas
+ * (prefijo "ceibo-") y solo toca elementos globales para tipografía, fondo,
+ * enlaces y foco visible.
+ */
+
+/* Neutraliza la paleta heredada del tema de Bootstrap (rosa/naranja). */
+:root {
+  color-scheme: dark;
+  --bs-primary: #dce1e7;
+  --bs-secondary: #b8c0ca;
+  --bs-primary-rgb: 220, 225, 231;
+  --bs-secondary-rgb: 184, 192, 202;
+  --bs-body-bg: #121416;
+  --bs-body-color: #f1f3f5;
+}
+
+/* Tema oscuro */
+:root {
+  --ceibo-bg: #121416;
+  --ceibo-header: #181b1f;
+  --ceibo-surface: #22262b;
+  --ceibo-field: #191d21;
+  --ceibo-hover: #2c3239;
+  --ceibo-border: #505963;
+  --ceibo-border-input: #7e8894;
+  --ceibo-text: #f1f3f5;
+  --ceibo-muted: #b8c0ca;
+  --ceibo-accent: #dce1e7;
+  --ceibo-accent-text: #15181c;
+  --ceibo-accent-hover: #f1f3f5;
+  --ceibo-focus: #8ab4f8;
+  --ceibo-success: #6fd39b;
+  --ceibo-success-bg: #12261b;
+  --ceibo-success-border: #3fa66b;
+  --ceibo-success-text: #c4ecd6;
+  --ceibo-warning: #e8c46a;
+  --ceibo-warning-bg: #2b2210;
+  --ceibo-warning-border: #d9a63b;
+  --ceibo-warning-text: #f3dfae;
+  --ceibo-danger: #ff8a80;
+  --ceibo-danger-bg: #2c1513;
+  --ceibo-danger-border: #e5675f;
+  --ceibo-danger-text: #ffcdc8;
+  --ceibo-badge-success: #1b6e3f;
+  --ceibo-badge-danger: #b3261e;
+  --ceibo-radius: 10px;
+  --ceibo-radius-sm: 6px;
+  --ceibo-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --ceibo-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.55);
+  --ceibo-font: system-ui, "Segoe UI", sans-serif;
+  --ceibo-ease: 160ms ease;
+}
+
+/* ---------- Base ---------- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--ceibo-font);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ceibo-font);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ceibo-text);
+}
+
+h1 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); }
+h2 { font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem); }
+
+a {
+  color: var(--ceibo-text);
+  transition: color var(--ceibo-ease);
+}
+
+a:hover {
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ceibo-focus);
+  outline-offset: 2px;
+}
+
+.ceibo-skip {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 1000;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--ceibo-radius-sm);
+  background: var(--ceibo-accent);
+  color: var(--ceibo-accent-text);
+}
+
+.ceibo-skip:focus {
+  top: 0.75rem;
+  color: var(--ceibo-accent-text);
+}
+
+.ceibo-container {
+  width: 100%;
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ---------- Navbar compartido ---------- */
+.ceibo-nav {
+  background: var(--ceibo-header);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--ceibo-border);
+}
+
+.ceibo-nav .navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--ceibo-text);
+}
+
+.ceibo-nav .navbar-brand img {
+  display: block;
+}
+
+.ceibo-nav .nav-link {
+  color: var(--ceibo-muted);
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--ceibo-radius-sm);
+  transition: color var(--ceibo-ease), background-color var(--ceibo-ease);
+}
+
+.ceibo-nav .nav-link:hover,
+.ceibo-nav .nav-link:focus-visible {
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-hover);
+}
+
+.ceibo-nav .ceibo-nav__user {
+  color: var(--ceibo-muted);
+  font-size: 0.9rem;
+}
+
+.ceibo-nav :focus-visible {
+  outline-color: var(--ceibo-focus);
+}
+
+.ceibo-nav .navbar-toggler {
+  border-color: var(--ceibo-border-input);
+  padding: 0.25rem 0.5rem;
+  transition: background-color var(--ceibo-ease);
+}
+
+.ceibo-nav .navbar-toggler:hover {
+  background-color: var(--ceibo-hover);
+}
+
+/* Botón de logout dentro de un formulario POST (CSRF) con aspecto de nav-link. */
+.logout-nav-button {
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 767.98px) {
+  .ceibo-nav .navbar-collapse {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--ceibo-border);
+    margin-top: 0.4rem;
+  }
+}
+
+/* ---------- Encabezados de página ---------- */
+.ceibo-hero {
+  background: var(--ceibo-header);
+  border-bottom: 1px solid var(--ceibo-border);
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.ceibo-hero h1 {
+  font-size: clamp(1.9rem, 1.4rem + 2.2vw, 3rem);
+  margin-bottom: 0.5rem;
+}
+
+.ceibo-hero__lead {
+  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--ceibo-muted);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.ceibo-hero .btn {
+  margin-top: 1.5rem;
+}
+
+.ceibo-page-header {
+  background: var(--ceibo-header);
+  border-bottom: 1px solid var(--ceibo-border);
+  padding: 1.5rem 0;
+}
+
+.ceibo-page-header h1 {
+  margin: 0 0 0.25rem;
+}
+
+.ceibo-page-header p {
+  margin: 0;
+  color: var(--ceibo-muted);
+}
+
+.ceibo-section {
+  padding: 2.5rem 0;
+}
+
+.ceibo-feature {
+  padding: 2rem 0;
+}
+
+.ceibo-feature + .ceibo-feature {
+  border-top: 1px solid var(--ceibo-border);
+}
+
+.ceibo-feature p {
+  color: var(--ceibo-muted);
+  max-width: 34rem;
+}
+
+/* ---------- Imágenes ---------- */
+.ceibo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: var(--ceibo-shadow);
+}
+
+/* ---------- Tarjetas ---------- */
+.ceibo-card,
+.card {
+  background: var(--ceibo-surface);
+  border: 1px solid var(--ceibo-border);
+  border-radius: var(--ceibo-radius);
+}
+
+.ceibo-card {
+  box-shadow: var(--ceibo-shadow);
+}
+
+.card,
+.card-body,
+.card-title {
+  color: var(--ceibo-text);
+}
+
+.card-header {
+  background: var(--ceibo-header);
+  border-bottom: 1px solid var(--ceibo-border);
+  color: var(--ceibo-text);
+}
+
+.card-header h1,
+.card-header h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--ceibo-text);
+}
+
+/* Catálogo */
+.ceibo-book-card {
+  background: var(--ceibo-surface);
+  transition: box-shadow var(--ceibo-ease), transform var(--ceibo-ease);
+  overflow: hidden;
+}
+
+.ceibo-book-card:hover {
+  box-shadow: var(--ceibo-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.ceibo-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--ceibo-field);
+  border-bottom: 1px solid var(--ceibo-border);
+}
+
+.ceibo-book-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.ceibo-book-card h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.25rem;
+}
+
+.ceibo-book-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ceibo-muted);
+}
+
+.ceibo-book-card .ceibo-book-card__actions {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  font-weight: 600;
+  border-radius: var(--ceibo-radius-sm);
+  transition: background-color var(--ceibo-ease), border-color var(--ceibo-ease),
+    color var(--ceibo-ease), box-shadow var(--ceibo-ease), transform var(--ceibo-ease);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus,
+.btn:focus-visible {
+  box-shadow: none;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled,
+.btn-dark:disabled,
+.btn-dark.disabled {
+  color: #8d97a3;
+  background-color: var(--ceibo-hover);
+  border-color: var(--ceibo-border);
+  opacity: 1;
+}
+
+.btn-outline-secondary:disabled,
+.btn-outline-secondary.disabled,
+.btn-outline-dark:disabled,
+.btn-outline-dark.disabled {
+  color: #8d97a3;
+  background-color: transparent;
+  border-color: var(--ceibo-border);
+  opacity: 1;
+}
+
+/* Botón principal: fondo claro y texto oscuro. */
+.btn-primary,
+.btn-dark {
+  color: var(--ceibo-accent-text);
+  background-color: var(--ceibo-accent);
+  border-color: var(--ceibo-accent);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-dark:hover,
+.btn-dark:focus,
+.btn-dark:active {
+  color: var(--ceibo-accent-text);
+  background-color: var(--ceibo-accent-hover);
+  border-color: var(--ceibo-accent-hover);
+}
+
+.btn-primary:focus-visible,
+.btn-dark:focus-visible,
+.btn-outline-secondary:focus-visible,
+.btn-outline-dark:focus-visible {
+  outline: 3px solid var(--ceibo-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Botón secundario: transparente, con borde y texto claros. */
+.btn-outline-secondary,
+.btn-outline-dark {
+  color: var(--ceibo-text);
+  background-color: transparent;
+  border-color: var(--ceibo-muted);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus,
+.btn-outline-secondary:active,
+.btn-outline-dark:hover,
+.btn-outline-dark:focus,
+.btn-outline-dark:active {
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-hover);
+  border-color: var(--ceibo-text);
+}
+
+.btn-danger {
+  color: var(--ceibo-accent-text);
+  background-color: var(--ceibo-danger);
+  border-color: var(--ceibo-danger);
+}
+
+.btn-success {
+  color: var(--ceibo-accent-text);
+  background-color: var(--ceibo-success);
+  border-color: var(--ceibo-success);
+}
+
+.btn-link.ceibo-icon-btn {
+  color: var(--ceibo-text);
+  text-decoration: none;
+}
+
+.ceibo-icon-btn,
+.ceibo-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: var(--ceibo-radius-sm);
+  color: var(--ceibo-text);
+  transition: background-color var(--ceibo-ease), color var(--ceibo-ease);
+}
+
+.ceibo-icon-btn:hover,
+.ceibo-icon-link:hover {
+  color: #ffffff;
+  background-color: var(--ceibo-hover);
+}
+
+.btn-link.ceibo-icon-btn--danger,
+.ceibo-icon-btn--danger { color: var(--ceibo-danger); }
+.btn-link.ceibo-icon-btn--success,
+.ceibo-icon-btn--success { color: var(--ceibo-success); }
+
+/* ---------- Estados (badges y textos) ---------- */
+.badge {
+  font-weight: 600;
+  padding: 0.4em 0.65em;
+}
+
+.badge.bg-success { background-color: var(--ceibo-badge-success) !important; color: #ffffff !important; }
+.badge.bg-danger { background-color: var(--ceibo-badge-danger) !important; color: #ffffff !important; }
+.badge.bg-secondary { background-color: var(--ceibo-muted) !important; color: var(--ceibo-accent-text) !important; }
+.badge.bg-warning { background-color: var(--ceibo-warning) !important; color: var(--ceibo-accent-text) !important; }
+
+.ceibo-status {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ceibo-status--ok { color: var(--ceibo-success); }
+.ceibo-status--off { color: var(--ceibo-danger); }
+.ceibo-status--muted { color: var(--ceibo-muted); }
+
+/* ---------- Mensajes ---------- */
+.ceibo-msg {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: var(--ceibo-radius-sm);
+}
+
+.ceibo-msg strong { display: block; }
+.ceibo-msg p { margin: 0; }
+
+.ceibo-msg--success {
+  color: var(--ceibo-success-text);
+  background: var(--ceibo-success-bg);
+  border-color: var(--ceibo-success-border);
+}
+
+.ceibo-msg--error {
+  color: var(--ceibo-danger-text);
+  background: var(--ceibo-danger-bg);
+  border-color: var(--ceibo-danger-border);
+}
+
+.ceibo-msg--warning {
+  color: var(--ceibo-warning-text);
+  background: var(--ceibo-warning-bg);
+  border-color: var(--ceibo-warning-border);
+}
+
+/* ---------- Formularios ---------- */
+.ceibo-form-card {
+  background: var(--ceibo-surface);
+  border: 1px solid var(--ceibo-border);
+  border-radius: var(--ceibo-radius);
+  box-shadow: var(--ceibo-shadow);
+  padding: 1.75rem;
+}
+
+.ceibo-form-card h1,
+.ceibo-form-card h2 {
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.ceibo-form-label,
+.ceibo-form-card .form-label,
+.ceibo-form-card label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ceibo-text);
+}
+
+.ceibo-hint {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--ceibo-muted);
+}
+
+.form-control,
+.form-select {
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-field);
+  border: 1px solid var(--ceibo-border-input);
+  border-radius: var(--ceibo-radius-sm);
+  padding: 0.55rem 0.75rem;
+  transition: border-color var(--ceibo-ease), box-shadow var(--ceibo-ease);
+}
+
+.form-control::placeholder {
+  color: var(--ceibo-muted);
+  opacity: 1;
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  color: var(--ceibo-muted);
+  background-color: var(--ceibo-header);
+}
+
+/* Botón de selección de archivo y flecha del select en tema oscuro. */
+.form-control::file-selector-button {
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-hover);
+  border-color: var(--ceibo-border);
+}
+
+.form-control:hover:not(:disabled):not([readonly])::file-selector-button {
+  background-color: var(--ceibo-border);
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23b8c0ca' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.form-select option {
+  color: var(--ceibo-text);
+  background-color: var(--ceibo-field);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ceibo-text);
+  caret-color: var(--ceibo-text);
+  box-shadow: 0 0 0 1000px var(--ceibo-field) inset;
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: var(--ceibo-muted);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--ceibo-focus);
+  box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.3);
+  outline: none;
+}
+
+/* Error reflejado solo cuando el navegador marca como inválido un campo que
+   el usuario ya tocó (validaciones HTML existentes: required, type, min, max). */
+.form-control:user-invalid,
+.form-select:user-invalid {
+  border-color: var(--ceibo-danger);
+  background-image: none;
+  box-shadow: 0 0 0 3px rgba(255, 138, 128, 0.25);
+}
+
+.ceibo-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+
+/* Formularios de gestión: ancho de lectura consistente */
+.ceibo-narrow {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Login y registro */
+.ceibo-auth {
+  padding: 2.5rem 0;
+}
+
+.ceibo-auth__panel {
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+/* ---------- Tablas ---------- */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ceibo-text);
+  --bs-table-striped-color: var(--ceibo-text);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-hover-color: var(--ceibo-text);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.06);
+  --bs-table-border-color: var(--ceibo-border);
+  color: var(--ceibo-text);
+}
+
+.table > :not(caption) > * > * {
+  color: var(--ceibo-text);
+  border-bottom-color: var(--ceibo-border);
+}
+
+.table thead th {
+  font-size: 0.85rem;
+  font-weight: 650;
+  text-transform: none;
+  color: var(--ceibo-text);
+  background: var(--ceibo-hover);
+  border-bottom: 2px solid var(--ceibo-border-input);
+  white-space: nowrap;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: rgba(255, 255, 255, 0.03);
+  color: var(--ceibo-text);
+}
+
+.table tbody tr {
+  transition: background-color var(--ceibo-ease);
+}
+
+.table tbody tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.ceibo-table-wrap {
+  background: var(--ceibo-surface);
+  border: 1px solid var(--ceibo-border);
+  border-radius: var(--ceibo-radius);
+  overflow-x: auto;
+}
+
+.ceibo-table-wrap .table {
+  margin-bottom: 0;
+}
+
+.ceibo-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ceibo-search .form-control {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+/* ---------- Pie ---------- */
+.ceibo-footer {
+  margin-top: 2rem;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--ceibo-muted);
+  background: var(--ceibo-header);
+  border-top: 1px solid var(--ceibo-border);
+}
+
+/* ---------- Páginas de error ---------- */
+.ceibo-error {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.ceibo-error__code {
+  font-size: clamp(3rem, 2rem + 5vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ceibo-muted);
+  margin-bottom: 0.5rem;
+}
+
+.ceibo-error h1 {
+  margin-bottom: 1.5rem;
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 575.98px) {
+  .ceibo-hero { padding: 2rem 0; }
+  .ceibo-form-card { padding: 1.25rem; }
+  .ceibo-feature { padding: 1.5rem 0; }
+
+  /* Mis préstamos: filas apiladas, con la etiqueta de cada dato. */
+  .ceibo-stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .ceibo-stack-table tbody tr {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--ceibo-border);
+  }
+
+  .ceibo-stack-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+    border: 0;
+    background: transparent !important;
+    text-align: right;
+  }
+
+  .ceibo-stack-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    color: var(--ceibo-muted);
+  }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .ceibo-book-card:hover,
+  .btn:active {
+    transform: none;
+  }
+}

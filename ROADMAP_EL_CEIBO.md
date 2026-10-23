@@ -528,7 +528,8 @@ Antes del push final:
 - confirmar `git status` limpio.
 
 La prueba debe demostrar que el proyecto funciona fuera del entorno histórico
-de desarrollo, en Windows y en Linux.
+de desarrollo, en Windows (la validación en Linux queda como verificación
+futura opcional y no bloquea el cierre).
 
 Publicación:
 
@@ -565,7 +566,8 @@ Controles obligatorios antes de cualquier push o publicación:
 - escaneo de secretos sobre todo el historial Git con una herramienta
   dedicada (gitleaks/trufflehog) — la auditoría manual disponible en P16.0
   no encontró secretos reales, pero no reemplaza un scanner real;
-- clon limpio y build reproducible (Windows y Linux);
+- clon limpio y build reproducible en Windows (Linux: validación futura
+  opcional, no bloquea el cierre);
 - ejecución `java -jar`;
 - smoke funcional y visual;
 - navegación ADMIN y deudas LOW;

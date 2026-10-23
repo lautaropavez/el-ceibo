@@ -25,9 +25,10 @@ cada subposta requiere su propio Gate A con autorización humana explícita.
 
 Convertir El Ceibo en un proyecto:
 
-* **reproducible**: un clon limpio, en Windows y en Linux, puede instalar,
+* **reproducible**: un clon limpio, en Windows, puede instalar,
   migrar, testear, empaquetar y ejecutar sin depender del entorno histórico
-  de desarrollo;
+  de desarrollo (la validación en Linux queda como verificación futura
+  opcional y no bloquea el cierre; decisión humana, 2026-10-21);
 * **seguro para publicar**: sin credenciales reales trackeadas, con el
   historial escaneado por herramientas dedicadas y las dependencias
   auditadas;
@@ -310,9 +311,10 @@ real.
 **Objetivo:** demostrar reproducibilidad y publicar.
 **Scope conceptual:** validación en carpeta nueva; ejecución del artefacto;
 publicación autorizada.
-**Acceptance criteria:** clon limpio en Windows y Linux; Flyway V1→V4 desde
-cero; `clean package` PASS; `java -jar` funcional contra el entorno demo;
-`git status` limpio; sin secretos.
+**Acceptance criteria:** clon limpio en Windows (Linux: validación futura
+opcional, no bloquea el cierre; decisión humana, 2026-10-21); Flyway V1→V4
+desde cero; `clean package` PASS; `java -jar` funcional contra el entorno
+demo; `git status` limpio; sin secretos.
 **Validación:** ejecución real con Gate B; revisión final acumulada.
 **Fuera de scope:** despliegue en la nube; CI/CD.
 **STOP conditions:** el clon limpio falla; aparece cualquier secreto.
@@ -382,7 +384,10 @@ P16 queda cerrada únicamente cuando:
 2. suite y `package` PASS;
 3. la demo descartable es reproducible desde cero;
 4. el smoke funcional y visual está completo y documentado;
-5. navegación y accesibilidad revisadas;
+5. navegación revisada y accesibilidad parcialmente validada (teclado en
+   login, foco visible y etiquetas de formulario); el recorrido completo por
+   teclado queda diferido por decisión del autor (2026-10-23). No se declara
+   cumplimiento de WCAG;
 6. README, diagramas y capturas coherentes con el código real;
 7. assets y licencias resueltos;
 8. escaneo de dependencias y de secretos ejecutado con herramientas

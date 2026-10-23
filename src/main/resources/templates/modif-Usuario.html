@@ -6,39 +6,39 @@
             <nav th:replace="/fragments/nav :: nav"></nav>
         </header>
         <div th:replace="/fragments/sidebar :: div"></div>
-        <main>
-            <h1 class="text-center">Modificación Usuario</h1><br>   
-            <div th:replace="/fragments/message :: div"></div>
-            <form th:action="@{/usuario/modificar/{id}(id=${id})}" method="POST" id="form">
-                <input type="hidden" th:value= "${id}" name= "id">
-                    <div class="form-group col-md-6">
-                        <label>Nombre</label> <input th:value="${nombre}" type="text" name="nombre" class="form-control"  placeholder="nombre">
+        <main id="contenido">
+            <div class="ceibo-narrow">
+                <h1 class="mb-3">Modificación Usuario</h1>
+                <div th:replace="/fragments/message :: div"></div>
+                <form th:action="@{/usuario/modificar/{id}(id=${id})}" method="POST" id="form" class="ceibo-form-card">
+                    <input type="hidden" th:value= "${id}" name= "id">
+                    <div class="mb-3">
+                        <label for="nombre">Nombre</label>
+                        <input th:value="${nombre}" type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre">
                     </div>
-
-                    <div class="form-group col-md-6">
-                        <label>Apellido</label> <input th:value="${apellido}" type="text" name="apellido" class="form-control"  placeholder="apellido">
+                    <div class="mb-3">
+                        <label for="apellido">Apellido</label>
+                        <input th:value="${apellido}" type="text" id="apellido" name="apellido" class="form-control" placeholder="Apellido">
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Email</label> <input th:value="${mail}" type="email" name="mail" class="form-control"  placeholder="mail" required>
+                    <div class="mb-3">
+                        <label for="mail">Email</label>
+                        <input th:value="${mail}" type="email" id="mail" name="mail" class="form-control" placeholder="Email" required>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Nueva clave (dejar en blanco para no cambiarla)</label>
-                        <input type="password" name="clave" class="form-control" placeholder="Nueva clave (opcional)">
+                    <div class="mb-3">
+                        <label for="clave">Nueva clave (dejar en blanco para no cambiarla)</label>
+                        <input type="password" id="clave" name="clave" class="form-control" placeholder="Nueva clave (opcional)" autocomplete="new-password">
                     </div>
-                    <div class="form-group col-md-6">
-                        <label>Repetir clave</label>
-                        <input type="password" name="clave2" class="form-control" placeholder="Repetir nueva clave">
+                    <div class="mb-3">
+                        <label for="clave2">Repetir clave</label>
+                        <input type="password" id="clave2" name="clave2" class="form-control" placeholder="Repetir nueva clave" autocomplete="new-password">
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
-                    <p class="warnings" id="warnings"></p>      
-            </form>
-            <section class="py-5 text-center container">
-                <div class="row py-lg-5">
-                    <div class="col-lg-6 col-md-8 mx-auto">
-                        <a th:href="@{/usuario/lista}" class="btn btn-primary my-2">Volver</a>
+                    <div class="ceibo-form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a th:href="@{/usuario/lista}" class="btn btn-outline-secondary">Volver</a>
                     </div>
-                </div>
-            </section>
+                    <p class="warnings" id="warnings" aria-live="polite"></p>
+                </form>
+            </div>
         </main>
         <!-- Footer-->
         <footer th:replace="/fragments/footer :: footer"></footer>

@@ -50,23 +50,29 @@ public class SecurityConfig {
                 // --- Solo ADMIN: gestión de usuarios completa ---
                 .antMatchers("/usuario/**").hasRole("ADMIN")
 
+                // Las reglas de rol de abajo con rutas exactas usan mvcMatchers: resuelven la
+                // ruta igual que Spring MVC (incluida la barra final, p. ej. "/libro/lista/"),
+                // de modo que no queden fuera de la regla y caigan en anyRequest().authenticated().
+                // Las reglas públicas siguen con antMatchers: ante una variante no listada fallan
+                // cerradas (exigen sesión).
+
                 // --- Solo ADMIN: paneles de gestión completos (listas) ---
-                .antMatchers(
+                .mvcMatchers(
                     "/libro/lista",
                     "/autor/lista",
                     "/editorial/lista"
                 ).hasRole("ADMIN")
 
                 // --- Solo ADMIN: mutaciones de catálogo (alta/baja/modif/eliminar/registro) ---
-                .antMatchers(
+                .mvcMatchers(
                     "/libro/registro", "/libro/registrar",
                     "/libro/modificar/**", "/libro/baja/**", "/libro/alta/**", "/libro/eliminar/**"
                 ).hasRole("ADMIN")
-                .antMatchers(
+                .mvcMatchers(
                     "/autor/registroAutor", "/autor/registrarAutor",
                     "/autor/alta/**", "/autor/baja/**", "/autor/eliminar/**"
                 ).hasRole("ADMIN")
-                .antMatchers(
+                .mvcMatchers(
                     "/editorial/registroEditorial", "/editorial/registrarEditorial",
                     "/editorial/alta/**", "/editorial/baja/**", "/editorial/eliminar/**"
                 ).hasRole("ADMIN")
@@ -74,10 +80,10 @@ public class SecurityConfig {
                 // --- Solo ADMIN: administracion de prestamos (P13.2D) ---
                 // Debe evaluarse antes que la regla generica de abajo: Spring
                 // Security usa la primera coincidencia, no la mas especifica.
-                .antMatchers("/prestamo/lista", "/prestamo/devolver").hasRole("ADMIN")
+                .mvcMatchers("/prestamo/lista", "/prestamo/devolver").hasRole("ADMIN")
 
                 // --- Solo USUARIO: solicitud y consulta propia de prestamos (P13.2E) ---
-                .antMatchers("/prestamo/solicitar", "/prestamo/mis-prestamos").hasRole("USUARIO")
+                .mvcMatchers("/prestamo/solicitar", "/prestamo/mis-prestamos").hasRole("USUARIO")
 
                 // --- Cualquier usuario logueado (USUARIO o ADMIN) ---
                 .antMatchers("/prestamo/**").authenticated()

@@ -6,15 +6,16 @@
             <nav th:replace="/fragments/nav :: nav"></nav>
         </header>
         <div th:replace="/fragments/sidebar :: div"></div>
-        <div th:replace="/fragments/message :: div"></div>
-        <!-- Lista -->
-        <div class="container-fluid m-3">
-            <div class="card mt-2">
-              <div class="card-header d-flex bg-dark text-white-50">
+        <main id="contenido">
+            <div th:replace="/fragments/message :: div"></div>
+
+            <div class="card">
+              <div class="card-header">
                 <h1>Administración de Préstamos</h1>
               </div>
                 <div class="card-body">
-                    <table class="table table-dark table-striped">
+                    <div class="ceibo-table-wrap table-responsive">
+                    <table class="table table-striped align-middle">
                         <thead>
                             <tr>
                                 <th>Usuario</th>
@@ -32,23 +33,24 @@
                                 <td th:text="${#dates.format(prestamo.fechaPrestamo, 'dd-MM-yyyy')}"></td>
                                 <td th:text="${#dates.format(prestamo.fechaVencimiento, 'dd-MM-yyyy')}"></td>
                                 <td>
-                                  <span th:if="${prestamo.fechaDevolucion == null}" style="color: chartreuse;"><p>Activo</p></span>
-                                  <span th:if="${prestamo.fechaDevolucion != null}" style="color:rgb(231, 67, 17)"
+                                  <span th:if="${prestamo.fechaDevolucion == null}" class="ceibo-status ceibo-status--ok">Activo</span>
+                                  <span th:if="${prestamo.fechaDevolucion != null}" class="ceibo-status ceibo-status--muted"
                                         th:text="|Devuelto (${#dates.format(prestamo.fechaDevolucion, 'dd-MM-yyyy')})|"></span>
                                 </td>
                                 <td sec:authorize="hasRole('ADMIN')">
                                   <form th:if="${prestamo.fechaDevolucion == null}" method="post" th:action="@{/prestamo/devolver}">
                                       <input type="hidden" name="prestamoId" th:value="${prestamo.id}"/>
-                                      <button type="submit" class="btn btn-sm btn-outline-light" title="Devolver"><i class="fas fa-undo"></i> Devolver</button>
+                                      <button type="submit" class="btn btn-sm btn-outline-dark" title="Devolver"><i class="fas fa-undo"></i> Devolver</button>
                                   </form>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <p th:if="${prestamos.isEmpty}">No hay préstamos para mostrar</p>
+                    </div>
+                    <p class="mt-3 mb-0" th:if="${prestamos.isEmpty}">No hay préstamos para mostrar</p>
                 </div>
             </div>
-        </div>
+        </main>
         <!-- Footer-->
         <footer th:replace="/fragments/footer :: footer"></footer>
         <!-- Bootstrap js -->

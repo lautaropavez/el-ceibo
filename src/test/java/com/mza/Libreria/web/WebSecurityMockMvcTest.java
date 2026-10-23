@@ -107,6 +107,141 @@ class WebSecurityMockMvcTest {
     })
     void autorizacionPorRutaYRol_respetaLasReglasDeSecurityConfig(
             String actor, String metodo, String ruta, String esperado) throws Exception {
+        verificarAutorizacion(actor, metodo, ruta, esperado);
+    }
+
+    // Regresión: las reglas de rol deben aplicar también a la variante con barra final y
+    // a las URL con ?format=pdf (antes, "/libro/lista/" caía en anyRequest().authenticated()
+    // y un USUARIO recibía la lista administrativa). Los POST llevan CSRF válido: un rechazo
+    // por falta de token no demostraría que el control de rol funciona.
+    // Las mutaciones de ADMIN con barra final se verifican abajo con estado y destino/vista
+    // exactos; los IDs son inexistentes y los datos inválidos, de modo que nada se escribe.
+    @ParameterizedTest
+    @CsvSource({
+        "ANONIMO, GET,  /libro/lista/,                      LOGIN",
+        "ANONIMO, GET,  /autor/lista/,                      LOGIN",
+        "ANONIMO, GET,  /editorial/lista/,                  LOGIN",
+        "ANONIMO, GET,  /usuario/lista/,                    LOGIN",
+        "ANONIMO, GET,  /prestamo/lista/,                   LOGIN",
+        "ANONIMO, GET,  /libro/lista/?format=pdf,           LOGIN",
+        "ANONIMO, POST, /prestamo/devolver/,                LOGIN",
+        "ANONIMO, POST, /libro/registrar/,                  LOGIN",
+        "USUARIO, GET,  /libro/lista/,                      FORBIDDEN",
+        "USUARIO, GET,  /autor/lista/,                      FORBIDDEN",
+        "USUARIO, GET,  /editorial/lista/,                  FORBIDDEN",
+        "USUARIO, GET,  /usuario/lista/,                    FORBIDDEN",
+        "USUARIO, GET,  /prestamo/lista/,                   FORBIDDEN",
+        "USUARIO, GET,  /libro/lista?format=pdf,            FORBIDDEN",
+        "USUARIO, GET,  /libro/lista/?format=pdf,           FORBIDDEN",
+        "USUARIO, GET,  /autor/lista?format=pdf,            FORBIDDEN",
+        "USUARIO, GET,  /autor/lista/?format=pdf,           FORBIDDEN",
+        "USUARIO, GET,  /editorial/lista?format=pdf,        FORBIDDEN",
+        "USUARIO, GET,  /editorial/lista/?format=pdf,       FORBIDDEN",
+        "USUARIO, GET,  /usuario/lista?format=pdf,          FORBIDDEN",
+        "USUARIO, GET,  /usuario/lista/?format=pdf,         FORBIDDEN",
+        "USUARIO, GET,  /libro/registro/,                   FORBIDDEN",
+        "USUARIO, GET,  /autor/registroAutor/,              FORBIDDEN",
+        "USUARIO, GET,  /editorial/registroEditorial/,      FORBIDDEN",
+        "USUARIO, POST, /libro/registrar/,                  FORBIDDEN",
+        "USUARIO, POST, /autor/registrarAutor/,             FORBIDDEN",
+        "USUARIO, POST, /editorial/registrarEditorial/,     FORBIDDEN",
+        "USUARIO, POST, /libro/modificar/00000000-0000-4000-8000-000000000144/,  FORBIDDEN",
+        "USUARIO, POST, /libro/baja/00000000-0000-4000-8000-000000000144/,       FORBIDDEN",
+        "USUARIO, POST, /libro/alta/00000000-0000-4000-8000-000000000144/,       FORBIDDEN",
+        "USUARIO, POST, /libro/eliminar/00000000-0000-4000-8000-000000000144/,   FORBIDDEN",
+        "USUARIO, POST, /autor/baja/00000000-0000-4000-8000-000000000144/,       FORBIDDEN",
+        "USUARIO, POST, /autor/alta/00000000-0000-4000-8000-000000000144/,       FORBIDDEN",
+        "USUARIO, POST, /autor/eliminar/00000000-0000-4000-8000-000000000144/,   FORBIDDEN",
+        "USUARIO, POST, /editorial/baja/00000000-0000-4000-8000-000000000144/,   FORBIDDEN",
+        "USUARIO, POST, /editorial/alta/00000000-0000-4000-8000-000000000144/,   FORBIDDEN",
+        "USUARIO, POST, /editorial/eliminar/00000000-0000-4000-8000-000000000144/, FORBIDDEN",
+        "USUARIO, POST, /prestamo/devolver/,                FORBIDDEN",
+        "ADMIN,   GET,  /libro/lista/,                      OK",
+        "ADMIN,   GET,  /autor/lista/,                      OK",
+        "ADMIN,   GET,  /editorial/lista/,                  OK",
+        "ADMIN,   GET,  /usuario/lista/,                    OK",
+        "ADMIN,   GET,  /prestamo/lista/,                   OK",
+        "ADMIN,   GET,  /libro/lista/?format=pdf,           OK",
+        "ADMIN,   GET,  /autor/lista/?format=pdf,           OK",
+        "ADMIN,   GET,  /editorial/lista/?format=pdf,       OK",
+        "ADMIN,   GET,  /usuario/lista/?format=pdf,         OK",
+        "ADMIN,   GET,  /prestamo/mis-prestamos,            FORBIDDEN",
+        "ADMIN,   GET,  /prestamo/mis-prestamos/,           FORBIDDEN",
+        "ADMIN,   POST, /prestamo/solicitar/,               FORBIDDEN",
+        "USUARIO, GET,  /prestamo/mis-prestamos/,           OK",
+        "ADMIN,   GET,  /libro/registro/,                   OK",
+        "ADMIN,   GET,  /autor/registroAutor/,              OK",
+        "ADMIN,   GET,  /editorial/registroEditorial/,      OK"
+    })
+    void autorizacionConBarraFinalYFormatPdf_respetaLasReglasDeRol(
+            String actor, String metodo, String ruta, String esperado) throws Exception {
+        verificarAutorizacion(actor, metodo, ruta, esperado);
+    }
+
+    @Test
+    @WithMockUser(username = "p144-solicitar-barra@test.com", roles = "USUARIO")
+    void solicitarConBarraFinal_comoUsuarioConStock_creaElPrestamo() throws Exception {
+        Usuario usuario = crearUsuario("solicitar-barra", Rol.USUARIO);
+        Libro libro = crearLibroConStock("solicitar-barra");
+
+        mockMvc.perform(post("/prestamo/solicitar/").param("libroId", libro.getId()).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/prestamo/mis-prestamos"))
+                .andExpect(flash().attributeExists("exito"));
+
+        assertThat(prestamoRepo.findByUsuario_Id(usuario.getId())).hasSize(1);
+    }
+
+    @Test
+    void mutacionesDeAdminConBarraFinal_llegaranAlControladorYDevuelvenElResultadoEsperado() throws Exception {
+        org.springframework.test.web.servlet.request.RequestPostProcessor admin =
+                user("p144-admin-barra@test.com").roles("ADMIN");
+
+        // Bajas con ID inexistente: el controlador captura el error y redirige a su lista.
+        mockMvc.perform(post("/libro/baja/" + PRESTAMO_ID_INEXISTENTE + "/").with(csrf()).with(admin))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/libro/lista"));
+        mockMvc.perform(post("/autor/baja/" + PRESTAMO_ID_INEXISTENTE + "/").with(csrf()).with(admin))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/autor/lista"));
+        mockMvc.perform(post("/editorial/baja/" + PRESTAMO_ID_INEXISTENTE + "/").with(csrf()).with(admin))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/editorial/lista"));
+
+        // Devolución de un préstamo inexistente: redirige a la lista con flash de error.
+        mockMvc.perform(post("/prestamo/devolver/").param("prestamoId", PRESTAMO_ID_INEXISTENTE)
+                        .with(csrf()).with(admin))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/prestamo/lista"))
+                .andExpect(flash().attributeExists("error"));
+
+        // Altas con datos inválidos: vuelven al formulario (200) con el mensaje de error, sin crear nada.
+        mockMvc.perform(post("/autor/registrarAutor/").param("nombreAutor", "").with(csrf()).with(admin))
+                .andExpect(status().isOk())
+                .andExpect(view().name("nuevoAutor"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeDoesNotExist("exito"));
+        mockMvc.perform(post("/editorial/registrarEditorial/").param("nombre", "").with(csrf()).with(admin))
+                .andExpect(status().isOk())
+                .andExpect(view().name("nuevaEditorial"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeDoesNotExist("exito"));
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .multipart("/libro/registrar/")
+                        .file(new org.springframework.mock.web.MockMultipartFile("archivo", new byte[0]))
+                        .param("titulo", "")
+                        .param("anio", "2020")
+                        .param("idAutor", "inexistente")
+                        .param("idEditorial", "inexistente")
+                        .with(csrf()).with(admin))
+                .andExpect(status().isOk())
+                .andExpect(view().name("nuevoLibro"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeDoesNotExist("exito"));
+    }
+
+    private void verificarAutorizacion(String actor, String metodo, String ruta, String esperado)
+            throws Exception {
 
         MockHttpServletRequestBuilder request = "POST".equals(metodo) ? post(ruta).with(csrf()) : get(ruta);
 

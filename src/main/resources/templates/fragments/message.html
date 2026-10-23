@@ -1,14 +1,14 @@
-<div class="container m-auto">
-    <div th:if="${exito}!=null" class="card text-white bg-success mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Exito</h5>
-            <p class="card-text" th:text="${exito}"></p>
+<div class="ceibo-messages">
+    <div th:if="${exito}!=null" class="ceibo-msg ceibo-msg--success" role="status">
+        <div>
+            <strong>Éxito</strong>
+            <p th:text="${exito}"></p>
         </div>
     </div>
-    <div th:if="${error}!= null" class="card text-white bg-danger mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Error</h5>
-            <p class="card-text" th:text="${error}"></p>
-        </div>               
+    <div th:if="${error}!= null" class="ceibo-msg ceibo-msg--error" role="alert">
+        <div>
+            <strong>Error</strong>
+            <p th:text="${error}"></p>
+        </div>
     </div>
 </div>
