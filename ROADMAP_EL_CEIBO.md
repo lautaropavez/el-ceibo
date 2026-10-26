@@ -25,18 +25,18 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 23/10/2026 |
+| Fecha del checkpoint | 26/10/2026 |
 | Rama activa | `feature/portfolio-publication` |
-| Último commit | `d28dbbd2cc9cf1450ba402372e7d81c4495dfda8` — "Refine dark UI, harden route authorization and document Windows scope" |
+| Último commit | `3120ac5169a96033e495a8786bf7e391289dc8bc` — "Document portfolio setup, architecture and technical defense" (anterior: `d28dbbd`) |
 | Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
-| Working tree / índice | documentación de P16.6 y actualización del ROADMAP sin commit; sin push ni merge |
+| Working tree / índice | corrección de fragmentos Thymeleaf para ejecución empaquetada, control compensatorio de cabeceras (CVE-2026-22732), 6 tests nuevos, `scripts/smoke-jar-demo.ps1` y actualización de README, DEFENSA y ROADMAP, todo sin commit y sin stage; sin push ni merge |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas pendientes; recorrido completo por teclado diferido); P16.6 con documentación incorporada al árbol de trabajo; P16.7 no iniciada |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas pendientes; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5` y actualizada en el árbol de trabajo; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido en el árbol de trabajo (pendiente de commit), JAR verificado contra la demo aislada; pendientes: clon limpio y escaneos sobre el commit final, capturas, Mermaid y revisión acumulada |
 | Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16 |
 | Base de tests | `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`; descartables; Flyway V1→V4 |
-| Baseline de tests vigente | **221 tests en 15 clases** (suite completa, ejecutada antes de agregar una regresión de login). Aparte, corrida focalizada de `CsrfProtectionMockMvcTest`: 17 tests, que incluyen esa regresión nueva y 16 ya contados en los 221; no se suman. La suite completa no se repitió sobre `d28dbbd` |
+| Baseline de tests vigente | **228 tests en 17 clases, 0 fallos, BUILD SUCCESS** (`./mvnw -ntp clean package` con tests, sin perfil demo, solo sobre las dos bases de test), ejecutada sobre el árbol de trabajo previo al commit de la corrección. Total verificado sumando los reportes de surefire; BUILD SUCCESS aportado por el autor al leer la salida; el código de salida original de Maven no se recuperó. Incluye la regresión de login (72 bytes) y 6 tests nuevos. Evidencias históricas, incluidas y no sumadas: 221 tests en 15 clases (anterior a la regresión) y corrida focalizada de `CsrfProtectionMockMvcTest` (17) |
 
 ---
 
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas pendientes, teclado completo diferido); P16.6 en curso (documentación en el árbol de trabajo); P16.7 no iniciada |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas pendientes, teclado completo diferido); P16.6 en curso (documentación en `3120ac5` y actualizada en el árbol de trabajo); P16.7 en curso (JAR verificado en la demo aislada tras corregir las plantillas; clon limpio final pendiente) |
 
 Secuencia restante:
 
@@ -440,7 +440,7 @@ No realizar un rediseño completo ni cambiar la arquitectura visual.
 ## P16.5 — Smoke funcional y visual 🟡 VALIDACIÓN FUNCIONAL CONSOLIDADA
 
 Validación funcional consolidada con evidencia separada por tipo: suite
-completa (221 tests), comprobaciones HTTP sobre la demo y pruebas manuales del
+completa (221 tests en ese momento; la suite vigente es de 228, ver sección 1), comprobaciones HTTP sobre la demo y pruebas manuales del
 autor (flujo principal, permisos, sidebar, listas de gestión, «Saltar al
 contenido» y móvil 390 × 844 en las vistas confirmadas). Pendientes
 explícitos: **capturas públicas** (se rehacen al final, antes de publicar, con
@@ -524,10 +524,50 @@ Defensa técnica a preparar:
 
 Lauti debe poder explicar el flujo sin leer el código línea por línea.
 
-## P16.7 — Clon limpio, package, `java -jar` y publicación ⏳
+## P16.7 — Clon limpio, package, `java -jar` y publicación 🟡 EN CURSO
 
-Solo definida en la SPEC; Gate A propio todavía no iniciado. Sin push ni
-merge realizados hasta la fecha de este checkpoint.
+Sin push ni merge realizados hasta la fecha de este checkpoint.
+
+**Avances (26/10/2026, Windows):**
+
+- Clon limpio de `3120ac5` y JAR construido una vez; gitleaks (historial, 16
+  merges incluidos) y OSV-Scanner sobre un SBOM de las 64 bibliotecas
+  empaquetadas. Gitleaks: 2 coincidencias, falsos positivos justificados
+  (contraseña de fixture en un test). Avisos ≥ 7.0 clasificados uno por uno
+  (la clasificación es por condiciones publicadas y revisión del código; no es
+  prueba de ausencia). Sin blocker por avisos; Spring Boot 2.7 sigue como deuda
+  explícita.
+- Flyway V1→V4 desde cero en una instancia MariaDB aislada (puerto 3307, base
+  `libreriaweb_demo`) y carga inicial del seeder: correctos.
+- **Hallazgo de `java -jar`:** todas las páginas HTML respondían 500 dentro del
+  JAR por `th:replace="/fragments/…"` con barra inicial (67 referencias en 18
+  plantillas); desde directorio y en MockMvc no se manifestaba. Corregido
+  quitando la barra, confirmado con el JAR (500 → 200) y con regresiones
+  (`TemplateFragmentReferencesTest`, `scripts/smoke-jar-demo.ps1`). La
+  corrección está en el árbol de trabajo, pendiente de commit.
+- **CVE-2026-22732** (Spring Security 5.7.11, corrección solo comercial):
+  biblioteca afectada, mitigada con el workaround oficial
+  `HeaderWriterFilter.shouldWriteHeadersEagerly=true` en `SecurityConfig`
+  (`SecurityHeadersMockMvcTest` + 27 respuestas medidas en el JAR). No se declara
+  resuelto. **CVE-2026-40973** (Spring Boot 2.7.18, atacante local en el mismo
+  host): riesgo residual aceptado por el autor solo para la demo local, sin
+  extender a un despliegue productivo.
+- `./mvnw -ntp clean package` con tests: 228 tests, 0 fallos, BUILD SUCCESS (ver
+  sección 1 para el origen de la evidencia). JAR en 8081 contra la instancia
+  3307: páginas públicas, vistas de ambos roles y cabeceras sin fallos (solo
+  lectura y control de acceso; sin altas, bajas ni préstamos por el JAR).
+
+**Pendiente manual de apagado:** el JAR de prueba (puerto 8081) y la instancia
+MariaDB 3307 siguen encendidos; se detienen a mano (Ctrl+C en la ventana del JAR
+y `mysqladmin -h 127.0.0.1 -P 3307 -u root -p shutdown`). La limpieza de
+temporales, del clon, de las libs y del datadir 3307 va al final, con
+confirmación.
+
+**Pendiente de P16.7:** commit de la corrección (con aprobación), clon limpio
+del commit final con su empaquetado y repetición de los escaneos, capturas
+públicas, renderizado de Mermaid, revisión acumulada independiente y
+publicación solo con autorización. El recorrido completo por teclado sigue
+diferido por decisión del autor.
 
 Antes del push final:
 
@@ -800,8 +840,9 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**Guardar la documentación de P16.6 y entrar a P16.7 (Windows): empaquetado,
-clon limpio, Flyway desde cero en entorno aislado, `java -jar` contra el
-entorno demo y escaneos de dependencias y secretos. Pendientes transversales:
-capturas públicas, renderizado de Mermaid y recorrido completo por teclado.
-P16 sigue abierta; sin push ni merge a `master`.**
+**Aprobar y commitear la corrección de plantillas y cabeceras con su
+documentación; luego, clon limpio del commit final con empaquetado y
+repetición de los escaneos. Antes, apagar a mano el JAR de prueba (8081) y la
+instancia 3307. Pendientes transversales: capturas públicas, renderizado de
+Mermaid, revisión acumulada y recorrido completo por teclado (diferido por
+decisión del autor). P16 sigue abierta; sin push ni merge a `master`.**

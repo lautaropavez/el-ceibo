@@ -2,11 +2,13 @@ package com.mza.Libreria.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.HeaderWriterFilter;
 
 /**
  * Configuración central de Spring Security.
@@ -104,8 +106,25 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            );
+            )
+            // Control compensatorio de CVE-2026-22732 (spring-security-web 5.7.11, sin
+            // corrección abierta): con el modo por defecto las cabeceras se escriben al
+            // confirmar la respuesta y, si la aplicación fija alguna cabecera de caché,
+            // Spring Security omite las suyas. En modo "eager" se escriben antes de
+            // continuar la cadena y lo que la aplicación fije solo pisa esa cabecera.
+            .headers(headers -> headers.addObjectPostProcessor(eagerHeaderWriter()));
 
         return http.build();
+    }
+
+    // Clase anónima: en Java 8 un método genérico no puede implementarse con lambda.
+    private static ObjectPostProcessor<HeaderWriterFilter> eagerHeaderWriter() {
+        return new ObjectPostProcessor<HeaderWriterFilter>() {
+            @Override
+            public <O extends HeaderWriterFilter> O postProcess(O filter) {
+                filter.setShouldWriteHeadersEagerly(true);
+                return filter;
+            }
+        };
     }
 }

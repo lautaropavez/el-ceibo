@@ -115,6 +115,12 @@ El esquema se gestiona exclusivamente con migraciones Flyway:
   señalando ese aviso. Hay tests del envoltorio y una regresión del login completo con una clave de
   exactamente 72 bytes (autentica) y el mismo prefijo más un carácter (se rechaza).
 - **CSRF activo**; el cierre de sesión es `POST /logout`.
+- **Cabeceras de seguridad:** `SecurityConfig` activa `HeaderWriterFilter.setShouldWriteHeadersEagerly(true)`,
+  el workaround que indica el aviso oficial de CVE-2026-22732 (Spring Security 5.7.21 y anteriores:
+  las cabeceras podrían no escribirse; la corrección 5.7.22 solo se ofrece con soporte comercial). Es
+  un control compensatorio, no una corrección de la biblioteca, que sigue en 5.7.11. Con él, las
+  cabeceras de seguridad se escriben aunque la aplicación fije su propio `Cache-Control`; una cabecera
+  ya escrita no puede quitarse después. Se comprobó con tests y sobre el JAR (ver Tests).
 - Páginas de error propias (403, 404, 500) con mensaje genérico, sin detalles técnicos.
 - Sin credenciales en el repositorio: la configuración se toma del entorno.
 
@@ -143,8 +149,9 @@ Flyway crea el esquema al primer arranque.
 ### Modo demo (datos de ejemplo)
 
 El perfil `demo` usa una base **separada y descartable llamada `libreriaweb_demo`** y carga datos
-de ejemplo de forma idempotente. Su arranque y carga inicial fueron verificados; la reproducción
-desde un clon limpio sigue pendiente. Variables necesarias (solo nombres):
+de ejemplo de forma idempotente. Su arranque y carga inicial fueron verificados, también con el JAR
+ejecutable (ver Tests); la reproducción desde un clon limpio del commit final sigue pendiente.
+Variables necesarias (solo nombres):
 
 - `DEMO_ADMIN_MAIL`, `DEMO_ADMIN_PASSWORD`, `DEMO_USUARIO_MAIL`, `DEMO_USUARIO_PASSWORD` (sin valor por defecto: si faltan, la aplicación no arranca).
 - Opcionales: `DEMO_DB_HOST`, `DEMO_DB_PORT`, `DEMO_DB_USERNAME`, `DEMO_DB_PASSWORD` (por defecto `localhost`, `3306`, `root` y contraseña vacía).
@@ -181,21 +188,45 @@ seeder de la demo, y el codificador de contraseñas.
 
 Evidencia disponible, por tipo (no se suman entre sí):
 
-- **Suite completa:** 221 tests en 15 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS,
-  ejecutada sobre bases descartables antes de agregar una regresión de login.
-- **Corrida focalizada posterior:** `CsrfProtectionMockMvcTest`, 17 tests, 0 fallos, que incluye
-  esa regresión. La clase ya aportaba 16 de los 221; **los 17 no se suman a los 221**.
-- La suite completa no se repitió sobre el último commit.
+- **Suite completa vigente:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
+  `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`: **228 tests en 17 clases, 0 fallos, 0
+  errores, 0 omitidos, BUILD SUCCESS**. Ejecutada sobre el árbol de trabajo previo al commit que
+  incorpora las correcciones de plantillas y cabeceras. El total de 228 se verificó sumando los
+  reportes de surefire; BUILD SUCCESS lo aportó el autor al leer la salida (el código de salida
+  original de Maven no se recuperó). Incluye la regresión de login con 72 bytes y 6 tests nuevos
+  (fragmentos Thymeleaf y cabeceras de seguridad).
+- **Evidencias históricas, que no se suman a la anterior:** suite de 221 tests en 15 clases (antes de
+  la regresión de login) y corrida focalizada de `CsrfProtectionMockMvcTest` con 17 tests; ambas
+  quedan incluidas en los 228.
+- **JAR ejecutable verificado (Windows):** el JAR empaquetado en esa misma corrida arrancó con el
+  perfil `demo` en una instancia MariaDB aislada (puerto 3307, `libreriaweb_demo`): Flyway V1–V4
+  desde un esquema vacío, carga inicial del seeder y comprobación HTTP: páginas públicas y estáticos
+  200, rutas protegidas redirigen al login, cada rol (`ADMIN`, `USUARIO`) accede solo a lo suyo
+  (200 / 403) y todas las respuestas llevan `nosniff`, `X-Frame-Options: DENY` y `Cache-Control:
+  no-store`. Fue solo lectura y control de acceso: no se probaron altas, bajas ni préstamos por el
+  JAR. Los tests MockMvc corren desde `target/classes` y no detectaron que todas las páginas fallaban
+  con error 500 dentro del JAR; por eso hay ahora una comprobación específica de las plantillas
+  (`TemplateFragmentReferencesTest`, que empaqueta las plantillas en un JAR temporal) y
+  `scripts/smoke-jar-demo.ps1` para el JAR real.
 - Comprobaciones HTTP sobre la demo y pruebas manuales del flujo principal: ver
   [`docs/DEFENSA_TECNICA.md`](docs/DEFENSA_TECNICA.md). Las pruebas automáticas no validan el
   aspecto visual.
 
 ## Estado del proyecto
 
-Pendiente antes de publicar: empaquetado, clon limpio, `java -jar` contra la demo y escaneos de
-dependencias y secretos con herramientas dedicadas (sin resultados todavía); capturas de pantalla;
-renderizado de los diagramas Mermaid (revisados por lectura); recorrido completo por teclado
-(validado parcialmente en el login; no se declara cumplimiento de WCAG).
+Hecho: empaquetado y `java -jar` contra la demo (ver Tests). Escaneos con herramientas dedicadas
+(gitleaks y OSV-Scanner sobre un candidato anterior): dos coincidencias de gitleaks, ambas
+contraseñas de prueba de un test, descartadas como falsos positivos justificados, y avisos de
+dependencias clasificados uno por uno; dentro del alcance auditado no se encontraron secretos
+reales ni evidencia de avisos explotables en la aplicación (no es una afirmación de ausencia). Spring Boot 2.7 y varias bibliotecas tienen avisos con
+corrección solo comercial: son deuda declarada (CVE-2025-22228 y CVE-2026-22732 mitigados por
+controles compensatorios; CVE-2026-40973, de un atacante local en el mismo host, es riesgo residual
+aceptado solo para la demo local, sin extenderlo a un despliegue productivo).
+
+Pendiente antes de publicar: clon limpio del commit final y repetición de los escaneos sobre él;
+capturas de pantalla; renderizado de los diagramas Mermaid (revisados por lectura); recorrido
+completo por teclado, diferido por decisión del autor (validado parcialmente en el login; no se
+declara cumplimiento de WCAG).
 
 ## Límites y decisiones
 
