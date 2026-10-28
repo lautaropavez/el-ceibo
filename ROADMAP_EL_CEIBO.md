@@ -25,18 +25,18 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 26/10/2026 |
+| Fecha del checkpoint | 28/10/2026 |
 | Rama activa | `feature/portfolio-publication` |
-| Último commit de código: `ac4c77e`; cierre documental: `893c5c1` | `ac4c77e83ff48c10f8e7751f3f35bf7c42a57773` — "Fix packaged template resolution and harden security headers" (anterior: `3120ac5`, "Document portfolio setup, architecture and technical defense"); cierre documental `893c5c126f11b150b85a91b047311ae308728594` — "Finalize portfolio documentation, screenshots and unused resource cleanup" |
-| Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
+| Último commit de código: `ac4c77e`; configuración distribuida: `fdedf95`; cierre documental: `893c5c1` | `ac4c77e83ff48c10f8e7751f3f35bf7c42a57773` — "Fix packaged template resolution and harden security headers" (anterior: `3120ac5`, "Document portfolio setup, architecture and technical defense"); cierre documental `893c5c126f11b150b85a91b047311ae308728594` — "Finalize portfolio documentation, screenshots and unused resource cleanup" |
+| Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` (base original); `master` local avanzó por fast-forward a `083aa87e3eb537322e096a2335cf936100aeb314` el 28/10/2026, sin push; los commits posteriores están solo en `feature/portfolio-publication` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
-| Working tree / índice | la corrección de fragmentos Thymeleaf, el control de cabeceras (CVE-2026-22732), los 6 tests nuevos y `scripts/smoke-jar-demo.ps1` están en `ac4c77e`; el cierre documental está en `893c5c1`; sin cambios pendientes de commit; sin push ni merge |
+| Working tree / índice | la corrección de fragmentos Thymeleaf, el control de cabeceras (CVE-2026-22732), los 6 tests nuevos y `scripts/smoke-jar-demo.ps1` están en `ac4c77e`; la configuración distribuida (`show-sql=false`, `thymeleaf.cache=true`) está en `fdedf95`; el cierre documental está en `893c5c1`; sin cambios pendientes de commit; sin push (el único merge fue el fast-forward local de `master` a `083aa87`) |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas incorporadas el 27/10/2026; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5`, `ac4c77e` y `893c5c1`; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido (`ac4c77e`), JAR verificado contra la demo aislada; verificación en clon limpio de `ac4c77e` hecha (228 tests, escaneos sin hallazgos nuevos); pendientes: comprobación de Mermaid en GitHub y revisión acumulada |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas incorporadas el 27/10/2026; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5`, `ac4c77e` y `893c5c1`; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido (`ac4c77e`), JAR verificado contra la demo aislada; verificación en clon limpio de `ac4c77e` hecha (228 tests, escaneos sin hallazgos nuevos) y verificación final en clon limpio de `fdedf95` (228 tests, BUILD SUCCESS, código de salida 0; JAR del clon ejecutado; CRUD y portadas por HTTP); pendientes: revisión acumulada independiente final, publicación y comprobación de Mermaid en GitHub |
 | Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16 |
 | Base de tests | `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`; descartables; Flyway V1→V4 |
-| Baseline de tests vigente | **228 tests en 17 clases, 0 fallos, BUILD SUCCESS** (`./mvnw -ntp clean package` con tests, sin perfil demo, solo sobre las dos bases de test), ejecutada sobre el árbol de trabajo previo al commit de la corrección. Total verificado sumando los reportes de surefire; BUILD SUCCESS aportado por el autor al leer la salida; el código de salida original de Maven no se recuperó. Incluye la regresión de login (72 bytes) y 6 tests nuevos. Evidencias históricas, incluidas y no sumadas: 221 tests en 15 clases (anterior a la regresión) y corrida focalizada de `CsrfProtectionMockMvcTest` (17) |
+| Baseline de tests vigente | **228 tests en 17 clases, 0 fallos, BUILD SUCCESS** (`./mvnw -ntp clean package` con tests, sin perfil demo, solo sobre las dos bases de test), ejecutada el 28/10/2026 en un clon limpio de `fdedf95`, **código de salida 0**; total verificado además sumando los reportes de surefire (las corridas anteriores, sobre `ac4c77e`, no conservaron el código de salida). Incluye la regresión de login (72 bytes) y 6 tests nuevos. Evidencias históricas, incluidas y no sumadas: 221 tests en 15 clases (anterior a la regresión) y corrida focalizada de `CsrfProtectionMockMvcTest` (17) |
 
 ---
 
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas incorporadas, teclado completo diferido); P16.6 en curso (documentación en `3120ac5`, `ac4c77e` y `893c5c1`); P16.7 en curso (JAR verificado en la demo aislada tras corregir las plantillas; verificación en clon limpio de `ac4c77e` hecha, ver P16.7; capturas, Mermaid y revisión acumulada pendientes) |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas incorporadas, teclado completo diferido); P16.6 en curso (documentación en `3120ac5`, `ac4c77e` y `893c5c1`); P16.7 en curso (verificación final en clon limpio de `fdedf95` hecha, ver P16.7; pendientes: revisión acumulada independiente final, publicación y comprobación de Mermaid en GitHub) |
 
 Secuencia restante:
 
@@ -447,7 +447,8 @@ Validación funcional consolidada con evidencia separada por tipo: suite
 completa (221 tests en ese momento; la suite vigente es de 228, ver sección 1), comprobaciones HTTP sobre la demo y pruebas manuales del
 autor (flujo principal, permisos, sidebar, listas de gestión, «Saltar al
 contenido» y móvil 390 × 844 en las vistas confirmadas). Capturas
-públicas incorporadas (27/10/2026, `docs/img/`, datos ficticios). Pendiente
+públicas incorporadas (27/10/2026, `docs/img/`, datos ficticios). CRUD y carga de portadas validados por HTTP el 28/10/2026 (ver
+P16.7). Pendiente
 explícito: **recorrido completo por teclado** (diferido por decisión
 del autor; no se declara cumplimiento de WCAG). No se confirmó ningún defecto
 en lo diferido. Definición original:
@@ -577,8 +578,8 @@ checkout. Comparados ambos JAR, sus 29 recursos de texto distintos en bytes (CSS
 JS, HTML) son idénticos al normalizar únicamente CRLF/LF (0 diferencias
 restantes); ninguna clase difiere y las 64 bibliotecas son idénticas por hash.
 JAR sin DevTools, sin clases de test y sin `application-local`; 0 plantillas con
-barra inicial; sigue empaquetado `show-sql=true` y `thymeleaf.cache=false`
-(deuda). gitleaks: las mismas 2 coincidencias (falsos positivos justificados)
+barra inicial; ese JAR empaquetaba `show-sql=true` y `thymeleaf.cache=false`
+(corregido después en `fdedf95`). gitleaks: las mismas 2 coincidencias (falsos positivos justificados)
 y 0 en las clases del JAR; OSV-Scanner: 82 pares aviso/paquete en 19 paquetes, 0
 nuevos y 0 ausentes frente a `3120ac5` (base viva, vigente al 26/10/2026). Las
 bibliotecas de terceros no se escanearon con gitleaks. Es evidencia dentro del
@@ -593,9 +594,17 @@ de trabajo `static/css/styleFormModif.css`, `static/js/validUsuarioModif.js`,
 validados corresponden a `ac4c77e`, que aún incluía esos archivos; no se repitió
 la suite por este cambio. Validación puntual posterior: `TemplateFragmentReferencesTest`
 (sin base de datos), 2 tests, 0 fallos, BUILD SUCCESS, que cubre las referencias de
-fragmentos tras la limpieza; los 228 tests y el smoke corresponden a `ac4c77e`. Falta
-el smoke del JAR tras el próximo empaquetado. El botón «PDF · Próximamente» y los tres CSS del tema se
+fragmentos tras la limpieza; los 228 tests y el smoke corresponden a `ac4c77e`. El
+smoke del JAR se repitió sobre el clon de `fdedf95` (ver más abajo). El botón «PDF · Próximamente» y los tres CSS del tema se
 conservan por decisión del autor.
+
+**Verificación final en clon limpio de `fdedf95` (28/10/2026, Windows).** Clon local nuevo (`git clone --no-hardlinks`) con el árbol limpio. Una corrida de `./mvnw -ntp clean package` con `AWS_EC2_METADATA_DISABLED=true`, sin perfil demo y solo sobre las dos bases de test: **228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS y código de salida 0** (leído del archivo de salida; coincide con la suma de los reportes de surefire) y JAR de 45 633 344 bytes. El JAR del clon se ejecutó (perfil `demo`, MariaDB aislada 3307, base `libreriaweb_demo`, puerto 8082): arranque correcto, Flyway «Schema is up to date» (la base ya estaba migrada; V1–V4 desde un esquema vacío se verificó el 26/10/2026), sin líneas de SQL ni errores en el log (`show-sql=false`), smoke de 5 rutas en 200 y 27 comprobaciones por rol sin fallos.
+
+Prueba HTTP con sesión ADMIN sobre `libreriaweb_demo` (la base descartable; no se tocó `libreriaweb`): 22 comprobaciones, 0 fallos. Alta de autor y editorial por formulario; alta de libro con portada JPEG; modificación con portada PNG (reemplazo) y sin archivo (se conserva); baja y alta del libro (desaparece y vuelve del catálogo público); rechazo de un archivo que no es imagen (sin libro creado); POST sin token CSRF rechazado (403); un autor con libro asociado no se elimina; eliminación de los registros de prueba. La demo volvió a 17 libros, 14 autores y 12 editoriales. Notas de método: en la primera ejecución, el script buscaba los nombres en minúsculas y el servicio los guarda en mayúsculas, de modo que quedaron un autor y una editorial de prueba que se eliminaron por la propia interfaz; y el criterio de portadas comparaba bytes, cuando `ServicePortada` valida y recodifica la imagen, de modo que se corrigió a formato y dimensiones. Alcance: no se probaron por el JAR la solicitud ni la devolución de préstamos ni el cierre de sesión (probados a mano por el autor en P16.5), ni se usó un navegador. Los escaneos (gitleaks, OSV-Scanner) no se repitieron: lo que cambió en el JAR desde `ac4c77e` es la eliminación de 4 recursos sin uso y dos valores de configuración.
+
+**Configuración y deudas revisadas (28/10/2026):** `spring.jpa.show-sql=false` y `spring.thymeleaf.cache=true` en la configuración distribuida (`fdedf95`; el diagnóstico local se activa en `application-local.properties`, ver `application.properties.example`); retirados de `application.properties.example` los marcadores `MAIL_*` (no hay dependencia de correo); corregido el comentario del perfil `demo`. No se implementa el mensaje de cierre de sesión ni se corrige la carga `EAGER` de `Portada.contenido`: no figuran en la Definición de terminado y quedan como deuda declarada (ver «No bloqueantes»). Recorrido completo por teclado: diferido por decisión del autor (2026-10-23).
+
+**Procesos:** el JAR del clon (8082) y el servidor local de Mermaid (8799) se detuvieron; el JAR de 8081 y la instancia 3307 siguen encendidos (apagado manual del autor). Temporales de esta verificación: `%TEMP%\ceibo-p168-fdedf95` y la carpeta `p168` del scratchpad (limpieza final con confirmación).
 
 **Pendiente manual de apagado:** el JAR de prueba (puerto 8081) y la instancia
 MariaDB 3307 siguen encendidos; se detienen a mano (Ctrl+C en la ventana del JAR
@@ -603,7 +612,7 @@ y `mysqladmin -h 127.0.0.1 -P 3307 -u root -p shutdown`). La limpieza de
 temporales, del clon, de las libs y del datadir 3307 va al final, con
 confirmación.
 
-**Pendiente de P16.7:** comprobación de Mermaid en GitHub, revisión acumulada independiente y
+**Pendiente de P16.7:** comprobación de Mermaid en GitHub (solo posible tras publicar), revisión acumulada independiente final y
 publicación solo con autorización. **Decisiones del autor (28/10/2026):** Apache-2.0 para el código propio y
 la documentación propia, con licencias y avisos de terceros conservados; el logo, las portadas
 demo, las imágenes del inicio y `libro.jpg` están declarados como generados con IA, sin
@@ -652,6 +661,23 @@ clon limpio reproducible
 = proyecto listo para portfolio e entrevistas
 ```
 
+**Cumplimiento de la Definición de terminado (SPEC §10), 28/10/2026** — sin modificar los criterios:
+
+| # | Criterio | Estado | Evidencia |
+|---|---|---|---|
+| 1 | Findings funcionales corregidos y probados | Cumplido | P16.2 (11 casos de concurrencia; ver P16.2) |
+| 2 | Suite y `package` PASS | Cumplido | Clon limpio de `fdedf95`: 228 tests, BUILD SUCCESS, código de salida 0 |
+| 3 | Demo reproducible desde cero | Cumplido | Flyway V1–V4 desde un esquema vacío y seeder (26/10/2026); el JAR de `fdedf95` arrancó sobre esa base |
+| 4 | Smoke funcional y visual completo y documentado | Cumplido | P16.5 (HTTP y pruebas manuales del autor) + CRUD y portadas por HTTP (28/10/2026) |
+| 5 | Navegación y accesibilidad parcial | Cumplido con diferimiento | Teclado en el login, foco visible y etiquetas; recorrido completo diferido por el autor; no se declara WCAG |
+| 6 | README, diagramas y capturas coherentes | Cumplido | Diagramas inspeccionados en local; la comprobación en GitHub solo es posible tras publicar |
+| 7 | Assets y licencias resueltos | Cumplido | Apache-2.0 y procedencia declaradas por el autor (28/10/2026); `THIRD_PARTY_NOTICES.md` |
+| 8 | Escaneo de dependencias y de secretos | Cumplido | gitleaks y OSV-Scanner sobre `ac4c77e` (dentro del alcance auditado) |
+| 9 | Clon limpio validado | Cumplido | `fdedf95` |
+| 10 | `java -jar` solo contra el entorno demo | Cumplido | JAR del clon en 8082 contra 3307 `libreriaweb_demo` |
+| 11 | Revisión acumulada independiente PASS | Pendiente | La revisión sobre `166c1cb` dio CHANGES REQUIRED (documental), corregido después; falta la revisión final |
+| 12 | Publicación autorizada explícitamente | Pendiente | El autor autorizó publicar `083aa87`; la publicación de la rama final la ejecutará él |
+
 ---
 
 # 6. DEUDAS Y RIESGOS CONTROLADOS
@@ -679,6 +705,12 @@ Controles obligatorios antes de cualquier push o publicación:
 
 ## No bloqueantes
 
+- el cierre de sesión redirige a `/login?logout` sin mostrar mensaje (mejora menor de UX; no figura en la
+  Definición de terminado; no se implementa);
+- `Portada.contenido`: `@Basic(fetch = LAZY)` no es efectivo sin instrumentación de bytecode (no configurada) y
+  `Libro`→`Portada` es `EAGER`; las consultas pueden leer el contenido de las portadas; sin medir; deuda de
+  rendimiento asignada a P16.4 que no se corrigió (requiere tocar la entidad y las consultas; fuera del alcance de
+  cierre);
 - navegación ADMIN ausente en `index.html`, `biblioteca.html` y
   `mis-prestamos.html` → resuelta en P16.4 (integrada);
 - `cambiarRol()` sin ruta HTTP; no es código muerto: lo invoca `DemoDataSeeder` al crear el
@@ -884,10 +916,4 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**El cierre documental está commiteado; la corrección de plantillas y cabeceras y la
-verificación en clon limpio son de `ac4c77e`. Apagar a mano el JAR de prueba (8081)
-y la instancia 3307. Pendientes transversales: comprobación
-de Mermaid en GitHub, revisión acumulada y recorrido completo por teclado
-(diferido por decisión del autor). Licencia y procedencia de imágenes decididas por el
-autor (ver P16.7). P16 sigue abierta; sin push ni merge a
-`master`.**
+**Verificación final hecha sobre `fdedf95` (clon limpio, 228 tests, JAR del clon ejecutado). Para publicar: el autor integra la rama final en `master` con `--ff-only`, configura `origin` y hace el push de `master`; luego se comprueban README, imágenes, enlaces y los cinco diagramas Mermaid en GitHub, y se hace la limpieza final de temporales. Apagado manual del JAR de 8081 y de la instancia 3307. Recorrido completo por teclado: diferido por decisión del autor. P16 sigue abierta hasta cumplir los criterios 11 y 12 de la Definición de terminado.**

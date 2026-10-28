@@ -171,8 +171,7 @@ Flyway crea el esquema al primer arranque.
 
 El perfil `demo` usa una base **separada y descartable llamada `libreriaweb_demo`** y carga datos
 de ejemplo de forma idempotente. Su arranque y carga inicial fueron verificados, también con el JAR
-ejecutable (ver Tests). Desde un clon limpio de `ac4c77e` se verificó el empaquetado con tests, pero
-el JAR de ese clon no se ejecutó.
+ejecutable de un clon limpio (ver Tests).
 Variables necesarias (solo nombres):
 
 - `DEMO_ADMIN_MAIL`, `DEMO_ADMIN_PASSWORD`, `DEMO_USUARIO_MAIL`, `DEMO_USUARIO_PASSWORD` (sin valor por defecto: si faltan, la aplicación no arranca).
@@ -210,7 +209,20 @@ seeder de la demo, y el codificador de contraseñas.
 
 Evidencia disponible, por tipo (no se suman entre sí):
 
-- **Suite completa vigente:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
+- **Verificación final en clon limpio de `fdedf95` (28/10/2026):** una corrida de
+  `./mvnw -ntp clean package` con tests (sin perfil demo, solo sobre las dos bases de test) en un
+  clon nuevo: **228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS, código de
+  salida 0**, leído del archivo de salida y coincidente con la suma de surefire; JAR generado. Ese
+  JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): smoke de 5 rutas en 200, 27
+  comprobaciones por rol sin fallos y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
+  con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta, modificación,
+  baja/alta y eliminación de autor, editorial y libro; carga, reemplazo y conservación de portadas
+  JPEG y PNG; rechazo de un archivo que no es imagen; rechazo de un POST sin token CSRF; y limpieza
+  de los registros de prueba. Las portadas se validan y recodifican en el servidor, por lo que se
+  comprobaron formato y dimensiones, no igualdad de bytes. No se probaron por el JAR la solicitud ni
+  la devolución de préstamos ni el cierre de sesión (probados a mano por el autor). Los commits
+  posteriores a `fdedf95` solo cambian documentación.
+- **Corrida anterior sobre `ac4c77e`:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
   `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`: **228 tests en 17 clases, 0 fallos, 0
   errores, 0 omitidos, BUILD SUCCESS**. Ejecutada sobre el árbol de trabajo previo al commit
   `ac4c77e`, que incorpora las correcciones de plantillas y cabeceras. El total de 228 se verificó
@@ -231,8 +243,8 @@ Evidencia disponible, por tipo (no se suman entre sí):
   desde un esquema vacío, carga inicial del seeder y comprobación HTTP: páginas públicas y estáticos
   200, rutas protegidas redirigen al login, cada rol (`ADMIN`, `USUARIO`) accede solo a lo suyo
   (200 / 403) y todas las respuestas llevan `nosniff`, `X-Frame-Options: DENY` y `Cache-Control:
-  no-store`. Fue solo lectura y control de acceso: no se probaron altas, bajas ni préstamos por el
-  JAR. Los tests MockMvc corren desde `target/classes` y no detectaron que todas las páginas fallaban
+  no-store`. Esa prueba fue solo de lectura y control de acceso (las altas, bajas y portadas se
+  probaron después, ver el primer punto). Los tests MockMvc corren desde `target/classes` y no detectaron que todas las páginas fallaban
   con error 500 dentro del JAR; por eso hay ahora una comprobación específica de las plantillas
   (`TemplateFragmentReferencesTest`, que empaqueta las plantillas en un JAR temporal) y
   `scripts/smoke-jar-demo.ps1` para el JAR real.
@@ -243,7 +255,7 @@ Evidencia disponible, por tipo (no se suman entre sí):
 ## Estado del proyecto
 
 Hecho: empaquetado y `java -jar` contra la demo (ver Tests). Escaneos con herramientas dedicadas
-(gitleaks y OSV-Scanner, repetidos sobre el clon limpio de `ac4c77e` sin hallazgos nuevos): dos coincidencias de gitleaks, ambas
+(gitleaks y OSV-Scanner, repetidos sobre el clon limpio de `ac4c77e` sin hallazgos nuevos; no se repitieron tras los cambios posteriores, que solo eliminan recursos sin uso, ajustan dos valores de configuración y documentan): dos coincidencias de gitleaks, ambas
 contraseñas de prueba de un test, descartadas como falsos positivos justificados, y avisos de
 dependencias clasificados uno por uno; dentro del alcance auditado no se encontraron secretos
 reales ni evidencia de avisos explotables en la aplicación (no es una afirmación de ausencia). Spring Boot 2.7 y varias bibliotecas tienen avisos con
@@ -251,7 +263,7 @@ corrección solo comercial: son deuda declarada (CVE-2025-22228 y CVE-2026-22732
 controles compensatorios; CVE-2026-40973, de un atacante local en el mismo host, es riesgo residual
 aceptado solo para la demo local, sin extenderlo a un despliegue productivo).
 
-Pendiente antes de publicar: nueva verificación si cambia el código tras `ac4c77e`; comprobación del renderizado de los diagramas Mermaid en GitHub (los cinco se renderizaron y
+Pendiente antes de publicar: nueva verificación si cambia el código tras `fdedf95`; comprobación del renderizado de los diagramas Mermaid en GitHub (los cinco se renderizaron y
 revisaron localmente; las capturas ya están incorporadas); recorrido
 completo por teclado, diferido por decisión del autor (validado parcialmente en el login; no se
 declara cumplimiento de WCAG).
@@ -264,6 +276,8 @@ declara cumplimiento de WCAG).
 - Sin exportación PDF (los botones están deshabilitados con «PDF · Próximamente») y sin búsqueda en las listas de gestión; son mejoras futuras. La búsqueda del catálogo público funciona.
 - Bootstrap (JS), Bootstrap Icons y Font Awesome se cargan desde CDN; ver [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - La base `libreriaweb` histórica no se migra automáticamente. Si se reutiliza una base con usuarios anteriores, las cuentas con claves de más de 72 bytes quedarían rechazadas hasta un restablecimiento administrativo.
+- El cierre de sesión redirige a `/login?logout` sin mostrar mensaje.
+- `Portada.contenido` está anotado como carga diferida, pero el proyecto no configura la instrumentación de Hibernate que la hace efectiva y la relación `Libro`→`Portada` es `EAGER`: las consultas pueden leer el contenido de las portadas. No se midió el efecto; es una deuda declarada, no corregida.
 - Imágenes: el logo, las portadas de ejemplo, las imágenes del inicio y la tapa neutra (`libro.jpg`) fueron generados con IA, según declara el autor; el detalle por archivo está en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) §3. Las imágenes de `docs/img/` son capturas de la aplicación.
 
 ## Licencia
