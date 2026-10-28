@@ -213,8 +213,8 @@ Evidencia disponible, por tipo (no se suman entre sí):
   `./mvnw -ntp clean package` con tests (sin perfil demo, solo sobre las dos bases de test) en un
   clon nuevo: **228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS, código de
   salida 0**, leído del archivo de salida y coincidente con la suma de surefire; JAR generado. Ese
-  JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): smoke de 5 rutas en 200, 27
-  comprobaciones por rol sin fallos y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
+  JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): 27
+  comprobaciones por rol sin fallos (el smoke de 5 rutas en 200 es una observación de sesión, sin archivo de respaldo) y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
   con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta de autor y editorial; alta,
   modificación, baja/alta y eliminación de libro (el borrado de autor y editorial se ejercitó solo
   en la limpieza de los registros de prueba); carga, reemplazo y conservación de portadas
@@ -256,7 +256,7 @@ Evidencia disponible, por tipo (no se suman entre sí):
 ## Estado del proyecto
 
 Hecho: empaquetado y `java -jar` contra la demo (ver Tests). Escaneos con herramientas dedicadas
-(gitleaks y OSV-Scanner, repetidos sobre el clon limpio de `ac4c77e` sin hallazgos nuevos; no se repitieron tras los cambios posteriores, que solo eliminan recursos sin uso, ajustan dos valores de configuración y documentan): dos coincidencias de gitleaks, ambas
+(gitleaks y OSV-Scanner, ejecutados sobre `ac4c77e` y repetidos el 28/10/2026 sobre un clon limpio de `7241a8f` sin hallazgos nuevos; los commits posteriores solo documentan): dos coincidencias de gitleaks, ambas
 contraseñas de prueba de un test, descartadas como falsos positivos justificados, y avisos de
 dependencias clasificados uno por uno; dentro del alcance auditado no se encontraron secretos
 reales ni evidencia de avisos explotables en la aplicación (no es una afirmación de ausencia). Spring Boot 2.7 y varias bibliotecas tienen avisos con

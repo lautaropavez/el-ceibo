@@ -25,7 +25,7 @@ archivos CSS.
 No están en el código fuente del repositorio: Maven las resuelve desde
 `pom.xml`. Las dependencias de alcance `runtime` se incorporan al JAR
 ejecutable que genera `spring-boot-maven-plugin`; el contenido efectivo de
-`BOOT-INF/lib` se verificará en P16.7. Las versiones
+`BOOT-INF/lib` se verificó en P16.7 (64 bibliotecas; ver ROADMAP). Las versiones
 corresponden a las gestionadas por Spring Boot 2.7.18, salvo los overrides
 explícitos de `pom.xml`: MySQL Connector/J 8.4.0 y Apache Tomcat 9.0.121. La
 licencia se tomó del `.pom` de cada artefacto.
@@ -69,8 +69,8 @@ La tabla anterior cubre las dependencias principales. Se ejecutó
 `97567c7`, y resolvió 71 artefactos de ese alcance. Ese listado es el
 resultado de la resolución de Maven: **no demuestra por sí solo cuáles quedan
 dentro del JAR final** (por ejemplo, incluye `spring-boot-devtools`, marcado
-`optional`). El contenido del JAR final se confirmará en la verificación de
-publicación (P16.7). Las licencias de la tabla siguiente se tomaron del `.pom`
+`optional`). El contenido del JAR final se verificó en P16.7: 64 bibliotecas
+empaquetadas, sin DevTools (ver ROADMAP). Las licencias de la tabla siguiente se tomaron del `.pom`
 de cada artefacto o de sus POM padres, y se contrastaron con los metadatos de
 los JAR cuando están disponibles (`Bundle-License` en el `MANIFEST.MF`,
 archivos `LICENSE`/`NOTICE`).
@@ -100,8 +100,8 @@ El resto de las dependencias de alcance `runtime` resueltas (Spring Framework
 4.0.3, JBoss Logging, Jandex, Classmate, Byte Buddy, Log4j 2.17.2, SnakeYAML
 1.30, Attoparser, Unbescape, Tomcat embebido, entre otras) declara Apache
 License 2.0. El análisis de vulnerabilidades de versiones concretas (por
-ejemplo Jackson y SnakeYAML) no forma parte de este documento y se hace en la
-verificación de publicación.
+ejemplo Jackson y SnakeYAML) no forma parte de este documento: se hizo con OSV-Scanner en
+P16.7 y consta en el ROADMAP.
 
 ## 3. Imágenes y recursos gráficos
 
