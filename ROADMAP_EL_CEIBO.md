@@ -604,7 +604,7 @@ Prueba HTTP con sesión ADMIN sobre `libreriaweb_demo` (la base descartable; no 
 
 **Configuración y deudas revisadas (28/10/2026):** `spring.jpa.show-sql=false` y `spring.thymeleaf.cache=true` en la configuración distribuida (`fdedf95`; el diagnóstico local se activa en `application-local.properties`, ver `application.properties.example`); retirados de `application.properties.example` los marcadores `MAIL_*` (no hay dependencia de correo); corregido el comentario del perfil `demo`. No se implementa el mensaje de cierre de sesión ni se corrige la carga `EAGER` de `Portada.contenido`: no figuran en la Definición de terminado y quedan como deuda declarada (ver «No bloqueantes»). Recorrido completo por teclado: diferido por decisión del autor (2026-10-23).
 
-**Procesos:** el JAR del clon (8082) y el servidor local de Mermaid (8799) se detuvieron; el JAR de 8081 y la instancia 3307 siguen encendidos (apagado manual del autor). Temporales de esta verificación: `%TEMP%\ceibo-p168-fdedf95` y la carpeta `p168` del scratchpad (limpieza final con confirmación).
+**Procesos:** el JAR del clon (8082) y el servidor local de Mermaid (8799) se detuvieron; el JAR de 8081 y la instancia 3307 siguen encendidos (apagado manual del autor). Los temporales de esta verificación (clon y registros) están fuera del repositorio y se limpian al final con confirmación.
 
 **Pendiente manual de apagado:** el JAR de prueba (puerto 8081) y la instancia
 MariaDB 3307 siguen encendidos; se detienen a mano (Ctrl+C en la ventana del JAR
@@ -672,10 +672,10 @@ clon limpio reproducible
 | 5 | Navegación y accesibilidad parcial | Cumplido con diferimiento | Teclado en el login, foco visible y etiquetas; recorrido completo diferido por el autor; no se declara WCAG |
 | 6 | README, diagramas y capturas coherentes | Cumplido | Diagramas inspeccionados en local; la comprobación en GitHub solo es posible tras publicar |
 | 7 | Assets y licencias resueltos | Cumplido | Apache-2.0 y procedencia declaradas por el autor (28/10/2026); `THIRD_PARTY_NOTICES.md` |
-| 8 | Escaneo de dependencias y de secretos | Cumplido | gitleaks y OSV-Scanner sobre `ac4c77e` (dentro del alcance auditado) |
+| 8 | Escaneo de dependencias y de secretos | Cumplido sobre `ac4c77e` | gitleaks y OSV-Scanner sobre `ac4c77e` (dentro del alcance auditado); no repetidos tras `fdedf95` (cambió configuración y se retiraron recursos). Repetirlos sobre el hash final antes de publicar es decisión del autor |
 | 9 | Clon limpio validado | Cumplido | `fdedf95` |
 | 10 | `java -jar` solo contra el entorno demo | Cumplido | JAR del clon en 8082 contra 3307 `libreriaweb_demo` |
-| 11 | Revisión acumulada independiente PASS | Pendiente | La revisión sobre `166c1cb` dio CHANGES REQUIRED (documental), corregido después; falta la revisión final |
+| 11 | Revisión acumulada independiente PASS | Pendiente | La revisión sobre `166c1cb` dio CHANGES REQUIRED (documental), corregido después. La revisión sobre `2a844df` dio CHANGES REQUIRED (6 MEDIUM documentales, sin BLOCKER ni HIGH); se acotaron las afirmaciones de cobertura CRUD, se retiró una ruta local y se aclaró el estado del escaneo. Falta una nueva pasada de la revisión y la decisión del autor sobre el re-escaneo |
 | 12 | Publicación autorizada explícitamente | Pendiente | El autor autorizó publicar `083aa87`; la publicación de la rama final la ejecutará él |
 
 ---

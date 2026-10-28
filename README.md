@@ -215,8 +215,9 @@ Evidencia disponible, por tipo (no se suman entre sí):
   salida 0**, leído del archivo de salida y coincidente con la suma de surefire; JAR generado. Ese
   JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): smoke de 5 rutas en 200, 27
   comprobaciones por rol sin fallos y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
-  con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta, modificación,
-  baja/alta y eliminación de autor, editorial y libro; carga, reemplazo y conservación de portadas
+  con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta de autor y editorial; alta,
+  modificación, baja/alta y eliminación de libro (el borrado de autor y editorial se ejercitó solo
+  en la limpieza de los registros de prueba); carga, reemplazo y conservación de portadas
   JPEG y PNG; rechazo de un archivo que no es imagen; rechazo de un POST sin token CSRF; y limpieza
   de los registros de prueba. Las portadas se validan y recodifican en el servidor, por lo que se
   comprobaron formato y dimensiones, no igualdad de bytes. No se probaron por el JAR la solicitud ni
