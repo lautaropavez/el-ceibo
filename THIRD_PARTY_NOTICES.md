@@ -1,8 +1,9 @@
 # Third-party notices
 
-El código propio de este repositorio se distribuye bajo Apache License 2.0
-(ver `LICENSE`). Este documento lista componentes de terceros y su estado de
-licencia. Se basa en lo verificable en el repositorio; los puntos marcados
+El código propio y la documentación propia de El Ceibo se distribuyen bajo Apache
+License 2.0 (ver `LICENSE`; decisión del autor, 28/10/2026). Los componentes de terceros
+conservan sus licencias y avisos, y las imágenes se documentan por separado en la sección 3.
+Este documento lista componentes de terceros y su estado de licencia. Se basa en lo verificable en el repositorio; los puntos marcados
 como **pendiente** requieren confirmación antes de la publicación.
 
 ## 1. Recursos frontend locales (empaquetados en el repositorio)
@@ -106,7 +107,9 @@ verificación de publicación.
 
 Origen declarado por el autor (confirmado el 28/10/2026). Esta tabla registra solo lo
 confirmado: no afirma herramientas concretas, autoría exclusiva ni la relación con tapas
-comerciales, y tampoco las niega.
+comerciales, y tampoco las niega. El autor no declara derechos exclusivos sobre las imágenes
+generadas con IA: este documento no les asigna una licencia ni determina su titularidad ni
+sus condiciones de uso.
 
 | Archivo(s) | Ubicación | Origen |
 |---|---|---|
@@ -114,7 +117,7 @@ comerciales, y tampoco las niega.
 | `favicon.ico` | `src/main/resources/static/img/` | Derivado del logo `ceibo.svg` (comprobado por comparación visual: mismos elementos y colores; no se registró el proceso de conversión) |
 | `portadas-demo/*.jpg` (8: `portada_1984`, `portada_cien_anios`, `portada_deja_de_ser_tu`, `portada_harry_potter`, `portada_iliada`, `portada_odisea`, `portada_principito`, `portada_rayuela`) | `src/main/resources/static/img/` | Generadas con IA (confirmado por el autor) |
 | `librosmano.jpg`, `mujer_festejando1.jpg`, `books-assortment-with-white-background.jpg` (imágenes del inicio; `librosmano.jpg` también se usa en login y registro) | `src/main/resources/static/img/` | Generadas con IA (confirmado por el autor) |
-| `libro.jpg` (tapa neutra que se muestra cuando un libro no tiene portada) | `src/main/resources/static/img/` | **Pendiente de confirmar por el autor** |
+| `libro.jpg` (tapa neutra que se muestra en `biblioteca.html` cuando un libro no tiene portada) | `src/main/resources/static/img/` | Generada con IA (confirmado por el autor) |
 | `inicio.png`, `catalogo.png`, `prestamos-admin.png`, `mis-prestamos.png`, `libros-admin.png`, `buscador.png`, `registro-movil.png` | `docs/img/` | Capturas de pantalla de la aplicación en ejecución (perfil demo, datos ficticios). No son imágenes generadas directamente con IA; incluyen, dentro de la captura, las imágenes de las filas anteriores |
 
 `violeta.jpg` fue eliminado del repositorio.

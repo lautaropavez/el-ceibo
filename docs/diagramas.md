@@ -167,7 +167,7 @@ stateDiagram-v2
 
 ## Notas y límites
 
-- **Estado de los diagramas:** revisados por lectura contra las entidades JPA, las migraciones V1–V4, `ServicePrestamo` y `PrestamosController`. Los cinco diagramas se renderizaron localmente antes de esta última edición de las notas de los diagramas 3 y 4. **La comprobación del renderizado en GitHub sigue pendiente.**
+- **Estado de los diagramas:** revisados por lectura contra las entidades JPA, las migraciones V1–V4, `ServicePrestamo` y `PrestamosController`. Los cinco diagramas se renderizaron e inspeccionaron visualmente en local (28/10/2026) con las notas actuales de los diagramas 3 y 4. **La comprobación del renderizado en GitHub sigue pendiente.**
 - **Fallos de bloqueo:** solo `ServicePrestamo` y `ServiceLibro` capturan `PessimisticLockingFailureException`; `ServiceAutor`, `ServiceEditorial`, `ServicePortada` y `ServiceUsuario` no tienen esa captura.
 - **Cardinalidades:** `PORTADA |o--o| LIBRO` refleja la restricción `UNIQUE` de `portada_id` (V3), con ambos lados opcionales.
 - **Cobertura de pruebas de catálogo y portadas:** los tests comprueban que las altas, bajas y eliminaciones no mutan por GET y sí por POST con CSRF, las reglas de catálogo y de usuarios, la concurrencia de catálogo y la descarga de portadas creadas por fixture. Ningún test sube por HTTP un archivo de portada con contenido; el único test multipart envía una parte `archivo` vacía con datos inválidos. Alta, modificación, baja y eliminación desde la interfaz, y la carga de portadas, están implementadas sin validación manual registrada.

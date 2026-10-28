@@ -264,11 +264,11 @@ declara cumplimiento de WCAG).
 - Sin exportación PDF (los botones están deshabilitados con «PDF · Próximamente») y sin búsqueda en las listas de gestión; son mejoras futuras. La búsqueda del catálogo público funciona.
 - Bootstrap (JS), Bootstrap Icons y Font Awesome se cargan desde CDN; ver [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - La base `libreriaweb` histórica no se migra automáticamente. Si se reutiliza una base con usuarios anteriores, las cuentas con claves de más de 72 bytes quedarían rechazadas hasta un restablecimiento administrativo.
-- Imágenes del sitio y portadas de ejemplo: ilustraciones generadas con IA y seleccionadas por el autor; no son tapas comerciales.
+- Imágenes: el logo, las portadas de ejemplo, las imágenes del inicio y la tapa neutra (`libro.jpg`) fueron generados con IA, según declara el autor; el detalle por archivo está en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) §3. Las imágenes de `docs/img/` son capturas de la aplicación.
 
 ## Licencia
 
-[Apache License 2.0](LICENSE). Componentes de terceros en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[Apache License 2.0](LICENSE) para el código propio y la documentación propia de El Ceibo. Los componentes de terceros conservan sus licencias y avisos ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). La procedencia de las imágenes generadas con IA se documenta por separado en ese mismo archivo (§3); esta licencia no declara derechos exclusivos del autor sobre ellas.
 
 ## Autor
 

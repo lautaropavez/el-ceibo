@@ -604,10 +604,12 @@ temporales, del clon, de las libs y del datadir 3307 va al final, con
 confirmación.
 
 **Pendiente de P16.7:** comprobación de Mermaid en GitHub, revisión acumulada independiente y
-publicación solo con autorización. **Decisiones del autor aún sin confirmar:** (a) la licencia
-Apache-2.0 de `LICENSE` y (b) solo queda sin confirmar la procedencia de `libro.jpg`: el autor confirmó el 28/10/2026 que
-las portadas demo, las imágenes del inicio y el logo son generados con IA, y las capturas de
-`docs/img/` figuran como capturas de la aplicación (ver `THIRD_PARTY_NOTICES.md` §3). El recorrido completo por teclado sigue
+publicación solo con autorización. **Decisiones del autor (28/10/2026):** Apache-2.0 para el código propio y
+la documentación propia, con licencias y avisos de terceros conservados; el logo, las portadas
+demo, las imágenes del inicio y `libro.jpg` están declarados como generados con IA, sin
+derechos exclusivos declarados sobre ellos, y las capturas de `docs/img/` figuran como capturas
+de la aplicación (ver `THIRD_PARTY_NOTICES.md` §3). Los diagramas Mermaid se inspeccionaron
+visualmente en local (28/10/2026), con las notas actuales de los diagramas 3 y 4. El recorrido completo por teclado sigue
 diferido por decisión del autor.
 
 Antes del push final:
@@ -886,6 +888,6 @@ claridad.
 verificación en clon limpio son de `ac4c77e`. Apagar a mano el JAR de prueba (8081)
 y la instancia 3307. Pendientes transversales: comprobación
 de Mermaid en GitHub, revisión acumulada y recorrido completo por teclado
-(diferido por decisión del autor). Sigue sin confirmar por el autor la licencia
-Apache-2.0 (y la procedencia de `libro.jpg`). P16 sigue abierta; sin push ni merge a
+(diferido por decisión del autor). Licencia y procedencia de imágenes decididas por el
+autor (ver P16.7). P16 sigue abierta; sin push ni merge a
 `master`.**
