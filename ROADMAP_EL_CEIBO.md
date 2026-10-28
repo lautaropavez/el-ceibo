@@ -605,8 +605,9 @@ confirmación.
 
 **Pendiente de P16.7:** comprobación de Mermaid en GitHub, revisión acumulada independiente y
 publicación solo con autorización. **Decisiones del autor aún sin confirmar:** (a) la licencia
-Apache-2.0 de `LICENSE` y (b) la declaración de procedencia de imágenes y portadas de
-`THIRD_PARTY_NOTICES.md` (generadas con IA y seleccionadas por el autor). El recorrido completo por teclado sigue
+Apache-2.0 de `LICENSE` y (b) solo queda sin confirmar la procedencia de `libro.jpg`: el autor confirmó el 28/10/2026 que
+las portadas demo, las imágenes del inicio y el logo son generados con IA, y las capturas de
+`docs/img/` figuran como capturas de la aplicación (ver `THIRD_PARTY_NOTICES.md` §3). El recorrido completo por teclado sigue
 diferido por decisión del autor.
 
 Antes del push final:
@@ -885,6 +886,6 @@ claridad.
 verificación en clon limpio son de `ac4c77e`. Apagar a mano el JAR de prueba (8081)
 y la instancia 3307. Pendientes transversales: comprobación
 de Mermaid en GitHub, revisión acumulada y recorrido completo por teclado
-(diferido por decisión del autor). Siguen sin confirmar por el autor la licencia
-Apache-2.0 y la procedencia de imágenes. P16 sigue abierta; sin push ni merge a
+(diferido por decisión del autor). Sigue sin confirmar por el autor la licencia
+Apache-2.0 (y la procedencia de `libro.jpg`). P16 sigue abierta; sin push ni merge a
 `master`.**

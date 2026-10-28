@@ -104,21 +104,18 @@ verificación de publicación.
 
 ## 3. Imágenes y recursos gráficos
 
-Los siguientes archivos de `src/main/resources/static/img/` fueron
-reemplazados en P16.4 por assets nuevos, generados con herramientas de IA y
-seleccionados por el autor para este proyecto. Luego se convirtieron
-a JPEG, se redimensionaron y se comprimieron (sin cambios de estilo ni
-agregado de texto):
+Origen declarado por el autor (confirmado el 28/10/2026). Esta tabla registra solo lo
+confirmado: no afirma herramientas concretas, autoría exclusiva ni la relación con tapas
+comerciales, y tampoco las niega.
 
-- `ceibo.svg`: logo SVG original; `favicon.ico`: derivado de ese logo;
-- `libro.jpg`: tapa neutra de reemplazo (placeholder);
-- `portadas-demo/*.jpg`: 8 ilustraciones de portada sin texto;
-- `librosmano.jpg`, `mujer_festejando1.jpg`,
-  `books-assortment-with-white-background.jpg`: 3 ilustraciones del inicio.
-
-No son fotografías reales, obras dibujadas manualmente ni recursos descargados
-de bancos de imágenes. Las portadas son ilustraciones de ejemplo, no
-reproducciones de tapas comerciales.
+| Archivo(s) | Ubicación | Origen |
+|---|---|---|
+| `ceibo.svg` (logo) | `src/main/resources/static/img/` | Generado con IA (confirmado por el autor) |
+| `favicon.ico` | `src/main/resources/static/img/` | Derivado del logo `ceibo.svg` (comprobado por comparación visual: mismos elementos y colores; no se registró el proceso de conversión) |
+| `portadas-demo/*.jpg` (8: `portada_1984`, `portada_cien_anios`, `portada_deja_de_ser_tu`, `portada_harry_potter`, `portada_iliada`, `portada_odisea`, `portada_principito`, `portada_rayuela`) | `src/main/resources/static/img/` | Generadas con IA (confirmado por el autor) |
+| `librosmano.jpg`, `mujer_festejando1.jpg`, `books-assortment-with-white-background.jpg` (imágenes del inicio; `librosmano.jpg` también se usa en login y registro) | `src/main/resources/static/img/` | Generadas con IA (confirmado por el autor) |
+| `libro.jpg` (tapa neutra que se muestra cuando un libro no tiene portada) | `src/main/resources/static/img/` | **Pendiente de confirmar por el autor** |
+| `inicio.png`, `catalogo.png`, `prestamos-admin.png`, `mis-prestamos.png`, `libros-admin.png`, `buscador.png`, `registro-movil.png` | `docs/img/` | Capturas de pantalla de la aplicación en ejecución (perfil demo, datos ficticios). No son imágenes generadas directamente con IA; incluyen, dentro de la captura, las imágenes de las filas anteriores |
 
 `violeta.jpg` fue eliminado del repositorio.
 

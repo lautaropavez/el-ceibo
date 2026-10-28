@@ -80,9 +80,9 @@ También se retiró el buscador de Usuarios y el enlace «Inicio» del sidebar a
 
 **Mejora futura (diferida):** exportación PDF de las listas de gestión. Los cuatro botones están deshabilitados con «PDF · Próximamente»; el proyecto se presenta sin exportación PDF.
 
-**Limitaciones:** una instancia y una base; recursos de terceros por CDN (Bootstrap JS, Bootstrap Icons, Font Awesome), con dependencia de red; imágenes y portadas generadas con IA, no tapas comerciales; la base histórica `libreriaweb` no se migra automáticamente.
+**Limitaciones:** una instancia y una base; recursos de terceros por CDN (Bootstrap JS, Bootstrap Icons, Font Awesome), con dependencia de red; portadas demo, imágenes del inicio y logo generados con IA (declaración del autor; `libro.jpg` sin confirmar, ver `THIRD_PARTY_NOTICES.md` §3); la base histórica `libreriaweb` no se migra automáticamente.
 
-**Pendiente antes de publicar:** nueva verificación si cambia el código tras `ac4c77e` (clon limpio, empaquetado y escaneos ya hechos sobre ese commit), comprobación de los diagramas Mermaid en GitHub (ya renderizados y revisados localmente), revisión acumulada y confirmación por el autor de la licencia Apache-2.0 y de la procedencia de imágenes y portadas. Ya hecho: empaquetado, Flyway desde cero en un entorno aislado y `java -jar` contra la demo (ver arriba). El recorrido completo por teclado queda diferido por decisión del autor. La validación en Linux queda como verificación futura opcional.
+**Pendiente antes de publicar:** nueva verificación si cambia el código tras `ac4c77e` (clon limpio, empaquetado y escaneos ya hechos sobre ese commit), comprobación de los diagramas Mermaid en GitHub (ya renderizados y revisados localmente), revisión acumulada y confirmación por el autor de la licencia Apache-2.0 y de la procedencia de `libro.jpg`. Ya hecho: empaquetado, Flyway desde cero en un entorno aislado y `java -jar` contra la demo (ver arriba). El recorrido completo por teclado queda diferido por decisión del autor. La validación en Linux queda como verificación futura opcional.
 
 **Mejoras futuras (no comprometidas):** ampliar la captura de fallos de bloqueo a los demás servicios, agregar pruebas automáticas del rediseño, completar la validación por teclado y evaluar migrar a Spring Boot 3.
 
