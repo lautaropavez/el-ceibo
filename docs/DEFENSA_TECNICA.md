@@ -15,7 +15,7 @@ Cada sección distingue **qué está implementado** de **qué está validado** y
 - **Implementado:** capas MVC. `controladores/` (HTTP y mensajes), `servicios/` (reglas de negocio y transacciones), `repositorios/` (Spring Data JPA, con consultas `PESSIMISTIC_WRITE`), `entidades/`, `config/` (seguridad, codificador de contraseñas, errores de carga de archivos) y `seed/` (datos demo, solo con el perfil `demo`).
 - Vistas Thymeleaf; Spring Security filtra por sesión, CSRF y rol antes de los controladores.
 - **Decisión:** la lógica de negocio vive en los servicios, no en los controladores, para que las reglas y las transacciones estén en un solo lugar.
-- Diagramas: [`diagramas.md`](diagramas.md) (Mermaid, revisados por lectura; **renderizado pendiente**).
+- Diagramas: [`diagramas.md`](diagramas.md) (Mermaid: los cinco se renderizaron y revisaron localmente; **la comprobación en GitHub sigue pendiente**).
 
 ## 3. Modelo de datos y migraciones
 
@@ -68,7 +68,7 @@ Cada sección distingue **qué está implementado** de **qué está validado** y
 - **Responsive:** la interfaz incorpora adaptación responsive. Validado manualmente a 390 × 844 únicamente en: inicio, catálogo, login, registro, Mis préstamos (con desplazamiento horizontal de la tabla) y menú lateral (apertura, cierre por fondo y Escape). No se extiende a los formularios de gestión.
 - **Teclado y accesibilidad:** validación parcial (Tab/Shift+Tab con orden lógico y foco visible en el login; etiquetas de formulario). El recorrido completo por teclado queda pendiente; no se declara cumplimiento de WCAG.
 - **CRUD y portadas:** los tests automáticos cubren mutaciones solo por POST con CSRF, reglas de catálogo y de usuarios, concurrencia y descarga de portadas (creadas por fixture); ningún test sube por HTTP un archivo de portada con contenido. Alta, modificación, baja y eliminación desde la interfaz y la carga de portadas están implementadas, sin validación manual registrada.
-- **Capturas de pantalla:** pendientes; se incorporarán al final, antes de publicar.
+- **Capturas de pantalla:** siete capturas de la demo local con datos ficticios, en `docs/img/` y mostradas en el README (cuatro principales y tres en «Más capturas»). Son imágenes fijas: no prueban el comportamiento.
 
 ## 7. Limitaciones, decisiones y mejoras futuras
 
@@ -80,9 +80,9 @@ También se retiró el buscador de Usuarios y el enlace «Inicio» del sidebar a
 
 **Mejora futura (diferida):** exportación PDF de las listas de gestión. Los cuatro botones están deshabilitados con «PDF · Próximamente»; el proyecto se presenta sin exportación PDF.
 
-**Limitaciones:** una instancia y una base; recursos de terceros por CDN (Bootstrap JS, Bootstrap Icons, Font Awesome, Google Fonts), con dependencia de red; imágenes y portadas generadas con IA, no tapas comerciales; la base histórica `libreriaweb` no se migra automáticamente.
+**Limitaciones:** una instancia y una base; recursos de terceros por CDN (Bootstrap JS, Bootstrap Icons, Font Awesome), con dependencia de red; imágenes y portadas generadas con IA, no tapas comerciales; la base histórica `libreriaweb` no se migra automáticamente.
 
-**Pendiente antes de publicar:** clon limpio del commit final con su empaquetado, repetición de los escaneos de dependencias y secretos sobre ese commit, capturas de pantalla, renderizado de los diagramas Mermaid y revisión acumulada. Ya hecho: empaquetado, Flyway desde cero en un entorno aislado y `java -jar` contra la demo (ver arriba). El recorrido completo por teclado queda diferido por decisión del autor. La validación en Linux queda como verificación futura opcional.
+**Pendiente antes de publicar:** nueva verificación si cambia el código tras `ac4c77e` (clon limpio, empaquetado y escaneos ya hechos sobre ese commit), comprobación de los diagramas Mermaid en GitHub (ya renderizados y revisados localmente) y revisión acumulada. Ya hecho: empaquetado, Flyway desde cero en un entorno aislado y `java -jar` contra la demo (ver arriba). El recorrido completo por teclado queda diferido por decisión del autor. La validación en Linux queda como verificación futura opcional.
 
 **Mejoras futuras (no comprometidas):** ampliar la captura de fallos de bloqueo a los demás servicios, agregar pruebas automáticas del rediseño, completar la validación por teclado y evaluar migrar a Spring Boot 3.
 

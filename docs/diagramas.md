@@ -122,11 +122,11 @@ sequenceDiagram
     S-->>C: retorna el Prestamo
     Note over S,DB: Al salir del método se hace COMMIT
     C-->>U: flash "¡Préstamo solicitado con éxito!"<br/>redirect a /prestamo/mis-prestamos
-    alt regla violada (MiExcepcion)
+    alt regla violada
         S-->>C: MiExcepcion → ROLLBACK
         C-->>U: flash con el mensaje, redirect a /libro/biblioteca
-    else fallo de bloqueo pesimista (PessimisticLockingFailureException)
-        S-->>C: MiExcepcion "...modificados por otra operación. Intente nuevamente." → ROLLBACK
+    else bloqueo pesimista
+        S-->>C: PessimisticLockingFailureException → MiExcepcion<br/>"...modificados por otra operación. Intente nuevamente." → ROLLBACK
         C-->>U: flash con el mensaje, redirect a /libro/biblioteca
     end
 ```
@@ -149,12 +149,11 @@ sequenceDiagram
     Note over S: Valida: el libro existe y el stock es consistente
     Note over S: Cambios lógicos: fechaDevolucion = ahora<br/>y contadores del libro (restantes +1, prestados -1)
     S-->>C: retorna el Prestamo
-    Note over S,DB: Al salir del método se hace COMMIT
+    Note over S,DB: Camino exitoso: al salir del método se hace COMMIT
     C-->>A: flash "Devolución registrada con éxito."<br/>redirect a /prestamo/lista
-    alt regla violada o fallo de bloqueo pesimista (PessimisticLockingFailureException)
-        S-->>C: MiExcepcion → ROLLBACK
-        C-->>A: flash con el mensaje, redirect a /prestamo/lista
-    end
+    Note over C,S: Camino alternativo, en lugar del COMMIT y del éxito:<br/>regla violada o fallo de bloqueo pesimista
+    S-->>C: MiExcepcion (o PessimisticLockingFailureException<br/>por bloqueo pesimista) → ROLLBACK
+    C-->>A: flash con el mensaje, redirect a /prestamo/lista
 ```
 
 ## 5. Estados del préstamo

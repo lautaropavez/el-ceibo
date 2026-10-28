@@ -27,13 +27,13 @@ este roadmap
 |---|---|
 | Fecha del checkpoint | 26/10/2026 |
 | Rama activa | `feature/portfolio-publication` |
-| Último commit | `3120ac5169a96033e495a8786bf7e391289dc8bc` — "Document portfolio setup, architecture and technical defense" (anterior: `d28dbbd`) |
+| Último commit | `ac4c77e83ff48c10f8e7751f3f35bf7c42a57773` — "Fix packaged template resolution and harden security headers" (anterior: `3120ac5`, "Document portfolio setup, architecture and technical defense") |
 | Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
-| Working tree / índice | corrección de fragmentos Thymeleaf para ejecución empaquetada, control compensatorio de cabeceras (CVE-2026-22732), 6 tests nuevos, `scripts/smoke-jar-demo.ps1` y actualización de README, DEFENSA y ROADMAP, todo sin commit y sin stage; sin push ni merge |
+| Working tree / índice | la corrección de fragmentos Thymeleaf, el control de cabeceras (CVE-2026-22732), los 6 tests nuevos y `scripts/smoke-jar-demo.ps1` están en `ac4c77e`; solo quedan sin commit y sin stage estas actualizaciones de README y ROADMAP (el commit documental queda para el cierre); sin push ni merge |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas pendientes; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5` y actualizada en el árbol de trabajo; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido en el árbol de trabajo (pendiente de commit), JAR verificado contra la demo aislada; pendientes: clon limpio y escaneos sobre el commit final, capturas, Mermaid y revisión acumulada |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas incorporadas el 27/10/2026; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5` y actualizada en el árbol de trabajo; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido (`ac4c77e`), JAR verificado contra la demo aislada; verificación en clon limpio de `ac4c77e` hecha (228 tests, escaneos sin hallazgos nuevos); pendientes: capturas, comprobación de Mermaid en GitHub y revisión acumulada |
 | Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16 |
 | Base de tests | `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`; descartables; Flyway V1→V4 |
 | Baseline de tests vigente | **228 tests en 17 clases, 0 fallos, BUILD SUCCESS** (`./mvnw -ntp clean package` con tests, sin perfil demo, solo sobre las dos bases de test), ejecutada sobre el árbol de trabajo previo al commit de la corrección. Total verificado sumando los reportes de surefire; BUILD SUCCESS aportado por el autor al leer la salida; el código de salida original de Maven no se recuperó. Incluye la regresión de login (72 bytes) y 6 tests nuevos. Evidencias históricas, incluidas y no sumadas: 221 tests en 15 clases (anterior a la regresión) y corrida focalizada de `CsrfProtectionMockMvcTest` (17) |
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas pendientes, teclado completo diferido); P16.6 en curso (documentación en `3120ac5` y actualizada en el árbol de trabajo); P16.7 en curso (JAR verificado en la demo aislada tras corregir las plantillas; clon limpio final pendiente) |
+| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas incorporadas, teclado completo diferido); P16.6 en curso (documentación en `3120ac5` y `ac4c77e`; actualización posterior pendiente de commit); P16.7 en curso (JAR verificado en la demo aislada tras corregir las plantillas; verificación en clon limpio de `ac4c77e` hecha, ver P16.7; capturas, Mermaid y revisión acumulada pendientes) |
 
 Secuencia restante:
 
@@ -442,9 +442,9 @@ No realizar un rediseño completo ni cambiar la arquitectura visual.
 Validación funcional consolidada con evidencia separada por tipo: suite
 completa (221 tests en ese momento; la suite vigente es de 228, ver sección 1), comprobaciones HTTP sobre la demo y pruebas manuales del
 autor (flujo principal, permisos, sidebar, listas de gestión, «Saltar al
-contenido» y móvil 390 × 844 en las vistas confirmadas). Pendientes
-explícitos: **capturas públicas** (se rehacen al final, antes de publicar, con
-datos ficticios) y **recorrido completo por teclado** (diferido por decisión
+contenido» y móvil 390 × 844 en las vistas confirmadas). Capturas
+públicas incorporadas (27/10/2026, `docs/img/`, datos ficticios). Pendiente
+explícito: **recorrido completo por teclado** (diferido por decisión
 del autor; no se declara cumplimiento de WCAG). No se confirmó ningún defecto
 en lo diferido. Definición original:
 
@@ -468,9 +468,14 @@ matriz automatizada.
 ## P16.6 — README, diagramas, capturas y defensa técnica 🟡 EN CURSO
 
 README, `docs/diagramas.md` y `docs/DEFENSA_TECNICA.md` (con guiones de
-presentación y demo) incorporados al árbol de trabajo, pendientes de commit.
-Pendientes: capturas (al final, sin reutilizar las anteriores por contener datos
-personales) y renderizado de Mermaid (hoy revisado solo por lectura). Incluye
+presentación y demo) incorporados y actualizados en el commit de cierre documental.
+Los cinco diagramas Mermaid se renderizaron y revisaron localmente (26/10/2026);
+se corrigieron las etiquetas `alt` de los diagramas 3 y 4, que una línea vertical
+cruzaba, y en el 4 el error se marcó como camino alternativo. Capturas
+incorporadas el 27/10/2026: siete archivos en `docs/img/` (cuatro principales y tres
+en «Más capturas» del README), con datos ficticios; no se reutilizaron las
+anteriores por contener datos personales. Pendiente: comprobación de los diagramas
+en GitHub. Incluye
 el README y la documentación de portfolio reubicados desde P16.1.
 
 El README debe explicar:
@@ -503,7 +508,7 @@ Diagramas mínimos:
 - carrera por el último ejemplar y lock pesimista;
 - matriz USUARIO / ADMIN para rutas sensibles.
 
-Capturas mínimas:
+Capturas mínimas (cubiertas el 27/10/2026 salvo el flujo de préstamo/devolución, que no tiene captura):
 
 - catálogo;
 - login o registro;
@@ -544,7 +549,7 @@ Sin push ni merge realizados hasta la fecha de este checkpoint.
   plantillas); desde directorio y en MockMvc no se manifestaba. Corregido
   quitando la barra, confirmado con el JAR (500 → 200) y con regresiones
   (`TemplateFragmentReferencesTest`, `scripts/smoke-jar-demo.ps1`). La
-  corrección está en el árbol de trabajo, pendiente de commit.
+  corrección está commiteada en `ac4c77e`.
 - **CVE-2026-22732** (Spring Security 5.7.11, corrección solo comercial):
   biblioteca afectada, mitigada con el workaround oficial
   `HeaderWriterFilter.shouldWriteHeadersEagerly=true` en `SecurityConfig`
@@ -557,15 +562,44 @@ Sin push ni merge realizados hasta la fecha de este checkpoint.
   3307: páginas públicas, vistas de ambos roles y cabeceras sin fallos (solo
   lectura y control de acceso; sin altas, bajas ni préstamos por el JAR).
 
+**Verificación final en clon limpio de `ac4c77e` (26/10/2026, Windows):** una
+sola corrida de `./mvnw -ntp clean package` con tests, sin perfil demo y solo
+sobre las dos bases de test: **228 tests en 17 clases, 0 fallos, 0 errores, 0
+omitidos** (suma de los reportes de surefire) y JAR generado. Limitación: en esta
+corrida no se recuperó el resultado final de Maven (ni «BUILD SUCCESS» ni el
+código de salida); que los tests pasaron y el JAR se generó es lo comprobado.
+El JAR del clon **no se ejecutó**; la prueba HTTP corresponde al JAR del
+checkout. Comparados ambos JAR, sus 29 recursos de texto distintos en bytes (CSS,
+JS, HTML) son idénticos al normalizar únicamente CRLF/LF (0 diferencias
+restantes); ninguna clase difiere y las 64 bibliotecas son idénticas por hash.
+JAR sin DevTools, sin clases de test y sin `application-local`; 0 plantillas con
+barra inicial; sigue empaquetado `show-sql=true` y `thymeleaf.cache=false`
+(deuda). gitleaks: las mismas 2 coincidencias (falsos positivos justificados)
+y 0 en las clases del JAR; OSV-Scanner: 82 pares aviso/paquete en 19 paquetes, 0
+nuevos y 0 ausentes frente a `3120ac5` (base viva, vigente al 26/10/2026). Las
+bibliotecas de terceros no se escanearon con gitleaks. Es evidencia dentro del
+alcance auditado, no una afirmación de ausencia.
+
+**Limpieza de recursos sin uso (27/10/2026):** se eliminaron del árbol
+de trabajo `static/css/styleFormModif.css`, `static/js/validUsuarioModif.js`,
+`templates/exito.html` y `static/css/legacy-hero.css`, sin referencias en
+`src/`, tests, scripts ni documentos (ningún controlador devuelve la vista
+`exito`; los tests usan solo el atributo de modelo/flash `exito`). Se actualizó
+`THIRD_PARTY_NOTICES.md`: ninguna vista carga ya Google Fonts. La suite y el JAR
+validados corresponden a `ac4c77e`, que aún incluía esos archivos; no se repitió
+la suite por este cambio. Validación puntual posterior: `TemplateFragmentReferencesTest`
+(sin base de datos), 2 tests, 0 fallos, BUILD SUCCESS, que cubre las referencias de
+fragmentos tras la limpieza; los 228 tests y el smoke corresponden a `ac4c77e`. Falta
+el smoke del JAR tras el próximo empaquetado. El botón «PDF · Próximamente» y los tres CSS del tema se
+conservan por decisión del autor.
+
 **Pendiente manual de apagado:** el JAR de prueba (puerto 8081) y la instancia
 MariaDB 3307 siguen encendidos; se detienen a mano (Ctrl+C en la ventana del JAR
 y `mysqladmin -h 127.0.0.1 -P 3307 -u root -p shutdown`). La limpieza de
 temporales, del clon, de las libs y del datadir 3307 va al final, con
 confirmación.
 
-**Pendiente de P16.7:** commit de la corrección (con aprobación), clon limpio
-del commit final con su empaquetado y repetición de los escaneos, capturas
-públicas, renderizado de Mermaid, revisión acumulada independiente y
+**Pendiente de P16.7:** comprobación de Mermaid en GitHub, revisión acumulada independiente y
 publicación solo con autorización. El recorrido completo por teclado sigue
 diferido por decisión del autor.
 
@@ -840,9 +874,9 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**Aprobar y commitear la corrección de plantillas y cabeceras con su
-documentación; luego, clon limpio del commit final con empaquetado y
-repetición de los escaneos. Antes, apagar a mano el JAR de prueba (8081) y la
-instancia 3307. Pendientes transversales: capturas públicas, renderizado de
-Mermaid, revisión acumulada y recorrido completo por teclado (diferido por
-decisión del autor). P16 sigue abierta; sin push ni merge a `master`.**
+**El cierre documental está commiteado; la corrección de plantillas y cabeceras y la
+verificación en clon limpio son de `ac4c77e`. Apagar a mano el JAR de prueba (8081)
+y la instancia 3307. Pendientes transversales: comprobación
+de Mermaid en GitHub, revisión acumulada y recorrido completo por teclado
+(diferido por decisión del autor). P16 sigue abierta; sin push ni merge a
+`master`.**

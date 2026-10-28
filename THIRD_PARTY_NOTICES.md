@@ -13,7 +13,7 @@ con el repositorio.
 | Componente | Archivos | Versión | Licencia | Fuente |
 |---|---|---|---|---|
 | Bootstrap CSS (incluido en el CSS del tema) | `css/style.css`, `css/login-style.css`, `css/biblioteca.css` | 5.1.3 | MIT, Copyright 2011-2021 The Bootstrap Authors | https://getbootstrap.com |
-| Start Bootstrap — One Page Wonder (tema) | `css/style.css`, `css/login-style.css`, `css/legacy-hero.css` | 6.0.5 | MIT, Copyright 2013-2022 Start Bootstrap | https://startbootstrap.com/theme/one-page-wonder |
+| Start Bootstrap — One Page Wonder (tema) | `css/style.css`, `css/login-style.css` | 6.0.5 | MIT, Copyright 2013-2022 Start Bootstrap | https://startbootstrap.com/theme/one-page-wonder |
 | Start Bootstrap — Shop Homepage (tema) | `css/biblioteca.css` | 5.0.5 | MIT, Copyright 2013-2022 Start Bootstrap | https://startbootstrap.com/template/shop-homepage |
 
 Las cabeceras de copyright y licencia originales se conservan dentro de esos
@@ -132,11 +132,11 @@ tiempo de ejecución desde servicios de terceros, bajo sus propios términos.
 | Bootstrap 5.0.2 (CSS y JS) y Bootstrap 5.1.3 (JS bundle) | Estilos y componentes | MIT | cdn.jsdelivr.net |
 | Bootstrap Icons 1.5.0 | Iconos en `biblioteca.html`, `mis-prestamos.html` | MIT | cdn.jsdelivr.net |
 | Font Awesome Free 6.1.0, hoja de estilos `css/all.css` y fuentes `webfonts/` | Iconos del sidebar y de las listas de gestión (`fragments/head.html`) | Iconos CC BY 4.0, fuentes SIL OFL 1.1, código MIT | use.fontawesome.com/releases/v6.1.0 |
-| Font Awesome Free 6.1.0, JavaScript `js/all.js` | Script cargado en `index.html`, `login.html`, `registro.html` y `exito.html` | Iconos CC BY 4.0, fuentes SIL OFL 1.1, código MIT | use.fontawesome.com/releases/v6.1.0 |
-| Google Fonts: Catamaran y Lato | Tipografías de `exito.html` | SIL Open Font License 1.1 | fonts.googleapis.com |
+| Font Awesome Free 6.1.0, JavaScript `js/all.js` | Script cargado en `index.html`, `login.html` y `registro.html` | Iconos CC BY 4.0, fuentes SIL OFL 1.1, código MIT | use.fontawesome.com/releases/v6.1.0 |
 
 El resto del sitio usa la pila tipográfica del sistema (`system-ui`, `Segoe UI`,
-`sans-serif`) y no carga fuentes externas de texto. Open Sans, Catamaran y Lato
-dejaron de cargarse en las demás vistas.
+`sans-serif`) y no carga fuentes externas de texto: ninguna vista usa ya Google Fonts (Open Sans,
+Catamaran y Lato dejaron de cargarse; sus nombres solo quedan como primera opción
+de `font-family` en el CSS del tema, con respaldo de la pila del sistema).
 
 Dependen de la disponibilidad de esos servicios y de la red del visitante.

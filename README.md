@@ -11,6 +11,27 @@ operaciones críticas, tests automatizados y una demo con base separada.
 > No es una aplicación productiva. Los límites conocidos están en [Límites y decisiones](#límites-y-decisiones).
 > Documentación complementaria: [diagramas](docs/diagramas.md) y [defensa técnica](docs/DEFENSA_TECNICA.md).
 
+## Capturas
+
+Tomadas sobre la demo local (perfil `demo`, datos ficticios; los datos de la sesión se difuminaron).
+
+| Inicio | Catálogo |
+|---|---|
+| ![Página de inicio](docs/img/inicio.png) | ![Catálogo de la biblioteca](docs/img/catalogo.png) |
+| **Préstamos (ADMIN)** | **Mis préstamos (USUARIO)** |
+| ![Administración de préstamos](docs/img/prestamos-admin.png) | ![Mis préstamos](docs/img/mis-prestamos.png) |
+
+<details>
+<summary>Más capturas</summary>
+
+![Gestión de libros (ADMIN)](docs/img/libros-admin.png)
+
+![Búsqueda en el catálogo](docs/img/buscador.png)
+
+![Registro en vista móvil](docs/img/registro-movil.png)
+
+</details>
+
 ## Qué permite hacer
 
 La interfaz usa un **tema oscuro** propio, con menú lateral de gestión. La interfaz incorpora
@@ -150,7 +171,8 @@ Flyway crea el esquema al primer arranque.
 
 El perfil `demo` usa una base **separada y descartable llamada `libreriaweb_demo`** y carga datos
 de ejemplo de forma idempotente. Su arranque y carga inicial fueron verificados, también con el JAR
-ejecutable (ver Tests); la reproducción desde un clon limpio del commit final sigue pendiente.
+ejecutable (ver Tests). Desde un clon limpio de `ac4c77e` se verificó el empaquetado con tests, pero
+el JAR de ese clon no se ejecutó.
 Variables necesarias (solo nombres):
 
 - `DEMO_ADMIN_MAIL`, `DEMO_ADMIN_PASSWORD`, `DEMO_USUARIO_MAIL`, `DEMO_USUARIO_PASSWORD` (sin valor por defecto: si faltan, la aplicación no arranca).
@@ -190,11 +212,17 @@ Evidencia disponible, por tipo (no se suman entre sí):
 
 - **Suite completa vigente:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
   `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`: **228 tests en 17 clases, 0 fallos, 0
-  errores, 0 omitidos, BUILD SUCCESS**. Ejecutada sobre el árbol de trabajo previo al commit que
-  incorpora las correcciones de plantillas y cabeceras. El total de 228 se verificó sumando los
-  reportes de surefire; BUILD SUCCESS lo aportó el autor al leer la salida (el código de salida
-  original de Maven no se recuperó). Incluye la regresión de login con 72 bytes y 6 tests nuevos
-  (fragmentos Thymeleaf y cabeceras de seguridad).
+  errores, 0 omitidos, BUILD SUCCESS**. Ejecutada sobre el árbol de trabajo previo al commit
+  `ac4c77e`, que incorpora las correcciones de plantillas y cabeceras. El total de 228 se verificó
+  sumando los reportes de surefire; BUILD SUCCESS lo aportó el autor al leer la salida (el código
+  de salida original de Maven no se recuperó). Incluye la regresión de login con 72 bytes y 6
+  tests nuevos (fragmentos Thymeleaf y cabeceras de seguridad).
+- **Repetición en clon limpio de `ac4c77e`:** una nueva corrida de `clean package` con las mismas
+  condiciones dio 228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos (suma de surefire) y
+  generó el JAR. En esa corrida no se recuperó el resultado final de Maven (ni «BUILD SUCCESS» ni
+  el código de salida). Es la misma suite, no una suma. Los 29 recursos de texto que difieren en
+  bytes entre ese JAR y el JAR probado por HTTP son idénticos al normalizar solo CRLF/LF; ninguna
+  clase difiere. El JAR del clon no se ejecutó.
 - **Evidencias históricas, que no se suman a la anterior:** suite de 221 tests en 15 clases (antes de
   la regresión de login) y corrida focalizada de `CsrfProtectionMockMvcTest` con 17 tests; ambas
   quedan incluidas en los 228.
@@ -215,7 +243,7 @@ Evidencia disponible, por tipo (no se suman entre sí):
 ## Estado del proyecto
 
 Hecho: empaquetado y `java -jar` contra la demo (ver Tests). Escaneos con herramientas dedicadas
-(gitleaks y OSV-Scanner sobre un candidato anterior): dos coincidencias de gitleaks, ambas
+(gitleaks y OSV-Scanner, repetidos sobre el clon limpio de `ac4c77e` sin hallazgos nuevos): dos coincidencias de gitleaks, ambas
 contraseñas de prueba de un test, descartadas como falsos positivos justificados, y avisos de
 dependencias clasificados uno por uno; dentro del alcance auditado no se encontraron secretos
 reales ni evidencia de avisos explotables en la aplicación (no es una afirmación de ausencia). Spring Boot 2.7 y varias bibliotecas tienen avisos con
@@ -223,8 +251,8 @@ corrección solo comercial: son deuda declarada (CVE-2025-22228 y CVE-2026-22732
 controles compensatorios; CVE-2026-40973, de un atacante local en el mismo host, es riesgo residual
 aceptado solo para la demo local, sin extenderlo a un despliegue productivo).
 
-Pendiente antes de publicar: clon limpio del commit final y repetición de los escaneos sobre él;
-capturas de pantalla; renderizado de los diagramas Mermaid (revisados por lectura); recorrido
+Pendiente antes de publicar: nueva verificación si cambia el código tras `ac4c77e`; comprobación del renderizado de los diagramas Mermaid en GitHub (los cinco se renderizaron y
+revisaron localmente; las capturas ya están incorporadas); recorrido
 completo por teclado, diferido por decisión del autor (validado parcialmente en el login; no se
 declara cumplimiento de WCAG).
 
@@ -234,7 +262,7 @@ declara cumplimiento de WCAG).
 - Una sola instancia y una sola base; sin Docker, CI/CD ni despliegue productivo.
 - Se permanece en Spring Boot 2.7 / Java 8; migrar a Spring Boot 3 queda fuera de alcance.
 - Sin exportación PDF (los botones están deshabilitados con «PDF · Próximamente») y sin búsqueda en las listas de gestión; son mejoras futuras. La búsqueda del catálogo público funciona.
-- Bootstrap (JS), Bootstrap Icons, Font Awesome y Google Fonts se cargan desde CDN; ver [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Bootstrap (JS), Bootstrap Icons y Font Awesome se cargan desde CDN; ver [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - La base `libreriaweb` histórica no se migra automáticamente. Si se reutiliza una base con usuarios anteriores, las cuentas con claves de más de 72 bytes quedarían rechazadas hasta un restablecimiento administrativo.
 - Imágenes del sitio y portadas de ejemplo: ilustraciones generadas con IA y seleccionadas por el autor; no son tapas comerciales.
 
