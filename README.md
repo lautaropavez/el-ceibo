@@ -214,14 +214,14 @@ Evidencia disponible, por tipo (no se suman entre sí):
   clon nuevo: **228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS, código de
   salida 0**, leído del archivo de salida y coincidente con la suma de surefire; JAR generado. Ese
   JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): 27
-  comprobaciones por rol sin fallos (el smoke de 5 rutas en 200 es una observación de sesión, sin archivo de respaldo) y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
+  comprobaciones por rol sin fallos (el smoke de 5 rutas en 200 es una observación de sesión, sin evidencia archivada) y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
   con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta de autor y editorial; alta,
-  modificación, baja/alta y eliminación de libro (el borrado de autor y editorial se ejercitó solo
-  en la limpieza de los registros de prueba); carga, reemplazo y conservación de portadas
+  modificación, baja/alta y eliminación de libro (se intentó eliminar un autor con libro asociado y el sistema lo rechazó; la
+  eliminación de autor y editorial se ejerció además en la limpieza de los registros de prueba); carga, reemplazo y conservación de portadas
   JPEG y PNG; rechazo de un archivo que no es imagen; rechazo de un POST sin token CSRF; y limpieza
   de los registros de prueba. Las portadas se validan y recodifican en el servidor, por lo que se
   comprobaron formato y dimensiones, no igualdad de bytes. No se probaron por el JAR la solicitud ni
-  la devolución de préstamos ni el cierre de sesión (probados a mano por el autor). Los commits
+  la devolución de préstamos ni el cierre de sesión (probados a mano por el autor: observación de sesión, sin evidencia archivada). Los commits
   posteriores a `fdedf95` solo cambian documentación.
 - **Corrida anterior sobre `ac4c77e`:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
   `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`: **228 tests en 17 clases, 0 fallos, 0
@@ -249,9 +249,9 @@ Evidencia disponible, por tipo (no se suman entre sí):
   con error 500 dentro del JAR; por eso hay ahora una comprobación específica de las plantillas
   (`TemplateFragmentReferencesTest`, que empaqueta las plantillas en un JAR temporal) y
   `scripts/smoke-jar-demo.ps1` para el JAR real.
-- Comprobaciones HTTP sobre la demo y pruebas manuales del flujo principal: ver
+- Comprobaciones HTTP sobre la demo y pruebas manuales del flujo principal (observación de sesión, sin evidencia archivada): ver
   [`docs/DEFENSA_TECNICA.md`](docs/DEFENSA_TECNICA.md). Las pruebas automáticas no validan el
-  aspecto visual.
+  aspecto visual. Convención: «observación de sesión, sin evidencia archivada» significa que la comprobación se realizó y se informó, pero no conserva archivo de respaldo; la limitación es la falta de archivo, no que haya fallado.
 
 ## Estado del proyecto
 
@@ -265,7 +265,7 @@ controles compensatorios; CVE-2026-40973, de un atacante local en el mismo host,
 aceptado solo para la demo local, sin extenderlo a un despliegue productivo).
 
 Pendiente antes de publicar: nueva verificación si cambia el código tras `fdedf95`; comprobación del renderizado de los diagramas Mermaid en GitHub (los cinco se renderizaron y
-revisaron localmente; las capturas ya están incorporadas); recorrido
+se inspeccionaron visualmente en local: observación de sesión, sin evidencia archivada; las capturas ya están incorporadas); recorrido
 completo por teclado, diferido por decisión del autor (validado parcialmente en el login; no se
 declara cumplimiento de WCAG).
 
