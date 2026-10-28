@@ -249,7 +249,11 @@ HEAD final resultante.
 
 # 5. P16 — PORTFOLIO Y PUBLICACIÓN
 
-## P16.0 — Baseline canónico y SPEC 🟡 EN AUDITORÍA (Gate A)
+## P16.0 — Baseline canónico y SPEC ✅ CERRADA
+
+> Estado actual: cerrada (ver cronograma). El texto siguiente conserva el estado de la
+> auditoría de partida: los findings de concurrencia se trataron en P16.2 y los escaneos
+> dedicados (gitleaks, OSV-Scanner) se ejecutaron en P16.7.
 
 Auditoría read-only completa realizada: identidad y topología Git,
 comparación del snapshot exportado contra el contenido ya auditado, secretos
@@ -600,7 +604,9 @@ temporales, del clon, de las libs y del datadir 3307 va al final, con
 confirmación.
 
 **Pendiente de P16.7:** comprobación de Mermaid en GitHub, revisión acumulada independiente y
-publicación solo con autorización. El recorrido completo por teclado sigue
+publicación solo con autorización. **Decisiones del autor aún sin confirmar:** (a) la licencia
+Apache-2.0 de `LICENSE` y (b) la declaración de procedencia de imágenes y portadas de
+`THIRD_PARTY_NOTICES.md` (generadas con IA y seleccionadas por el autor). El recorrido completo por teclado sigue
 diferido por decisión del autor.
 
 Antes del push final:
@@ -659,7 +665,7 @@ Controles obligatorios antes de cualquier push o publicación:
   opcional, no bloquea el cierre);
 - ejecución `java -jar`;
 - smoke funcional y visual;
-- navegación ADMIN y deudas LOW;
+- navegación ADMIN (resuelta en P16.4) y deudas LOW registradas;
 - README, diagramas, capturas y demo.
 
 ## Mantenimiento opcional (no bloquea demo ni publicación)
@@ -671,8 +677,9 @@ Controles obligatorios antes de cualquier push o publicación:
 ## No bloqueantes
 
 - navegación ADMIN ausente en `index.html`, `biblioteca.html` y
-  `mis-prestamos.html` → diferida a P16.4;
-- `cambiarRol()` sin ruta HTTP → código muerto, evaluar en backlog/P16.1;
+  `mis-prestamos.html` → resuelta en P16.4 (integrada);
+- `cambiarRol()` sin ruta HTTP; no es código muerto: lo invoca `DemoDataSeeder` al crear el
+  ADMIN demo; evaluar en backlog;
 - `UsuarioController` sin null-check para ID inexistente en
   `/usuario/modificar/{id}` → un ADMIN sí puede alcanzar el controller con un
   id inválido y provocar un `500`; deuda LOW de robustez/UX, no
@@ -878,5 +885,6 @@ claridad.
 verificación en clon limpio son de `ac4c77e`. Apagar a mano el JAR de prueba (8081)
 y la instancia 3307. Pendientes transversales: comprobación
 de Mermaid en GitHub, revisión acumulada y recorrido completo por teclado
-(diferido por decisión del autor). P16 sigue abierta; sin push ni merge a
+(diferido por decisión del autor). Siguen sin confirmar por el autor la licencia
+Apache-2.0 y la procedencia de imágenes. P16 sigue abierta; sin push ni merge a
 `master`.**

@@ -117,7 +117,7 @@ sequenceDiagram
     S->>DB: contar préstamos activos del usuario
     Note over S: Valida: menos de 3 activos
     S->>DB: bloquear LIBRO (FOR UPDATE)
-    Note over S: Valida: libro existe y está activo, hay ejemplares,<br/>el stock es consistente y no hay préstamo activo<br/>del mismo libro por este usuario
+    Note over S: Valida: libro existe y está activo,<br/>ejemplaresRestantes no nulo y mayor que 0,<br/>ejemplaresPrestados no nulo,<br/>y no hay préstamo activo del mismo libro por este usuario.<br/>No comprueba aquí que nroejemplares = restantes + prestados
     Note over S: Cambios lógicos: nuevo Prestamo (vence a los 14 días)<br/>y contadores del libro (restantes -1, prestados +1)
     S-->>C: retorna el Prestamo
     Note over S,DB: Al salir del método se hace COMMIT
@@ -146,7 +146,7 @@ sequenceDiagram
     S->>DB: bloquear PRESTAMO (FOR UPDATE)
     Note over S: Valida: el préstamo existe y no fue devuelto
     S->>DB: bloquear LIBRO (FOR UPDATE)
-    Note over S: Valida: el libro existe y el stock es consistente
+    Note over S: Valida: el libro existe y el stock es consistente:<br/>nroejemplares, restantes y prestados no nulos,<br/>restantes no negativo, prestados mayor que 0,<br/>restantes menor que nroejemplares<br/>y nroejemplares = restantes + prestados
     Note over S: Cambios lógicos: fechaDevolucion = ahora<br/>y contadores del libro (restantes +1, prestados -1)
     S-->>C: retorna el Prestamo
     Note over S,DB: Camino exitoso: al salir del método se hace COMMIT
@@ -167,7 +167,7 @@ stateDiagram-v2
 
 ## Notas y límites
 
-- **Estado de los diagramas:** revisados por lectura contra las entidades JPA, las migraciones V1–V4, `ServicePrestamo` y `PrestamosController`. **El renderizado de Mermaid está pendiente**: no se validó con un renderizador.
+- **Estado de los diagramas:** revisados por lectura contra las entidades JPA, las migraciones V1–V4, `ServicePrestamo` y `PrestamosController`. Los cinco diagramas se renderizaron localmente antes de esta última edición de las notas de los diagramas 3 y 4. **La comprobación del renderizado en GitHub sigue pendiente.**
 - **Fallos de bloqueo:** solo `ServicePrestamo` y `ServiceLibro` capturan `PessimisticLockingFailureException`; `ServiceAutor`, `ServiceEditorial`, `ServicePortada` y `ServiceUsuario` no tienen esa captura.
 - **Cardinalidades:** `PORTADA |o--o| LIBRO` refleja la restricción `UNIQUE` de `portada_id` (V3), con ambos lados opcionales.
 - **Cobertura de pruebas de catálogo y portadas:** los tests comprueban que las altas, bajas y eliminaciones no mutan por GET y sí por POST con CSRF, las reglas de catálogo y de usuarios, la concurrencia de catálogo y la descarga de portadas creadas por fixture. Ningún test sube por HTTP un archivo de portada con contenido; el único test multipart envía una parte `archivo` vacía con datos inválidos. Alta, modificación, baja y eliminación desde la interfaz, y la carga de portadas, están implementadas sin validación manual registrada.

@@ -33,7 +33,8 @@ import org.springframework.util.StreamUtils;
 /**
  * Carga los datos demo (catalogo, usuarios demo y un prestamo real) usados
  * para la presentacion del proyecto. Solo corre con el profile "demo"
- * (SPRING_PROFILES_ACTIVE=local,demo) y es idempotente: si un autor,
+ * (SPRING_PROFILES_ACTIVE=demo; no se combina con "local", ver README) y es
+ * idempotente: si un autor,
  * editorial, libro, usuario o prestamo (en cualquier estado) ya existe, no
  * lo vuelve a crear.
  *
