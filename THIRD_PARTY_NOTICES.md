@@ -66,7 +66,7 @@ reempaquetado por defecto. Las dependencias de test (`spring-boot-starter-test`,
 
 La tabla anterior cubre las dependencias principales. Se ejecutó
 `mvn dependency:list` con alcance `runtime` (modo offline) sobre el commit
-`97567c7`, y resolvió 71 artefactos de ese alcance. Ese listado es el
+`97567c7`, y resolvió 71 artefactos de ese alcance (limitación declarada: el listado de dependencias transitivas se generó sobre `97567c7` y no se regeneró para el estado final). Ese listado es el
 resultado de la resolución de Maven: **no demuestra por sí solo cuáles quedan
 dentro del JAR final** (por ejemplo, incluye `spring-boot-devtools`, marcado
 `optional`). El contenido del JAR final se verificó en P16.7: 64 bibliotecas

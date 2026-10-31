@@ -1,6 +1,6 @@
 # ROADMAP EL CEIBO — ESTADO CANÓNICO Y CIERRE
 
-**Actualizado:** 28 de octubre de 2026
+**Actualizado:** 30 de octubre de 2026
 
 **Objetivo:** terminar El Ceibo como un proyecto Java/Spring Boot funcional, seguro, probado, reproducible y defendible en entrevistas técnicas.
 
@@ -25,15 +25,15 @@ este roadmap
 
 | Dato | Estado |
 |---|---|
-| Fecha del checkpoint | 28/10/2026 |
+| Fecha del checkpoint | 30/10/2026 |
 | Rama activa | `feature/portfolio-publication` |
 | Último commit de código: `ac4c77e`; configuración distribuida: `fdedf95`; candidato técnico verificado y escaneado: `7241a8f` (ni el código ni las dependencias cambian después de `fdedf95`); cambios posteriores: solo documentación, hasta el HEAD de la rama (`git rev-parse HEAD`; un commit no puede contener su propio hash) | `ac4c77e83ff48c10f8e7751f3f35bf7c42a57773` — "Fix packaged template resolution and harden security headers" (anterior: `3120ac5`, "Document portfolio setup, architecture and technical defense"); cierre documental `893c5c126f11b150b85a91b047311ae308728594` — "Finalize portfolio documentation, screenshots and unused resource cleanup" |
-| Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` (base original); `master` local avanzó por fast-forward a `083aa87e3eb537322e096a2335cf936100aeb314` el 28/10/2026, sin push; los commits posteriores están solo en `feature/portfolio-publication` |
+| Rama base | `master` en `43f9a5361222c5b905dd113b1f7a5e8d41f7654e` (base original); `master` avanzó por fast-forward a `083aa87e3eb537322e096a2335cf936100aeb314` el 28/10/2026 y luego a `05d0bddc5f5eb3c3137769d401da425779f83071`; el autor publicó `master` en `origin` (30/10/2026) |
 | Mensaje del HEAD base | `Finalize P15 security roadmap` |
-| Working tree / índice | la corrección de fragmentos Thymeleaf, el control de cabeceras (CVE-2026-22732), los 6 tests nuevos y `scripts/smoke-jar-demo.ps1` están en `ac4c77e`; la configuración distribuida (`show-sql=false`, `thymeleaf.cache=true`) está en `fdedf95`; el cierre documental está en `893c5c1`; sin cambios pendientes de commit; sin push (el único merge fue el fast-forward local de `master` a `083aa87`) |
+| Working tree / índice | la corrección de fragmentos Thymeleaf, el control de cabeceras (CVE-2026-22732), los 6 tests nuevos y `scripts/smoke-jar-demo.ps1` están en `ac4c77e`; la configuración distribuida (`show-sql=false`, `thymeleaf.cache=true`) está en `fdedf95`; el cierre documental está en `893c5c1`; el estado de Git se describe hasta el commit `05d0bdd`; los cambios documentales posteriores constan en el historial de Git (`git log`); `master` se avanzó por fast-forward local (`083aa87` y luego `05d0bdd`) y el autor lo publicó el 30/10/2026 |
 | P15 | completa, validada y mergeada a `master` mediante fast-forward (Gate D cerrado) |
 | `feature/final-security-csrf` | conservada únicamente como rama histórica, sin cambios pendientes |
-| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas incorporadas el 27/10/2026; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5`, `ac4c77e` y `893c5c1`; **P16.7 en curso**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido (`ac4c77e`), JAR verificado contra la demo aislada; verificación en clon limpio de `ac4c77e` hecha (228 tests, escaneos sin hallazgos nuevos) y verificación final en clon limpio de `fdedf95` (228 tests, BUILD SUCCESS, código de salida 0; JAR del clon ejecutado; CRUD y portadas por HTTP); pendientes: revisión acumulada independiente final, publicación y comprobación de Mermaid en GitHub |
+| P16 | P16.1 cerrada con alcance reubicado (commit `5386f06`); **P16.2 cerrada técnicamente** (`8de0cbc`); **P16.3 y P16.4 integradas** en `feature/portfolio-publication` (`f9ad152`, `97567c7`); cambios de interfaz y seguridad guardados en `d28dbbd`; **validación funcional de P16.5 consolidada** (capturas públicas incorporadas el 27/10/2026; recorrido completo por teclado diferido); P16.6 con documentación en `3120ac5`, `ac4c77e` y `893c5c1`; **P16.7 cerrada (30/10/2026)**: escaneos ejecutados sobre `3120ac5`, defecto de plantillas en `java -jar` hallado y corregido (`ac4c77e`), JAR verificado contra la demo aislada; verificación en clon limpio de `ac4c77e` hecha (228 tests, escaneos sin hallazgos nuevos) y verificación final en clon limpio de `fdedf95` (228 tests, BUILD SUCCESS, código de salida 0; JAR del clon ejecutado; CRUD y portadas por HTTP); hechas: publicación del repositorio por el autor y comprobación de Mermaid en GitHub (30/10/2026; observación de sesión, sin evidencia archivada); revisión acumulada independiente final completada el 30/10/2026 con PASS WITH NON-BLOCKING FINDINGS (ver ítem 11 de §10) |
 | Base normal `libreriaweb` | Flyway V3; protegida; no tocada por P16 |
 | Base de tests | `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`; descartables; Flyway V1→V4 |
 | Baseline de tests vigente | **228 tests en 17 clases, 0 fallos, BUILD SUCCESS** (`./mvnw -ntp clean package` con tests, sin perfil demo, solo sobre las dos bases de test), ejecutada el 28/10/2026 en un clon limpio de `fdedf95`, **código de salida 0**; total verificado además sumando los reportes de surefire (las corridas anteriores, sobre `ac4c77e`, no conservaron el código de salida). Incluye la regresión de login (72 bytes) y 6 tests nuevos. Evidencias históricas, incluidas y no sumadas: 221 tests en 15 clases (anterior a la regresión) y corrida focalizada de `CsrfProtectionMockMvcTest` (17) |
@@ -48,7 +48,7 @@ este roadmap
 | P13 | ✅ Cerrada y mergeada | Préstamos MVP con transacciones, locks, historial y permisos |
 | P14 | ✅ Cerrada y mergeada | Infraestructura reproducible y 45 tests permanentes |
 | P15 | ✅ Cerrada y mergeada | P15.0–P15.6 cerradas; mergeada a `master` por fast-forward (commit `43f9a53`) |
-| P16 | 🟡 En curso | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas incorporadas, teclado completo diferido); P16.6 con cierre técnico completo (documentación en `3120ac5`, `ac4c77e` y `893c5c1`; falta ver Mermaid en GitHub tras publicar); P16.7 en curso (verificación final en clon limpio de `fdedf95` hecha, ver P16.7; pendientes: revisión acumulada independiente final, publicación y comprobación de Mermaid en GitHub) |
+| P16 | ✅ Cerrada (30/10/2026) | P16.1 cerrada con alcance reubicado (`5386f06`); P16.2 cerrada técnicamente (`8de0cbc`, 12 commits, 126/126); P16.3 y P16.4 integradas; interfaz y seguridad en `d28dbbd`; validación funcional de P16.5 consolidada (capturas públicas incorporadas, teclado completo diferido); P16.6 con cierre técnico completo (documentación en `3120ac5`, `ac4c77e` y `893c5c1`; renderizado de Mermaid en GitHub comprobado el 30/10/2026; observación de sesión, sin evidencia archivada); P16.7 cerrada (verificación final en clon limpio de `fdedf95` hecha, ver P16.7; hechas: publicación del repositorio por el autor y comprobación de Mermaid en GitHub, 30/10/2026; revisión acumulada independiente final completada el 30/10/2026 con PASS WITH NON-BLOCKING FINDINGS) |
 
 Secuencia restante:
 
@@ -470,17 +470,17 @@ Recorrer con navegador real:
 El smoke valida integración y experiencia. No reemplaza ni repite toda la
 matriz automatizada.
 
-## P16.6 — README, diagramas, capturas y defensa técnica 🟡 CIERRE TÉCNICO COMPLETO (falta ver Mermaid en GitHub tras publicar)
+## P16.6 — README, diagramas, capturas y defensa técnica ✅ CERRADA (renderizado de Mermaid en GitHub comprobado el 30/10/2026)
 
 README, `docs/diagramas.md` y `docs/DEFENSA_TECNICA.md` (con guiones de
 presentación y demo) incorporados y actualizados en el commit de cierre documental.
-Los cinco diagramas Mermaid se renderizaron el 26/10/2026 y se inspeccionaron completos en local el 28/10/2026 (inspección: observación de sesión, sin evidencia archivada);
+Los cinco diagramas Mermaid se renderizaron el 26/10/2026, se volvieron a renderizar con las notas actuales de los diagramas 3 y 4 el 28/10/2026 y se inspeccionaron completos en local ese día (renderizados conservados en el equipo del autor; inspección: observación de sesión, sin evidencia archivada);
 se corrigieron las etiquetas `alt` de los diagramas 3 y 4, que una línea vertical
 cruzaba, y en el 4 el error se marcó como camino alternativo. Capturas
 incorporadas el 27/10/2026: siete archivos en `docs/img/` (cuatro principales y tres
 en «Más capturas» del README), con datos ficticios; no se reutilizaron las
-anteriores por contener datos personales. Pendiente: comprobación de los diagramas
-en GitHub. Incluye
+anteriores por contener datos personales. Renderizado en GitHub comprobado el 30/10/2026
+(observación de sesión, sin evidencia archivada). Incluye
 el README y la documentación de portfolio reubicados desde P16.1.
 
 El README debe explicar:
@@ -534,9 +534,9 @@ Defensa técnica a preparar:
 
 Lauti debe poder explicar el flujo sin leer el código línea por línea.
 
-## P16.7 — Clon limpio, package, `java -jar` y publicación 🟡 EN CURSO
+## P16.7 — Clon limpio, package, `java -jar` y publicación ✅ CERRADA (30/10/2026)
 
-Sin push ni merge realizados hasta la fecha de este checkpoint.
+El autor publicó `master` en `origin` el 30/10/2026.
 
 **Avances (26/10/2026, Windows):**
 
@@ -565,7 +565,8 @@ Sin push ni merge realizados hasta la fecha de este checkpoint.
 - `./mvnw -ntp clean package` con tests: 228 tests, 0 fallos, BUILD SUCCESS (ver
   sección 1 para el origen de la evidencia). JAR en 8081 contra la instancia
   3307: páginas públicas, vistas de ambos roles y cabeceras sin fallos (solo
-  lectura y control de acceso; sin altas, bajas ni préstamos por el JAR).
+  lectura y control de acceso; sin altas, bajas ni préstamos por el JAR; respaldo en el equipo del autor, fuera del repositorio:
+  26/10/2026, 27 comprobaciones, 0 fallos).
 
 **Verificación final en clon limpio de `ac4c77e` (26/10/2026, Windows):** una
 sola corrida de `./mvnw -ntp clean package` con tests, sin perfil demo y solo
@@ -608,22 +609,22 @@ Prueba HTTP con sesión ADMIN sobre `libreriaweb_demo` (la base descartable; no 
 
 **Evidencia del Gate B y observaciones de sesión.** Convención: «observación de sesión, sin evidencia archivada» significa que la comprobación se realizó y se informó, pero no conserva archivo de respaldo; la limitación es la falta de archivo, no que haya fallado. Con archivo de respaldo (en el equipo del autor, fuera del repositorio): la salida de `./mvnw clean package` con su código de salida 0, los reportes Surefire del clon, el log del JAR de 8082, los resultados de las 27 comprobaciones por rol y de las 22 de CRUD y portadas, y los resultados de los escaneos. Observación de sesión, sin archivo de respaldo y sin repetir la prueba para obtenerlo: el smoke de 5 rutas en 200, los conteos de la demo tras la limpieza (17 libros, 14 autores, 12 editoriales) y la inspección visual de los cinco diagramas Mermaid y del favicon. La reproducción desde esquema vacío (V1 a V4) está respaldada por la verificación del 26/10/2026 sobre `3120ac5`; el JAR de `fdedf95` arrancó contra una base ya migrada.
 
-**Procesos:** el JAR del clon (8082) y el servidor local de Mermaid (8799) se detuvieron; el JAR de 8081 y la instancia 3307 siguen encendidos (apagado manual del autor). Los temporales de esta verificación (clon y registros) están fuera del repositorio y se limpian al final con confirmación.
+**Procesos:** el JAR del clon (8082) y el servidor local de Mermaid (8799) se detuvieron; el JAR de 8081 se detuvo el 30/10/2026 y la instancia 3307 también quedó apagada el 30/10/2026 (apagada por el autor). Los temporales de esta verificación (clon y registros) están fuera del repositorio y se limpian al final con confirmación.
 
-**Pendiente manual de apagado:** el JAR de prueba (puerto 8081) y la instancia
-MariaDB 3307 siguen encendidos; se detienen a mano (Ctrl+C en la ventana del JAR
-y `mysqladmin -h 127.0.0.1 -P 3307 -u root -p shutdown`). La limpieza de
+**Apagado (30/10/2026):** el JAR de prueba (puerto 8081) se detuvo y la instancia
+MariaDB 3307 quedó apagada por el autor. La limpieza de
 temporales, del clon, de las libs y del datadir 3307 va al final, con
 confirmación.
 
-**Pendiente de P16.7:** comprobación de Mermaid en GitHub (solo posible tras publicar), revisión acumulada independiente final y
-publicación solo con autorización. **Decisiones del autor (28/10/2026):** Apache-2.0 para el código propio y
+**Hecho en P16.7 (30/10/2026):** publicación del repositorio por el autor y comprobación del renderizado de Mermaid en GitHub (observación de sesión, sin evidencia archivada). Revisión acumulada independiente final completada el 30/10/2026 con PASS WITH NON-BLOCKING FINDINGS (ver ítem 11). **Pendiente, no bloqueante:** limpieza final de temporales, con confirmación. **Decisiones del autor (28/10/2026):** Apache-2.0 para el código propio y
 la documentación propia, con licencias y avisos de terceros conservados; el logo, las portadas
 demo, las imágenes del inicio y `libro.jpg` están declarados como generados con IA, sin
 derechos exclusivos declarados sobre ellos, y las capturas de `docs/img/` figuran como capturas
 de la aplicación (ver `THIRD_PARTY_NOTICES.md` §3). Los diagramas Mermaid se inspeccionaron
 visualmente en local (28/10/2026; observación de sesión, sin evidencia archivada), con las notas actuales de los diagramas 3 y 4. El recorrido completo por teclado sigue
-diferido por decisión del autor.
+diferido por decisión del autor. **Decisión del autor (30/10/2026):** El Ceibo queda cerrado en su alcance actual; el autor reorienta su perfil a data y no prevé nuevas funcionalidades.
+
+**Riesgos residuales y deuda posterior al cierre (30/10/2026), no bloqueantes y sin corregir:** (1) el resumen «Última verificación» del README no repite que la prueba por JAR no cubrió solicitud, devolución ni cierre de sesión; la limitación consta en `docs/DEFENSA_TECNICA.md` §6 (LOW de la revisión final). (2) `THIRD_PARTY_NOTICES.md` §4 menciona Open Sans como primera opción de `font-family`, pero no aparece en `src/`; solo siguen Catamaran y Lato. (3) El encabezado «Antes del push final:» de esta sección quedó obsoleto tras la publicación. (4) Las versiones de Spring Boot, MySQL Connector/J y Tomcat de `THIRD_PARTY_NOTICES.md` no se contrastaron con `pom.xml` en la revisión final. (5) El listado de dependencias transitivas se generó sobre `97567c7` y no se regeneró para el estado final (limitación declarada del ítem 7). (6) «Seis vistas» de responsive incluye el menú lateral, que no es una vista. (7) Quedan sin evidencia archivada, como observación de sesión: el smoke de 5 rutas, los conteos de la demo, las pruebas manuales del autor, la inspección visual de Mermaid y la comprobación en GitHub. (8) El respaldo del 19/10/2026 de la matriz y las listas no se verificó en la revisión final. (9) Quedan diferidos por decisión del autor el recorrido completo por teclado y la validación del CRUD con navegador.
 
 Antes del push final:
 
@@ -673,14 +674,14 @@ clon limpio reproducible
 | 2 | Suite y `package` PASS | Cumplido | Clon limpio de `fdedf95`: 228 tests, BUILD SUCCESS, código de salida 0 |
 | 3 | Demo reproducible desde cero | Cumplido | Flyway V1–V4 desde un esquema vacío y seeder (26/10/2026); el JAR de `fdedf95` arrancó sobre esa base |
 | 4 | Smoke funcional y visual completo y documentado | Cumplido, con limitaciones aceptadas por el autor (28/10/2026) | P16.5 (HTTP y pruebas manuales del autor, estas: observación de sesión, sin evidencia archivada) + CRUD y portadas por HTTP (28/10/2026). Limitaciones: responsive validado en seis vistas, sin navegador para el CRUD, teclado completo diferido. El autor aceptó estas limitaciones para esta entrega de portfolio; no se hizo una comprobación más amplia |
-| 5 | Navegación y accesibilidad parcial | Cumplido con diferimiento | Teclado en el login, foco visible y etiquetas; recorrido completo diferido por el autor; no se declara WCAG |
-| 6 | README, diagramas y capturas coherentes | Cumplido | Diagramas inspeccionados en local (observación de sesión, sin evidencia archivada); la comprobación en GitHub solo es posible tras publicar |
-| 7 | Assets y licencias resueltos | Cumplido | Apache-2.0 y procedencia declaradas por el autor (28/10/2026); `THIRD_PARTY_NOTICES.md` |
+| 5 | Navegación y accesibilidad parcial | Cumplido con diferimiento | Teclado en el login, foco visible y etiquetas (observación de sesión, sin evidencia archivada); recorrido completo diferido por el autor; no se declara WCAG |
+| 6 | README, diagramas y capturas coherentes | Cumplido | Diagramas inspeccionados en local (observación de sesión, sin evidencia archivada); renderizado en GitHub comprobado tras la publicación (30/10/2026; observación de sesión, sin evidencia archivada) |
+| 7 | Assets y licencias resueltos | Cumplido | Apache-2.0 y procedencia declaradas por el autor (28/10/2026); `THIRD_PARTY_NOTICES.md`; limitación declarada: el listado de dependencias transitivas se generó sobre `97567c7` y no se regeneró para el estado final |
 | 8 | Escaneo de dependencias y de secretos | Cumplido | gitleaks y OSV-Scanner sobre `ac4c77e` y repetidos sobre `7241a8f` (28/10/2026), dentro del alcance auditado |
 | 9 | Clon limpio validado | Cumplido | `fdedf95` |
 | 10 | `java -jar` solo contra el entorno demo | Cumplido | JAR del clon en 8082 contra 3307 `libreriaweb_demo` |
-| 11 | Revisión acumulada independiente PASS | Pendiente | La revisión sobre `166c1cb` dio CHANGES REQUIRED (documental), corregido después. La revisión sobre `2a844df` dio CHANGES REQUIRED (6 MEDIUM documentales, sin BLOCKER ni HIGH); se acotaron las afirmaciones de cobertura CRUD, se retiró una ruta local y se aclaró el estado del escaneo. Las revisiones sobre `38092c6` y `3f81de2` dieron CHANGES REQUIRED (documentales, sin BLOCKER ni HIGH); la segunda dejó un MEDIUM de etiquetado y LOW, corregidos en un commit documental posterior. El re-escaneo ya se hizo sobre `7241a8f`. Falta el veredicto de la revisión de cierre sobre el hash final |
-| 12 | Publicación autorizada explícitamente | Pendiente | La publicación del hash final la ejecuta el autor con su propio push; el ítem queda pendiente hasta entonces y no impide resolver el ítem 11. La autorización previa de publicar `083aa87` no se extiende al hash final sin su orden |
+| 11 | Revisión acumulada independiente PASS | Cumplido | La revisión sobre `166c1cb` dio CHANGES REQUIRED (documental), corregido después. La revisión sobre `2a844df` dio CHANGES REQUIRED (6 MEDIUM documentales, sin BLOCKER ni HIGH); se acotaron las afirmaciones de cobertura CRUD, se retiró una ruta local y se aclaró el estado del escaneo. Las revisiones sobre `38092c6` y `3f81de2` dieron CHANGES REQUIRED (documentales, sin BLOCKER ni HIGH); la segunda dejó un MEDIUM de etiquetado y LOW, corregidos en un commit documental posterior. El re-escaneo ya se hizo sobre `7241a8f`. Las rondas siguientes sobre `05d0bdd` y sobre los cambios documentales de cierre aún sin commitear dieron CHANGES REQUIRED por MEDIUM documentales (etiquetas de evidencia, fechas, una cita de ruta local, estado de P16.6 y fecha de cabecera), corregidos en tres ciclos. La revisión final acotada (30/10/2026), hecha sobre `05d0bdd` más esos cambios documentales (su commit consta en `git log`; un commit no puede contener su propio hash), dio **PASS WITH NON-BLOCKING FINDINGS**: 0 BLOCKER, 0 HIGH, 0 MEDIUM y 1 LOW (ver riesgos residuales) |
+| 12 | Publicación autorizada explícitamente | Cumplido | El autor publicó `master` en `origin` con su propio push (30/10/2026); `origin/master` apunta a `05d0bddc5f5eb3c3137769d401da425779f83071` |
 
 ---
 
@@ -920,4 +921,4 @@ claridad.
 
 # SIGUIENTE ACCIÓN EXACTA
 
-**Verificación final hecha sobre `fdedf95` (clon limpio, 228 tests, JAR del clon ejecutado; escaneos repetidos sobre `7241a8f`). Para publicar: el autor integra la rama final en `master` con `--ff-only`, configura `origin` y hace el push de `master`; luego se comprueban README, imágenes, enlaces y los cinco diagramas Mermaid en GitHub, y se hace la limpieza final de temporales. Apagado manual del JAR de 8081 y de la instancia 3307. Recorrido completo por teclado: diferido por decisión del autor. P16 sigue abierta hasta cumplir los criterios 11 y 12 de la Definición de terminado.**
+**Verificación final hecha sobre `fdedf95` (clon limpio, 228 tests, JAR del clon ejecutado; escaneos repetidos sobre `7241a8f`). Publicación hecha por el autor (30/10/2026, `master` = `05d0bddc5f5eb3c3137769d401da425779f83071`) y Mermaid comprobado en GitHub. El JAR de 8081 se detuvo y la instancia 3307 quedó apagada (30/10/2026). Queda la limpieza final de temporales, con confirmación. Recorrido completo por teclado: diferido por decisión del autor. Revisión acumulada final completada el 30/10/2026 con PASS WITH NON-BLOCKING FINDINGS. P16 cerrada; queda, sin bloquear, la limpieza final de temporales y los riesgos residuales listados en P16.7.**

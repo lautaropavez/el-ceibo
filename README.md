@@ -195,79 +195,28 @@ entorno del proceso.
 
 ## Tests
 
-La suite automatizada cubre: servicios (libros, préstamos, usuarios), concurrencia de catálogo y
-préstamos, seguridad por rol y CSRF por MockMvc, navegación renderizada por rol, la guarda y el
-seeder de la demo, y el codificador de contraseñas.
+La suite automatizada (228 tests en 17 clases, con JUnit 5, MockMvc y Spring Security Test) cubre:
+
+- servicios de libros, préstamos y usuarios;
+- concurrencia de catálogo y préstamos (bloqueo pesimista);
+- seguridad por rol y CSRF;
+- navegación renderizada por rol y plantillas empaquetadas dentro del JAR;
+- la guarda y el seeder de la demo;
+- el codificador de contraseñas (límite de 72 bytes de BCrypt).
 
 ```bash
 ./mvnw test
 ```
 
-> ⚠️ Los tests **recrean** (DROP + CREATE) las bases `libreriaweb_testsuite` y
-> `libreriaweb_demo_testsuite`. Sus guardas impiden usarlas contra otra base, pero conviene no
-> tener datos propios en esos nombres. Requieren MySQL local activo.
+> ⚠️ Los tests **recrean** (DROP + CREATE) las bases `libreriaweb_testsuite` y `libreriaweb_demo_testsuite` y requieren MySQL local activo. No uses esos nombres para datos propios.
 
-Evidencia disponible, por tipo (no se suman entre sí):
-
-- **Verificación final en clon limpio de `fdedf95` (28/10/2026):** una corrida de
-  `./mvnw -ntp clean package` con tests (sin perfil demo, solo sobre las dos bases de test) en un
-  clon nuevo: **228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos, BUILD SUCCESS, código de
-  salida 0**, leído del archivo de salida y coincidente con la suma de surefire; JAR generado. Ese
-  JAR se ejecutó (perfil `demo`, MariaDB aislada 3307, puerto 8082): 27
-  comprobaciones por rol sin fallos (el smoke de 5 rutas en 200 es una observación de sesión, sin evidencia archivada) y log sin sentencias SQL ni errores (`show-sql=false`). Por HTTP,
-  con sesión `ADMIN` sobre `libreriaweb_demo`, 22 comprobaciones sin fallos: alta de autor y editorial; alta,
-  modificación, baja/alta y eliminación de libro (se intentó eliminar un autor con libro asociado y el sistema lo rechazó; la
-  eliminación de autor y editorial se ejerció además en la limpieza de los registros de prueba); carga, reemplazo y conservación de portadas
-  JPEG y PNG; rechazo de un archivo que no es imagen; rechazo de un POST sin token CSRF; y limpieza
-  de los registros de prueba. Las portadas se validan y recodifican en el servidor, por lo que se
-  comprobaron formato y dimensiones, no igualdad de bytes. No se probaron por el JAR la solicitud ni
-  la devolución de préstamos ni el cierre de sesión (probados a mano por el autor: observación de sesión, sin evidencia archivada). Los commits
-  posteriores a `fdedf95` solo cambian documentación.
-- **Corrida anterior sobre `ac4c77e`:** `./mvnw -ntp clean package` con tests, sin perfil demo, sobre
-  `libreriaweb_testsuite` y `libreriaweb_demo_testsuite`: **228 tests en 17 clases, 0 fallos, 0
-  errores, 0 omitidos, BUILD SUCCESS**. Ejecutada sobre el árbol de trabajo previo al commit
-  `ac4c77e`, que incorpora las correcciones de plantillas y cabeceras. El total de 228 se verificó
-  sumando los reportes de surefire; BUILD SUCCESS lo aportó el autor al leer la salida (el código
-  de salida original de Maven no se recuperó). Incluye la regresión de login con 72 bytes y 6
-  tests nuevos (fragmentos Thymeleaf y cabeceras de seguridad).
-- **Repetición en clon limpio de `ac4c77e`:** una nueva corrida de `clean package` con las mismas
-  condiciones dio 228 tests en 17 clases, 0 fallos, 0 errores, 0 omitidos (suma de surefire) y
-  generó el JAR. En esa corrida no se recuperó el resultado final de Maven (ni «BUILD SUCCESS» ni
-  el código de salida). Es la misma suite, no una suma. Los 29 recursos de texto que difieren en
-  bytes entre ese JAR y el JAR probado por HTTP son idénticos al normalizar solo CRLF/LF; ninguna
-  clase difiere. El JAR del clon no se ejecutó.
-- **Evidencias históricas, que no se suman a la anterior:** suite de 221 tests en 15 clases (antes de
-  la regresión de login) y corrida focalizada de `CsrfProtectionMockMvcTest` con 17 tests; ambas
-  quedan incluidas en los 228.
-- **JAR ejecutable verificado (Windows):** el JAR empaquetado en esa misma corrida arrancó con el
-  perfil `demo` en una instancia MariaDB aislada (puerto 3307, `libreriaweb_demo`): Flyway V1–V4
-  desde un esquema vacío, carga inicial del seeder y comprobación HTTP: páginas públicas y estáticos
-  200, rutas protegidas redirigen al login, cada rol (`ADMIN`, `USUARIO`) accede solo a lo suyo
-  (200 / 403) y todas las respuestas llevan `nosniff`, `X-Frame-Options: DENY` y `Cache-Control:
-  no-store`. Esa prueba fue solo de lectura y control de acceso (las altas, bajas y portadas se
-  probaron después, ver el primer punto). Los tests MockMvc corren desde `target/classes` y no detectaron que todas las páginas fallaban
-  con error 500 dentro del JAR; por eso hay ahora una comprobación específica de las plantillas
-  (`TemplateFragmentReferencesTest`, que empaqueta las plantillas en un JAR temporal) y
-  `scripts/smoke-jar-demo.ps1` para el JAR real.
-- Comprobaciones HTTP sobre la demo y pruebas manuales del flujo principal (observación de sesión, sin evidencia archivada): ver
-  [`docs/DEFENSA_TECNICA.md`](docs/DEFENSA_TECNICA.md). Las pruebas automáticas no validan el
-  aspecto visual. Convención: «observación de sesión, sin evidencia archivada» significa que la comprobación se realizó y se informó, pero no conserva archivo de respaldo; la limitación es la falta de archivo, no que haya fallado.
+**Última verificación (28/10/2026):** build completo en un clon limpio con 228 tests, 0 fallos y BUILD SUCCESS. El JAR resultante se probó por HTTP con el perfil `demo` (control de acceso por rol, CRUD y portadas). El detalle de cada corrida, qué se probó sobre el JAR y qué a mano está en [Defensa técnica §6](docs/DEFENSA_TECNICA.md#6-demo-guardas-y-pruebas).
 
 ## Estado del proyecto
 
-Hecho: empaquetado y `java -jar` contra la demo (ver Tests). Escaneos con herramientas dedicadas
-(gitleaks y OSV-Scanner, ejecutados sobre `ac4c77e` y repetidos el 28/10/2026 sobre un clon limpio de `7241a8f` sin hallazgos nuevos; los commits posteriores solo documentan): dos coincidencias de gitleaks, ambas
-contraseñas de prueba de un test, descartadas como falsos positivos justificados, y avisos de
-dependencias clasificados uno por uno; dentro del alcance auditado no se encontraron secretos
-reales ni evidencia de avisos explotables en la aplicación (no es una afirmación de ausencia). Spring Boot 2.7 y varias bibliotecas tienen avisos con
-corrección solo comercial: son deuda declarada (CVE-2025-22228 y CVE-2026-22732 mitigados por
-controles compensatorios; CVE-2026-40973, de un atacante local en el mismo host, es riesgo residual
-aceptado solo para la demo local, sin extenderlo a un despliegue productivo).
+Proyecto de portfolio, cerrado en su alcance actual: no se prevén nuevas funcionalidades. Antes de desplegarlo, usarlo con datos reales o exponerlo a internet, conviene revisar los avisos de seguridad y actualizar las dependencias compatibles.
 
-Pendiente antes de publicar: nueva verificación si cambia el código tras `fdedf95`; comprobación del renderizado de los diagramas Mermaid en GitHub (los cinco se renderizaron y
-se inspeccionaron visualmente en local: observación de sesión, sin evidencia archivada; las capturas ya están incorporadas); recorrido
-completo por teclado, diferido por decisión del autor (validado parcialmente en el login; no se
-declara cumplimiento de WCAG).
+Se escaneó con gitleaks y OSV-Scanner (28/10/2026) y, dentro del alcance auditado, no se encontraron secretos reales: las dos coincidencias son contraseñas de prueba de un test. Spring Boot 2.7 arrastra avisos cuya corrección solo existe con soporte comercial. CVE-2025-22228 y CVE-2026-22732 están mitigados con controles compensatorios (ver [Seguridad](#seguridad)), CVE-2026-40973 se acepta como riesgo residual solo para la demo local, y el resto se declara como deuda.
 
 ## Límites y decisiones
 
